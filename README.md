@@ -21,6 +21,15 @@ npm run dev      # http://localhost:5173
 npm run build    # production build into dist/
 ```
 
+## Deploy to Netlify
+
+The repo already includes `netlify.toml` (build command `npm run build`, publish folder `dist`, Node 22), so there is nothing to configure by hand:
+
+1. In Netlify choose **Add new site → Import an existing project**, then pick this GitHub repo and branch.
+2. Leave the build settings as Netlify detects them from `netlify.toml`, then click **Deploy**.
+
+Or use the CLI: `npx netlify-cli deploy --build --prod`.
+
 ## Data
 
 | Level | Boundaries | Statistics |
