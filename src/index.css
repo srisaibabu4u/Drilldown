@@ -760,3 +760,32 @@ button.crumb:hover {
     display: none;
   }
 }
+
+.pw-wrap {
+  position: relative;
+}
+.pw-wrap input {
+  width: 100%;
+  padding-right: 44px;
+}
+.pw-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text-secondary);
+}
+.pw-toggle:hover {
+  background: var(--track);
+  color: var(--text-primary);
+}
+.pw-toggle:focus-visible {
+  outline: 2px solid var(--series-1);
+}

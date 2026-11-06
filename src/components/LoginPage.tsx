@@ -6,6 +6,7 @@ export default function LoginPage({ onLogin }: { onLogin: (s: Session) => void }
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [showPw, setShowPw] = useState(false)
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -41,16 +42,33 @@ export default function LoginPage({ onLogin }: { onLogin: (s: Session) => void }
           />
         </label>
 
-        <label className="field">
-          <span>Password</span>
-          <input
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </label>
+        <div className="field">
+          <label htmlFor="login-password">Password</label>
+          <div className="pw-wrap">
+            <input
+              id="login-password"
+              type={showPw ? 'text' : 'password'}
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="pw-toggle"
+              onClick={() => setShowPw((v) => !v)}
+              aria-label={showPw ? 'Hide password' : 'Show password'}
+              aria-pressed={showPw}
+              title={showPw ? 'Hide password' : 'Show password'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                <circle cx="12" cy="12" r="3" />
+                {showPw && <path d="M3 3l18 18" />}
+              </svg>
+            </button>
+          </div>
+        </div>
 
         {error && (
           <div className="login-error" role="alert">
