@@ -3,13 +3,14 @@ import MapView from './components/MapView'
 import StatsPanel from './components/StatsPanel'
 import { VIEW_ORDER, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
+import type { Session } from './auth'
 
 function readHash(): ViewId {
   const h = window.location.hash.replace('#', '') as ViewId
   return VIEW_ORDER.includes(h) ? h : 'india'
 }
 
-export default function App() {
+export default function App({ user, onLogout }: { user: Session; onLogout: () => void }) {
   const [view, setView] = useState<ViewId>(readHash)
   const [selected, setSelected] = useState<Region | undefined>()
   const [theme, setTheme] = useState<'light' | 'dark' | null>(null)
@@ -52,6 +53,12 @@ export default function App() {
           </div>
         </div>
         <div className="top-actions">
+          <span className="user-chip" title={`Signed in as ${user.username}`}>
+            {user.name}
+          </span>
+          <button className="ghost" onClick={onLogout}>
+            Log out
+          </button>
           {view !== 'kukatpally' && (
             <button className="primary" onClick={() => go('kukatpally')}>
               Fly to Kukatpally ✈

@@ -21,6 +21,12 @@ npm run dev      # http://localhost:5173
 npm run build    # production build into dist/
 ```
 
+## Login (temporary)
+
+The app opens on a login page. There is one hard-coded user, `admin`. Its password is stored as a SHA-256 hash in `src/auth.ts`, and that file explains how to add more users.
+
+> ⚠ This is a client-side check only. The site is static, so anyone who reads the JavaScript can get past it. It keeps casual visitors out, but it is not real security. Before putting real data behind it, switch to a proper auth provider such as Netlify Identity, Auth0 or Supabase.
+
 ## Deploy to Netlify
 
 The repo already includes `netlify.toml` (build command `npm run build`, publish folder `dist`, Node 22), so there is nothing to configure by hand:
