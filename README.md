@@ -21,6 +21,21 @@ npm run dev      # http://localhost:5173
 npm run build    # production build into dist/
 ```
 
+## Polling stations (Kukatpally, AC 46)
+
+At the Kukatpally level, the map can show polling station pins. Click a pin to see the station number, building, address, number of electors, ward, and a link to Google Maps. The side panel lists the stations, either for the whole area or for the selected ward, with a search box.
+
+The repo ships **without station data**: `src/data/booths.json` is empty, and the panel says so. To load the real list:
+
+1. Download the AC 46 Kukatpally polling station list from the Chief Electoral Officer, Telangana (ceotelangana.nic.in).
+2. Convert the table to CSV with the columns in `data/booths-template.csv`: `ps_no,name,address,lat,lng,voters`. If the list is a PDF, Tabula works well, or you can open it in Excel or Google Sheets. `lat`, `lng` and `voters` are optional.
+3. Run `npm run import:booths -- path/to/stations.csv --source "CEO Telangana PS list, <year>"`.
+   - Rows without coordinates are looked up on OpenStreetMap (Nominatim), about 1 per second, so 417 stations take roughly 8 to 15 minutes. Results are cached in `scripts/.geocode-cache.json`.
+   - The script lists the stations it could only place approximately (by locality) and any it couldn't find. Add `lat,lng` for those in the CSV and run it again. Rows that already have coordinates are kept exactly as given.
+4. Commit `src/data/booths.json` and push. Netlify redeploys automatically.
+
+Each station is assigned to a ward automatically by its position. Stations outside the 11 mapped wards still appear, with the ward shown as "—".
+
 ## Login (temporary)
 
 The app opens on a login page. There is one hard-coded user, `admin`. Its password is stored as a SHA-256 hash in `src/auth.ts`, and that file explains how to add more users.

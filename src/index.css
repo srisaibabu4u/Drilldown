@@ -789,3 +789,132 @@ button.crumb:hover {
 .pw-toggle:focus-visible {
   outline: 2px solid var(--series-1);
 }
+
+/* Polling booths */
+.booth {
+  cursor: pointer;
+  outline: none;
+}
+.booth-hit {
+  fill: transparent;
+}
+.booth-dot {
+  fill: var(--text-primary);
+  stroke: var(--surface);
+  transition: r 150ms ease;
+}
+.booth.is-approx .booth-dot {
+  fill: var(--surface);
+  stroke: var(--text-primary);
+}
+.booth:hover .booth-dot,
+.booth:focus-visible .booth-dot {
+  fill: var(--accent);
+}
+.booth.is-selected .booth-dot {
+  fill: var(--accent);
+  stroke: var(--surface);
+}
+.tt-addr {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.booth-summary {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+.booth-summary b {
+  color: var(--text-primary);
+}
+.search {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.search:focus {
+  outline: 2px solid var(--series-1);
+  outline-offset: 1px;
+}
+.booth-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.booth-list button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border: 0;
+  background: none;
+  padding: 6px;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 13px;
+}
+.booth-list button:hover {
+  background: var(--surface-2);
+}
+.booth-no {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.booth-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.booth-name {
+  margin-bottom: 4px;
+}
+.booth-addr {
+  margin: 0 0 8px;
+  color: var(--text-secondary);
+}
+.small {
+  font-size: 13px;
+  margin: 0;
+}
+.card .small + .small {
+  margin-top: 6px;
+}
+
+.pin-swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  flex: none;
+}
+.pin-swatch.is-approx {
+  background: var(--surface);
+  border: 1.5px solid var(--text-primary);
+  margin-left: 6px;
+}

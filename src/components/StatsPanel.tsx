@@ -2,17 +2,36 @@ import { useState } from 'react'
 import type { Stats } from '../data/stats'
 import { VIEWS, type Region, type ViewId } from '../geo'
 import { fmtArea, fmtDensity, fmtInt, fmtPct, fmtShort } from '../format'
+import { boothMeta, booths, boothsInWard, searchBooths, type Booth } from '../booths'
 
 interface Props {
   view: ViewId
   selected?: Region
   onClearSelection: () => void
   onPick: (r: Region) => void
+  booth?: Booth
+  onPickBooth: (b: Booth) => void
+  onClearBooth: () => void
+  showBooths: boolean
+  onToggleBooths: (v: boolean) => void
 }
 
 const LANG_COLORS = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 'var(--series-other)']
 
-export default function StatsPanel({ view, selected, onClearSelection, onPick }: Props) {
+export default function StatsPanel(props: Props) {
+  if (props.booth) return <BoothDetail booth={props.booth} onBack={props.onClearBooth} />
+  return <AreaPanel {...props} />
+}
+
+function AreaPanel({
+  view,
+  selected,
+  onClearSelection,
+  onPick,
+  onPickBooth,
+  showBooths,
+  onToggleBooths,
+}: Props) {
   const v = VIEWS[view]
   const stats: Stats | undefined = selected ? selected.stats : v.total
   const area = selected ? selected.areaKm2 : v.areaKm2
@@ -43,6 +62,15 @@ export default function StatsPanel({ view, selected, onClearSelection, onPick }:
         </>
       ) : (
         <p className="muted">No statistics available for this area yet.</p>
+      )}
+
+      {view === 'kukatpally' && (
+        <BoothsCard
+          wardNo={selected?.wardNo}
+          onPick={onPickBooth}
+          show={showBooths}
+          onToggle={onToggleBooths}
+        />
       )}
 
       {!selected && <Ranking view={view} onPick={onPick} />}
@@ -180,6 +208,129 @@ function Ranking({ view, onPick }: { view: ViewId; onPick: (r: Region) => void }
             </button>
           </li>
         ))}
+      </ol>
+    </section>
+  )
+}
+
+function BoothDetail({ booth, onBack }: { booth: Booth; onBack: () => void }) {
+  return (
+    <aside className="panel" aria-live="polite">
+      <div className="panel-head">
+        <div className="kicker">Polling station · AC {boothMeta.ac} {boothMeta.acName}</div>
+        <h2>PS {booth.no}</h2>
+        <div className="sub booth-name">{booth.name}</div>
+        <button className="link-btn" onClick={onBack}>
+          ← Back
+        </button>
+      </div>
+      <section className="card">
+        <h3>Address</h3>
+        <p className="booth-addr">{booth.address || '—'}</p>
+        <a
+          className="link-btn"
+          href={`https://www.google.com/maps/search/?api=1&query=${booth.lat},${booth.lng}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Open in Google Maps ↗
+        </a>
+      </section>
+      <div className="kpis">
+        {booth.voters !== undefined && (
+          <div className="kpi">
+            <div className="kpi-label">Electors</div>
+            <div className="kpi-value">{fmtInt(booth.voters)}</div>
+          </div>
+        )}
+        <div className="kpi">
+          <div className="kpi-label">Ward</div>
+          <div className="kpi-value">{booth.wardNo ?? '—'}</div>
+          {booth.wardNo === undefined && <div className="kpi-hint">outside mapped wards</div>}
+        </div>
+      </div>
+      <section className="card">
+        <h3>Location accuracy</h3>
+        <p className="muted small">
+          {booth.precision === 'manual' && 'Coordinates entered by hand.'}
+          {booth.precision === 'geocoded' && 'Placed by matching the building name and address on OpenStreetMap.'}
+          {booth.precision === 'approx' &&
+            'Approximate: only the locality could be matched, so the pin may be a few hundred metres off.'}
+        </p>
+        {boothMeta.source && (
+          <p className="muted small">
+            Source: {boothMeta.source}
+            {boothMeta.updated && ` · imported ${boothMeta.updated}`}
+          </p>
+        )}
+      </section>
+    </aside>
+  )
+}
+
+function BoothsCard({
+  wardNo,
+  onPick,
+  show,
+  onToggle,
+}: {
+  wardNo?: number
+  onPick: (b: Booth) => void
+  show: boolean
+  onToggle: (v: boolean) => void
+}) {
+  const [q, setQ] = useState('')
+  if (booths.length === 0) {
+    return (
+      <section className="card">
+        <h3>Polling stations</h3>
+        <p className="muted small">Polling station locations for AC {boothMeta.ac} {boothMeta.acName} will appear here once the data is loaded.</p>
+      </section>
+    )
+  }
+  const scope = wardNo !== undefined ? boothsInWard(wardNo) : booths
+  const list = searchBooths(scope, q)
+  const electors = scope.reduce((a, b) => a + (b.voters ?? 0), 0)
+  return (
+    <section className="card">
+      <div className="card-row">
+        <h3>Polling stations {wardNo !== undefined ? 'in this ward' : `· AC ${boothMeta.ac}`}</h3>
+        <label className="switch">
+          <input type="checkbox" checked={show} onChange={(e) => onToggle(e.target.checked)} />
+          <span>Show on map</span>
+        </label>
+      </div>
+      <div className="booth-summary">
+        <b>{fmtInt(scope.length)}</b> stations
+        {electors > 0 && (
+          <>
+            {' '}
+            · <b>{fmtInt(electors)}</b> electors
+          </>
+        )}
+      </div>
+      <input
+        className="search"
+        type="search"
+        placeholder="Search by number, school, street…"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        aria-label="Search polling stations"
+      />
+      <ol className="booth-list">
+        {list.slice(0, 200).map((b) => (
+          <li key={b.no}>
+            <button onClick={() => onPick(b)}>
+              <span className="booth-no">{b.no}</span>
+              <span className="booth-text">
+                {b.name}
+                {b.precision === 'approx' && <span className="muted"> · approx.</span>}
+              </span>
+              {b.voters !== undefined && <span className="rank-val">{fmtShort(b.voters)}</span>}
+            </button>
+          </li>
+        ))}
+        {list.length === 0 && <li className="muted small">No matches.</li>}
       </ol>
     </section>
   )

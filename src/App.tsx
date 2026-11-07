@@ -4,6 +4,7 @@ import StatsPanel from './components/StatsPanel'
 import { VIEW_ORDER, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
 import type { Session } from './auth'
+import { booths, type Booth } from './booths'
 
 function readHash(): ViewId {
   const h = window.location.hash.replace('#', '') as ViewId
@@ -13,12 +14,15 @@ function readHash(): ViewId {
 export default function App({ user, onLogout }: { user: Session; onLogout: () => void }) {
   const [view, setView] = useState<ViewId>(readHash)
   const [selected, setSelected] = useState<Region | undefined>()
+  const [booth, setBooth] = useState<Booth | undefined>()
+  const [showBooths, setShowBooths] = useState(true)
   const [theme, setTheme] = useState<'light' | 'dark' | null>(null)
 
   useEffect(() => {
     const onHash = () => {
       setView(readHash())
       setSelected(undefined)
+      setBooth(undefined)
     }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
@@ -30,6 +34,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
 
   const go = (v: ViewId) => {
     setSelected(undefined)
+    setBooth(undefined)
     if (v !== view) window.location.hash = v
   }
 
@@ -102,11 +107,28 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             <span className="crumb is-current">{selected.name}</span>
           </span>
         )}
+        {booth && (
+          <span className="crumb-wrap">
+            <span className="sep">›</span>
+            <span className="crumb is-current">PS {booth.no}</span>
+          </span>
+        )}
       </nav>
 
       <main className="main">
         <section className="map-area">
-          <MapView view={view} selectedId={selected?.id} onSelect={setSelected} onDrill={(v) => go(v)} />
+          <MapView
+            view={view}
+            selectedId={selected?.id}
+            onSelect={(r) => {
+              setBooth(undefined)
+              setSelected(r)
+            }}
+            onDrill={(v) => go(v)}
+            booths={showBooths || booth ? booths : []}
+            selectedBoothNo={booth?.no}
+            onBoothClick={setBooth}
+          />
 
           {VIEWS[view].parent && (
             <button className="back ghost" onClick={() => go(VIEWS[view].parent!)}>
@@ -129,10 +151,26 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             <div className="legend-hint">
               <span className="hl-swatch" /> Glowing outline = click to zoom in
             </div>
+            {view === 'kukatpally' && showBooths && booths.length > 0 && (
+              <div className="legend-hint">
+                <span className="pin-swatch" /> Polling station
+                <span className="pin-swatch is-approx" /> approx.
+              </div>
+            )}
           </div>
         </section>
 
-        <StatsPanel view={view} selected={selected} onClearSelection={() => setSelected(undefined)} onPick={onPick} />
+        <StatsPanel
+          view={view}
+          selected={selected}
+          onClearSelection={() => setSelected(undefined)}
+          onPick={onPick}
+          booth={booth}
+          onPickBooth={setBooth}
+          onClearBooth={() => setBooth(undefined)}
+          showBooths={showBooths}
+          onToggleBooths={setShowBooths}
+        />
       </main>
 
       <footer className="foot">

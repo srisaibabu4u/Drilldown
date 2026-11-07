@@ -15,13 +15,20 @@ import {
   type ViewId,
 } from '../geo'
 import { densityColor, densityScale, fmtInt, fmtDensity } from '../format'
+import type { Booth } from '../booths'
 
 interface Props {
   view: ViewId
   selectedId?: string
   onSelect: (r: Region) => void
   onDrill: (v: ViewId, from: Region) => void
+  /** Polling booths to draw (Kukatpally level only); empty to hide. */
+  booths: Booth[]
+  selectedBoothNo?: number
+  onBoothClick: (b: Booth) => void
 }
+
+type Hover = { kind: 'region'; r: Region; x: number; y: number } | { kind: 'booth'; b: Booth; x: number; y: number }
 
 interface Size {
   w: number
@@ -55,14 +62,14 @@ function d(r: Region) {
   return p
 }
 
-export default function MapView({ view, selectedId, onSelect, onDrill }: Props) {
+export default function MapView({ view, selectedId, onSelect, onDrill, booths, selectedBoothNo, onBoothClick }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const [size, setSize] = useState<Size>({ w: 800, h: 700 })
   const camRef = useRef<ZoomView | null>(null)
   const [settled, setSettled] = useState<ZoomView | null>(null)
   const [animating, setAnimating] = useState(false)
-  const [hover, setHover] = useState<{ r: Region; x: number; y: number } | null>(null)
+  const [hover, setHover] = useState<Hover | null>(null)
 
   // Track container size.
   useLayoutEffect(() => {
@@ -115,10 +122,11 @@ export default function MapView({ view, selectedId, onSelect, onDrill }: Props) 
   // px -> user units at the settled camera (for label sizes / stroke tweaks)
   const unit = settled ? settled[2] / size.w : 1
 
-  const handleMove = (r: Region) => (e: React.PointerEvent) => {
+  const pointer = (e: React.PointerEvent) => {
     const box = wrapRef.current!.getBoundingClientRect()
-    setHover({ r, x: e.clientX - box.left, y: e.clientY - box.top })
+    return { x: e.clientX - box.left, y: e.clientY - box.top }
   }
+  const handleMove = (r: Region) => (e: React.PointerEvent) => setHover({ kind: 'region', r, ...pointer(e) })
 
   const interactiveProps = (r: Region) => ({
     onPointerMove: handleMove(r),
@@ -149,7 +157,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill }: Props) 
               'region',
               isSel && 'is-selected',
               r.drillTo && 'is-drillable',
-              hover?.r.id === r.id && 'is-hover',
+              hover?.kind === 'region' && hover.r.id === r.id && 'is-hover',
             ]
               .filter(Boolean)
               .join(' ')}
@@ -215,6 +223,36 @@ export default function MapView({ view, selectedId, onSelect, onDrill }: Props) 
             <path key={`hl-${r.id}`} d={d(r)} className="drill-outline" filter="url(#glow)" />
           ))}
 
+        {view === 'kukatpally' && !animating && booths.length > 0 && (
+          <g className="booths">
+            {booths.map((b) => {
+              const sel = b.no === selectedBoothNo
+              return (
+                <g
+                  key={b.no}
+                  className={`booth ${sel ? 'is-selected' : ''} ${b.precision === 'approx' ? 'is-approx' : ''}`}
+                  transform={`translate(${b.x},${b.y})`}
+                  onPointerMove={(e) => setHover({ kind: 'booth', b, ...pointer(e) })}
+                  onPointerLeave={() => setHover(null)}
+                  onClick={() => onBoothClick(b)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Polling station ${b.no}, ${b.name}`}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      onBoothClick(b)
+                    }
+                  }}
+                >
+                  <circle className="booth-hit" r={11 * unit} />
+                  <circle className="booth-dot" r={(sel ? 7 : 4.5) * unit} style={{ strokeWidth: 1.5 * unit }} />
+                </g>
+              )
+            })}
+          </g>
+        )}
+
         <g className="labels" aria-hidden="true">
           {labels.map(({ r, cx, cy, big }) => (
             <text
@@ -248,24 +286,42 @@ export default function MapView({ view, selectedId, onSelect, onDrill }: Props) 
             top: Math.max(8, hover.y - 10),
           }}
         >
-          <div className="tt-title">
-            {hover.r.wardNo ? `Ward ${hover.r.wardNo} · ` : ''}
-            {hover.r.name}
-          </div>
-          {hover.r.stats && (
-            <div className="tt-row">
-              <span>Population</span>
-              <b>{fmtInt(hover.r.stats.population)}</b>
-            </div>
+          {hover.kind === 'booth' ? (
+            <>
+              <div className="tt-title">
+                PS {hover.b.no} · {hover.b.name}
+              </div>
+              <div className="tt-addr">{hover.b.address}</div>
+              {hover.b.voters !== undefined && (
+                <div className="tt-row">
+                  <span>Electors</span>
+                  <b>{fmtInt(hover.b.voters)}</b>
+                </div>
+              )}
+              {hover.b.precision === 'approx' && <div className="tt-note">Approximate location</div>}
+            </>
+          ) : (
+            <>
+              <div className="tt-title">
+                {hover.r.wardNo ? `Ward ${hover.r.wardNo} · ` : ''}
+                {hover.r.name}
+              </div>
+              {hover.r.stats && (
+                <div className="tt-row">
+                  <span>Population</span>
+                  <b>{fmtInt(hover.r.stats.population)}</b>
+                </div>
+              )}
+              {hover.r.stats && (
+                <div className="tt-row">
+                  <span>Density</span>
+                  <b>{fmtDensity(hover.r.stats.population / hover.r.areaKm2)}</b>
+                </div>
+              )}
+              {hover.r.stats?.source === 'sample' && <div className="tt-note">Sample data</div>}
+              {hover.r.drillTo && <div className="tt-cta">Click to zoom in →</div>}
+            </>
           )}
-          {hover.r.stats && (
-            <div className="tt-row">
-              <span>Density</span>
-              <b>{fmtDensity(hover.r.stats.population / hover.r.areaKm2)}</b>
-            </div>
-          )}
-          {hover.r.stats?.source === 'sample' && <div className="tt-note">Sample data</div>}
-          {hover.r.drillTo && <div className="tt-cta">Click to zoom in →</div>}
         </div>
       )}
     </div>
