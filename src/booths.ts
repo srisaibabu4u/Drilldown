@@ -52,7 +52,7 @@ export const booths: Booth[] = file.booths
 export const boothsInWard = (wardNo: number) => booths.filter((b) => b.wardNo === wardNo)
 
 export function searchBooths(list: Booth[], q: string) {
-  const s = q.trim().toLowerCase()
+  const s = q.trim().toLowerCase().replace(/^ps\s*/, '')
   if (!s) return list
   return list.filter(
     (b) => String(b.no) === s || b.name.toLowerCase().includes(s) || b.address.toLowerCase().includes(s),

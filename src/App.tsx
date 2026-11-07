@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import MapView from './components/MapView'
 import StatsPanel from './components/StatsPanel'
+import MapSearch from './components/MapSearch'
 import { VIEW_ORDER, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
 import type { Session } from './auth'
@@ -16,13 +17,20 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const [selected, setSelected] = useState<Region | undefined>()
   const [booth, setBooth] = useState<Booth | undefined>()
   const [showBooths, setShowBooths] = useState(true)
+  // Zoom the camera onto the selected station (set by the map search).
+  const [zoomToBooth, setZoomToBooth] = useState(false)
+  const viewRef = useRef(view)
   const [theme, setTheme] = useState<'light' | 'dark' | null>(null)
 
   useEffect(() => {
     const onHash = () => {
-      setView(readHash())
+      const v = readHash()
+      if (v === viewRef.current) return // we navigated ourselves; state is already set
+      viewRef.current = v
+      setView(v)
       setSelected(undefined)
       setBooth(undefined)
+      setZoomToBooth(false)
     }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
@@ -35,8 +43,27 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const go = (v: ViewId) => {
     setSelected(undefined)
     setBooth(undefined)
-    if (v !== view) window.location.hash = v
+    setZoomToBooth(false)
+    if (v !== view) {
+      viewRef.current = v
+      setView(v)
+      window.location.hash = v
+    }
   }
+
+  const findBooth = (b: Booth) => {
+    if (view !== 'kukatpally') go('kukatpally')
+    setSelected(undefined)
+    setBooth(b)
+    setZoomToBooth(true)
+  }
+
+  const clearBooth = () => {
+    setBooth(undefined)
+    setZoomToBooth(false)
+  }
+
+  const focusSite = booth && zoomToBooth ? siteOf.get(booth.no) : undefined
 
   const onPick = (r: Region) => (r.drillTo ? go(r.drillTo) : setSelected(r))
 
@@ -121,20 +148,31 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             view={view}
             selectedId={selected?.id}
             onSelect={(r) => {
-              setBooth(undefined)
+              clearBooth()
               setSelected(r)
             }}
             onDrill={(v) => go(v)}
             sites={showBooths ? sites : booth ? [siteOf.get(booth.no)!] : []}
             selectedBoothNo={booth?.no}
             onBoothClick={setBooth}
+            onBoothClose={clearBooth}
+            focus={focusSite ? { x: focusSite.x, y: focusSite.y } : undefined}
           />
 
-          {VIEWS[view].parent && (
-            <button className="back ghost" onClick={() => go(VIEWS[view].parent!)}>
-              ← {VIEWS[VIEWS[view].parent!].title}
-            </button>
-          )}
+          <div className="map-top">
+            {zoomToBooth && booth ? (
+              <button className="back ghost" onClick={clearBooth}>
+                ← All of Kukatpally
+              </button>
+            ) : (
+              VIEWS[view].parent && (
+                <button className="back ghost" onClick={() => go(VIEWS[view].parent!)}>
+                  ← {VIEWS[VIEWS[view].parent!].title}
+                </button>
+              )
+            )}
+            <MapSearch onFind={findBooth} />
+          </div>
 
           <div className="map-legend">
             <div className="legend-title">Population density (people / km²)</div>
@@ -171,7 +209,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           onPick={onPick}
           booth={booth}
           onPickBooth={setBooth}
-          onClearBooth={() => setBooth(undefined)}
+          onClearBooth={clearBooth}
           showBooths={showBooths}
           onToggleBooths={setShowBooths}
         />

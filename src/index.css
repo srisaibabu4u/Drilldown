@@ -363,11 +363,22 @@ button.crumb:hover {
   font-weight: 600;
 }
 
-.back {
+.map-top {
   position: absolute;
   top: 14px;
   left: 14px;
-  z-index: 2;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 4;
+}
+.map-top > * {
+  pointer-events: auto;
+}
+.back {
+  flex: none;
 }
 
 /* Legend */
@@ -929,4 +940,139 @@ button.crumb:hover {
 
 .panel-head .badge {
   display: table;
+}
+
+/* Map search */
+.map-search {
+  position: relative;
+  margin-left: auto;
+  width: min(340px, 100%);
+}
+.map-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.map-search input {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  padding: 9px 12px 9px 34px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+}
+.map-search input:focus {
+  outline: 2px solid var(--series-1);
+  outline-offset: 1px;
+}
+.map-search-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  max-height: 360px;
+  overflow-y: auto;
+}
+.map-search-results li {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 7px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.map-search-results li.is-active {
+  background: var(--surface-2);
+}
+.msr-text {
+  display: grid;
+  min-width: 0;
+}
+.msr-name,
+.msr-addr {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.msr-addr {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+li.msr-empty {
+  display: block;
+  color: var(--text-muted);
+  cursor: default;
+}
+
+/* Station tooltip: anchored to the pin, can be hovered */
+.tooltip.is-anchored {
+  pointer-events: auto;
+  transform: translateY(-100%);
+}
+
+/* Pinned popup for the selected station */
+.pin-popup {
+  position: absolute;
+  width: 240px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  transform: translateY(-100%);
+  z-index: 3;
+}
+.pin-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  border: 0;
+  background: none;
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px 6px;
+  color: var(--text-muted);
+}
+.pin-close:hover {
+  color: var(--text-primary);
+}
+.pin-others {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.pin-others button {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 1px 9px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.pin-others button.is-current {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+@media (max-width: 900px) {
+  .map-search input {
+    font-size: 16px; /* stops iOS zooming into the field */
+  }
 }

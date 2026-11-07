@@ -26,6 +26,9 @@ interface Props {
   sites: Site[]
   selectedBoothNo?: number
   onBoothClick: (b: Booth) => void
+  onBoothClose: () => void
+  /** When set, the camera zooms in on this point (virtual units) instead of the whole view. */
+  focus?: { x: number; y: number }
 }
 
 type Hover = { kind: 'region'; r: Region; x: number; y: number } | { kind: 'site'; s: Site; x: number; y: number }
@@ -62,7 +65,7 @@ function d(r: Region) {
   return p
 }
 
-export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothNo, onBoothClick }: Props) {
+export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothNo, onBoothClick, onBoothClose, focus }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const [size, setSize] = useState<Size>({ w: 800, h: 700 })
@@ -70,6 +73,21 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
   const [settled, setSettled] = useState<ZoomView | null>(null)
   const [animating, setAnimating] = useState(false)
   const [hover, setHover] = useState<Hover | null>(null)
+  const hideTimer = useRef<number | undefined>(undefined)
+
+  // Tooltips linger briefly so they can be read (and entered, for station tooltips).
+  const cancelHide = () => window.clearTimeout(hideTimer.current)
+  const scheduleHide = (ms = 450) => {
+    cancelHide()
+    hideTimer.current = window.setTimeout(() => setHover(null), ms)
+  }
+  const hoverRef = useRef<Hover | null>(null)
+  hoverRef.current = hover
+  const show = (h: Hover) => {
+    cancelHide()
+    setHover(h)
+  }
+  useEffect(() => cancelHide, [])
 
   // Track container size.
   useLayoutEffect(() => {
@@ -85,7 +103,9 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
   // Animate the camera whenever the view (or container size) changes.
   useEffect(() => {
     const svg = svgRef.current!
-    const target = cameraFor(view, size)
+    const target: ZoomView = focus
+      ? [focus.x, focus.y, cameraFor('kukatpally', size)[2] / 4]
+      : cameraFor(view, size)
     const from = camRef.current
     if (!from) {
       camRef.current = target
@@ -113,7 +133,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
     }
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [view, size])
+  }, [view, size, focus?.x, focus?.y])
 
   const level = VIEW_ORDER.indexOf(view)
   const active = VIEWS[view].regions
@@ -126,11 +146,25 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
     const box = wrapRef.current!.getBoundingClientRect()
     return { x: e.clientX - box.left, y: e.clientY - box.top }
   }
-  const handleMove = (r: Region) => (e: React.PointerEvent) => setHover({ kind: 'region', r, ...pointer(e) })
+  const handleMove = (r: Region) => (e: React.PointerEvent) => {
+    // A station tooltip keeps priority until it fades, so moving off a small pin
+    // onto the ward underneath doesn't instantly replace it.
+    if (hoverRef.current?.kind === 'site') return
+    show({ kind: 'region', r, ...pointer(e) })
+  }
+
+  /** Screen position (px, relative to the map box) of a point in virtual units. */
+  const toScreen = (x: number, y: number) => {
+    const [cx, cy, w] = camRef.current ?? [0, 0, 1]
+    const k = w / size.w
+    const h = w * (size.h / size.w)
+    return { x: (x - (cx - w / 2)) / k, y: (y - (cy - h / 2)) / k }
+  }
+  const selectedSite = selectedBoothNo !== undefined ? sites.find((s) => s.booths.some((b) => b.no === selectedBoothNo)) : undefined
 
   const interactiveProps = (r: Region) => ({
     onPointerMove: handleMove(r),
-    onPointerLeave: () => setHover(null),
+    onPointerLeave: () => scheduleHide(150),
     onClick: () => (r.drillTo ? onDrill(r.drillTo, r) : onSelect(r)),
     tabIndex: 0,
     role: 'button',
@@ -235,8 +269,10 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
                   key={site.key}
                   className={`booth ${sel ? 'is-selected' : ''} ${first.precision === 'approx' ? 'is-approx' : ''}`}
                   transform={`translate(${site.x},${site.y})`}
-                  onPointerMove={(e) => setHover({ kind: 'site', s: site, ...pointer(e) })}
-                  onPointerLeave={() => setHover(null)}
+                  onPointerEnter={() => {
+                    if (site !== selectedSite) show({ kind: 'site', s: site, ...toScreen(site.x, site.y) })
+                  }}
+                  onPointerLeave={() => scheduleHide()}
                   onClick={open}
                   tabIndex={0}
                   role="button"
@@ -292,11 +328,13 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
 
       {hover && (
         <div
-          className="tooltip"
+          className={`tooltip ${hover.kind === 'site' ? 'is-anchored' : ''}`}
           style={{
-            left: Math.min(hover.x + 14, size.w - 220),
-            top: Math.max(8, hover.y - 10),
+            left: Math.max(8, Math.min(hover.x + 14, size.w - 240)),
+            top: Math.max(8, Math.min(hover.kind === 'site' ? hover.y - 16 : hover.y - 10, size.h - 170)),
           }}
+          onPointerEnter={hover.kind === 'site' ? cancelHide : undefined}
+          onPointerLeave={hover.kind === 'site' ? () => scheduleHide(200) : undefined}
         >
           {hover.kind === 'site' ? (
             <>
@@ -341,6 +379,36 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
           )}
         </div>
       )}
+      {selectedSite && !animating && view === 'kukatpally' && (() => {
+        const p = toScreen(selectedSite.x, selectedSite.y)
+        if (p.x < 0 || p.y < 0 || p.x > size.w || p.y > size.h) return null
+        const sel = selectedSite.booths.find((b) => b.no === selectedBoothNo)!
+        return (
+          <div
+            className="pin-popup"
+            style={{ left: Math.max(8, Math.min(p.x - 120, size.w - 248)), top: Math.max(120, p.y - 14) }}
+          >
+            <button className="pin-close" aria-label="Close" onClick={onBoothClose}>
+              ×
+            </button>
+            <div className="tt-title">PS {sel.no}</div>
+            <div className="tt-addr">{buildingName(sel)}</div>
+            {selectedSite.booths.length > 1 && (
+              <div className="pin-others">
+                {selectedSite.booths.map((b) => (
+                  <button
+                    key={b.no}
+                    className={b.no === sel.no ? 'is-current' : ''}
+                    onClick={() => onBoothClick(b)}
+                  >
+                    {b.no}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      })()}
     </div>
   )
 }
