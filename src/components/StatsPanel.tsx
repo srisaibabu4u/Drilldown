@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Stats } from '../data/stats'
 import { VIEWS, type Region, type ViewId } from '../geo'
 import { fmtArea, fmtDensity, fmtInt, fmtPct, fmtShort } from '../format'
-import { boothMeta, booths, boothsInWard, searchBooths, type Booth } from '../booths'
+import { boothMeta, booths, boothsInWard, searchBooths, siteOf, type Booth } from '../booths'
 
 interface Props {
   view: ViewId
@@ -19,7 +19,7 @@ interface Props {
 const LANG_COLORS = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 'var(--series-other)']
 
 export default function StatsPanel(props: Props) {
-  if (props.booth) return <BoothDetail booth={props.booth} onBack={props.onClearBooth} />
+  if (props.booth) return <BoothDetail booth={props.booth} onBack={props.onClearBooth} onPick={props.onPickBooth} />
   return <AreaPanel {...props} />
 }
 
@@ -213,7 +213,8 @@ function Ranking({ view, onPick }: { view: ViewId; onPick: (r: Region) => void }
   )
 }
 
-function BoothDetail({ booth, onBack }: { booth: Booth; onBack: () => void }) {
+function BoothDetail({ booth, onBack, onPick }: { booth: Booth; onBack: () => void; onPick: (b: Booth) => void }) {
+  const siblings = siteOf.get(booth.no)?.booths.filter((b) => b.no !== booth.no) ?? []
   return (
     <aside className="panel" aria-live="polite">
       <div className="panel-head">
@@ -223,18 +224,21 @@ function BoothDetail({ booth, onBack }: { booth: Booth; onBack: () => void }) {
         <button className="link-btn" onClick={onBack}>
           ← Back
         </button>
+        {boothMeta.synthetic && <SampleBoothBadge />}
       </div>
       <section className="card">
         <h3>Address</h3>
         <p className="booth-addr">{booth.address || '—'}</p>
-        <a
-          className="link-btn"
-          href={`https://www.google.com/maps/search/?api=1&query=${booth.lat},${booth.lng}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Open in Google Maps ↗
-        </a>
+        {!boothMeta.synthetic && (
+          <a
+            className="link-btn"
+            href={`https://www.google.com/maps/search/?api=1&query=${booth.lat},${booth.lng}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open in Google Maps ↗
+          </a>
+        )}
       </section>
       <div className="kpis">
         {booth.voters !== undefined && (
@@ -249,10 +253,27 @@ function BoothDetail({ booth, onBack }: { booth: Booth; onBack: () => void }) {
           {booth.wardNo === undefined && <div className="kpi-hint">outside mapped wards</div>}
         </div>
       </div>
+      {siblings.length > 0 && (
+        <section className="card">
+          <h3>Other stations in this building</h3>
+          <ol className="booth-list">
+            {siblings.map((b) => (
+              <li key={b.no}>
+                <button onClick={() => onPick(b)}>
+                  <span className="booth-no">{b.no}</span>
+                  <span className="booth-text">{b.name}</span>
+                  {b.voters !== undefined && <span className="rank-val">{fmtShort(b.voters)}</span>}
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
       <section className="card">
         <h3>Location accuracy</h3>
         <p className="muted small">
-          {booth.precision === 'manual' && 'Coordinates entered by hand.'}
+          {boothMeta.synthetic && 'Made-up position for demonstration. This is not a real polling station.'}
+          {!boothMeta.synthetic && booth.precision === 'manual' && 'Coordinates entered by hand.'}
           {booth.precision === 'geocoded' && 'Placed by matching the building name and address on OpenStreetMap.'}
           {booth.precision === 'approx' &&
             'Approximate: only the locality could be matched, so the pin may be a few hundred metres off.'}
@@ -300,6 +321,7 @@ function BoothsCard({
           <span>Show on map</span>
         </label>
       </div>
+      {boothMeta.synthetic && <SampleBoothBadge />}
       <div className="booth-summary">
         <b>{fmtInt(scope.length)}</b> stations
         {electors > 0 && (
@@ -333,5 +355,13 @@ function BoothsCard({
         {list.length === 0 && <li className="muted small">No matches.</li>}
       </ol>
     </section>
+  )
+}
+
+function SampleBoothBadge() {
+  return (
+    <div className="badge badge-sample" title="Synthetic stations for demo – replace with the official CEO Telangana list">
+      ⚠ Sample data · not real polling stations
+    </div>
   )
 }

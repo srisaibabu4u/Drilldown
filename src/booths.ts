@@ -23,6 +23,8 @@ export interface Booth {
 interface BoothFile {
   ac: number
   acName: string
+  /** true while the file holds made-up sample stations */
+  synthetic?: boolean
   source: string
   updated: string
   booths: Omit<Booth, 'x' | 'y' | 'wardNo'>[]
@@ -30,7 +32,13 @@ interface BoothFile {
 
 const file = raw as BoothFile
 
-export const boothMeta = { ac: file.ac, acName: file.acName, source: file.source, updated: file.updated }
+export const boothMeta = {
+  ac: file.ac,
+  acName: file.acName,
+  synthetic: !!file.synthetic,
+  source: file.source,
+  updated: file.updated,
+}
 
 export const booths: Booth[] = file.booths
   .filter((b) => Number.isFinite(b.lat) && Number.isFinite(b.lng))
@@ -50,3 +58,25 @@ export function searchBooths(list: Booth[], q: string) {
     (b) => String(b.no) === s || b.name.toLowerCase().includes(s) || b.address.toLowerCase().includes(s),
   )
 }
+
+/** A polling location: one building, possibly hosting several stations (rooms). */
+export interface Site {
+  key: string
+  x: number
+  y: number
+  booths: Booth[]
+}
+
+// Stations within ~10 m of each other are treated as the same building.
+const siteMap = new Map<string, Site>()
+for (const b of booths) {
+  const key = `${b.lat.toFixed(4)},${b.lng.toFixed(4)}`
+  const site = siteMap.get(key)
+  if (site) site.booths.push(b)
+  else siteMap.set(key, { key, x: b.x, y: b.y, booths: [b] })
+}
+export const sites = [...siteMap.values()]
+export const siteOf = new Map(sites.flatMap((s) => s.booths.map((b) => [b.no, s] as const)))
+
+/** Building name without the trailing "(Room n)". */
+export const buildingName = (b: Booth) => b.name.replace(/\s*\(Room\s*\w+\)\s*$/i, '')

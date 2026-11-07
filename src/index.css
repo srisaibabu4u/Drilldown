@@ -918,3 +918,15 @@ button.crumb:hover {
   border: 1.5px solid var(--text-primary);
   margin-left: 6px;
 }
+
+.booth-count {
+  fill: var(--surface);
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.panel-head .badge {
+  display: table;
+}

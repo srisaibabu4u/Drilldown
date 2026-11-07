@@ -15,7 +15,7 @@ import {
   type ViewId,
 } from '../geo'
 import { densityColor, densityScale, fmtInt, fmtDensity } from '../format'
-import type { Booth } from '../booths'
+import { boothMeta, buildingName, type Booth, type Site } from '../booths'
 
 interface Props {
   view: ViewId
@@ -23,12 +23,12 @@ interface Props {
   onSelect: (r: Region) => void
   onDrill: (v: ViewId, from: Region) => void
   /** Polling booths to draw (Kukatpally level only); empty to hide. */
-  booths: Booth[]
+  sites: Site[]
   selectedBoothNo?: number
   onBoothClick: (b: Booth) => void
 }
 
-type Hover = { kind: 'region'; r: Region; x: number; y: number } | { kind: 'booth'; b: Booth; x: number; y: number }
+type Hover = { kind: 'region'; r: Region; x: number; y: number } | { kind: 'site'; s: Site; x: number; y: number }
 
 interface Size {
   w: number
@@ -62,7 +62,7 @@ function d(r: Region) {
   return p
 }
 
-export default function MapView({ view, selectedId, onSelect, onDrill, booths, selectedBoothNo, onBoothClick }: Props) {
+export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothNo, onBoothClick }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const [size, setSize] = useState<Size>({ w: 800, h: 700 })
@@ -223,30 +223,42 @@ export default function MapView({ view, selectedId, onSelect, onDrill, booths, s
             <path key={`hl-${r.id}`} d={d(r)} className="drill-outline" filter="url(#glow)" />
           ))}
 
-        {view === 'kukatpally' && !animating && booths.length > 0 && (
+        {view === 'kukatpally' && !animating && sites.length > 0 && (
           <g className="booths">
-            {booths.map((b) => {
-              const sel = b.no === selectedBoothNo
+            {sites.map((site) => {
+              const first = site.booths[0]
+              const n = site.booths.length
+              const sel = site.booths.some((b) => b.no === selectedBoothNo)
+              const open = () => onBoothClick(first)
               return (
                 <g
-                  key={b.no}
-                  className={`booth ${sel ? 'is-selected' : ''} ${b.precision === 'approx' ? 'is-approx' : ''}`}
-                  transform={`translate(${b.x},${b.y})`}
-                  onPointerMove={(e) => setHover({ kind: 'booth', b, ...pointer(e) })}
+                  key={site.key}
+                  className={`booth ${sel ? 'is-selected' : ''} ${first.precision === 'approx' ? 'is-approx' : ''}`}
+                  transform={`translate(${site.x},${site.y})`}
+                  onPointerMove={(e) => setHover({ kind: 'site', s: site, ...pointer(e) })}
                   onPointerLeave={() => setHover(null)}
-                  onClick={() => onBoothClick(b)}
+                  onClick={open}
                   tabIndex={0}
                   role="button"
-                  aria-label={`Polling station ${b.no}, ${b.name}`}
+                  aria-label={`${buildingName(first)}, ${n} polling station${n > 1 ? 's' : ''}`}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
-                      onBoothClick(b)
+                      open()
                     }
                   }}
                 >
                   <circle className="booth-hit" r={11 * unit} />
-                  <circle className="booth-dot" r={(sel ? 7 : 4.5) * unit} style={{ strokeWidth: 1.5 * unit }} />
+                  <circle
+                    className="booth-dot"
+                    r={(n > 1 ? 7.5 : sel ? 6 : 4.5) * unit}
+                    style={{ strokeWidth: 1.5 * unit }}
+                  />
+                  {n > 1 && (
+                    <text className="booth-count" style={{ fontSize: 9 * unit }}>
+                      {n}
+                    </text>
+                  )}
                 </g>
               )
             })}
@@ -286,19 +298,24 @@ export default function MapView({ view, selectedId, onSelect, onDrill, booths, s
             top: Math.max(8, hover.y - 10),
           }}
         >
-          {hover.kind === 'booth' ? (
+          {hover.kind === 'site' ? (
             <>
-              <div className="tt-title">
-                PS {hover.b.no} · {hover.b.name}
+              <div className="tt-title">{buildingName(hover.s.booths[0])}</div>
+              <div className="tt-addr">{hover.s.booths[0].address}</div>
+              <div className="tt-row">
+                <span>{hover.s.booths.length > 1 ? 'Stations' : 'Station'}</span>
+                <b>PS {hover.s.booths.map((b) => b.no).join(', ')}</b>
               </div>
-              <div className="tt-addr">{hover.b.address}</div>
-              {hover.b.voters !== undefined && (
+              {hover.s.booths.some((b) => b.voters !== undefined) && (
                 <div className="tt-row">
                   <span>Electors</span>
-                  <b>{fmtInt(hover.b.voters)}</b>
+                  <b>{fmtInt(hover.s.booths.reduce((a, b) => a + (b.voters ?? 0), 0))}</b>
                 </div>
               )}
-              {hover.b.precision === 'approx' && <div className="tt-note">Approximate location</div>}
+              {boothMeta.synthetic && <div className="tt-note">Sample data · not a real station</div>}
+              {!boothMeta.synthetic && hover.s.booths[0].precision === 'approx' && (
+                <div className="tt-note">Approximate location</div>
+              )}
             </>
           ) : (
             <>

@@ -109,7 +109,7 @@ for (const r of rows) {
   process.stdout.write(`\r${out.length}/${rows.length} located`)
 }
 
-writeFileSync(OUT, JSON.stringify({ ac: 46, acName: 'Kukatpally', source, updated: new Date().toISOString().slice(0, 10), booths: out }, null, 1) + '\n')
+writeFileSync(OUT, JSON.stringify({ ac: 46, acName: 'Kukatpally', synthetic: false, source, updated: new Date().toISOString().slice(0, 10), booths: out }, null, 1) + '\n')
 const approx = out.filter((b) => b.precision === 'approx').map((b) => b.no)
 console.log(`\nWrote ${out.length} booths to ${OUT}`)
 if (approx.length) console.log(`Approximate (locality only), check by hand: ${approx.join(', ')}`)

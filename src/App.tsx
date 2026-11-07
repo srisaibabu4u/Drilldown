@@ -4,7 +4,7 @@ import StatsPanel from './components/StatsPanel'
 import { VIEW_ORDER, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
 import type { Session } from './auth'
-import { booths, type Booth } from './booths'
+import { boothMeta, booths, siteOf, sites, type Booth } from './booths'
 
 function readHash(): ViewId {
   const h = window.location.hash.replace('#', '') as ViewId
@@ -125,7 +125,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
               setSelected(r)
             }}
             onDrill={(v) => go(v)}
-            booths={showBooths || booth ? booths : []}
+            sites={showBooths ? sites : booth ? [siteOf.get(booth.no)!] : []}
             selectedBoothNo={booth?.no}
             onBoothClick={setBooth}
           />
@@ -153,8 +153,12 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             </div>
             {view === 'kukatpally' && showBooths && booths.length > 0 && (
               <div className="legend-hint">
-                <span className="pin-swatch" /> Polling station
-                <span className="pin-swatch is-approx" /> approx.
+                <span className="pin-swatch" /> Polling station{boothMeta.synthetic ? ' (sample)' : ''}
+                {!boothMeta.synthetic && (
+                  <>
+                    <span className="pin-swatch is-approx" /> approx.
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -175,7 +179,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
 
       <footer className="foot">
         Boundaries: Census-based district maps (udit-001/india-maps-data), GHMC wards from OpenStreetMap via
-        DataMeet. State & district figures: Census of India 2011. Ward-level figures are illustrative samples.
+        DataMeet. State & district figures: Census of India 2011. Ward-level figures{boothMeta.synthetic ? ' and polling stations' : ''} are illustrative samples.
       </footer>
     </div>
   )

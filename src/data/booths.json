@@ -1,7 +1,3762 @@
 {
-  "ac": 46,
-  "acName": "Kukatpally",
-  "source": "",
-  "updated": "",
-  "booths": []
+ "ac": 46,
+ "acName": "Kukatpally",
+ "synthetic": true,
+ "source": "Synthetic sample data (not real polling stations)",
+ "updated": "2026-11-07",
+ "booths": [
+  {
+   "no": 1,
+   "name": "Anganwadi Centre, KPHB Colony (Room 1)",
+   "address": "Main Road, KPHB Colony, Hyderabad",
+   "lat": 17.497562,
+   "lng": 78.385972,
+   "voters": 728,
+   "precision": "manual"
+  },
+  {
+   "no": 2,
+   "name": "Anganwadi Centre, KPHB Colony (Room 2)",
+   "address": "Main Road, KPHB Colony, Hyderabad",
+   "lat": 17.497562,
+   "lng": 78.385972,
+   "voters": 967,
+   "precision": "manual"
+  },
+  {
+   "no": 3,
+   "name": "Anganwadi Centre, KPHB Colony (Room 3)",
+   "address": "Main Road, KPHB Colony, Hyderabad",
+   "lat": 17.497562,
+   "lng": 78.385972,
+   "voters": 1353,
+   "precision": "manual"
+  },
+  {
+   "no": 4,
+   "name": "Anganwadi Centre, KPHB Colony (Room 4)",
+   "address": "Main Road, KPHB Colony, Hyderabad",
+   "lat": 17.497562,
+   "lng": 78.385972,
+   "voters": 1155,
+   "precision": "manual"
+  },
+  {
+   "no": 5,
+   "name": "Govt. Junior College, KPHB Colony (Room 1)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.496188,
+   "lng": 78.388438,
+   "voters": 901,
+   "precision": "manual"
+  },
+  {
+   "no": 6,
+   "name": "Govt. Junior College, KPHB Colony (Room 2)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.496188,
+   "lng": 78.388438,
+   "voters": 1266,
+   "precision": "manual"
+  },
+  {
+   "no": 7,
+   "name": "Govt. Junior College, KPHB Colony (Room 3)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.496188,
+   "lng": 78.388438,
+   "voters": 1118,
+   "precision": "manual"
+  },
+  {
+   "no": 8,
+   "name": "Govt. Junior College, KPHB Colony (Room 4)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.496188,
+   "lng": 78.388438,
+   "voters": 870,
+   "precision": "manual"
+  },
+  {
+   "no": 9,
+   "name": "Ward Office Building, KPHB Colony (Room 1)",
+   "address": "Cross Road, KPHB Colony, Hyderabad",
+   "lat": 17.49559,
+   "lng": 78.378964,
+   "voters": 1084,
+   "precision": "manual"
+  },
+  {
+   "no": 10,
+   "name": "Ward Office Building, KPHB Colony (Room 2)",
+   "address": "Cross Road, KPHB Colony, Hyderabad",
+   "lat": 17.49559,
+   "lng": 78.378964,
+   "voters": 1043,
+   "precision": "manual"
+  },
+  {
+   "no": 11,
+   "name": "Ward Office Building, KPHB Colony (Room 3)",
+   "address": "Cross Road, KPHB Colony, Hyderabad",
+   "lat": 17.49559,
+   "lng": 78.378964,
+   "voters": 1078,
+   "precision": "manual"
+  },
+  {
+   "no": 12,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 1)",
+   "address": "Road No. 1, KPHB Colony, Hyderabad",
+   "lat": 17.495157,
+   "lng": 78.372979,
+   "voters": 743,
+   "precision": "manual"
+  },
+  {
+   "no": 13,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 2)",
+   "address": "Road No. 1, KPHB Colony, Hyderabad",
+   "lat": 17.495157,
+   "lng": 78.372979,
+   "voters": 791,
+   "precision": "manual"
+  },
+  {
+   "no": 14,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 3)",
+   "address": "Road No. 1, KPHB Colony, Hyderabad",
+   "lat": 17.495157,
+   "lng": 78.372979,
+   "voters": 1321,
+   "precision": "manual"
+  },
+  {
+   "no": 15,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 4)",
+   "address": "Road No. 1, KPHB Colony, Hyderabad",
+   "lat": 17.495157,
+   "lng": 78.372979,
+   "voters": 1153,
+   "precision": "manual"
+  },
+  {
+   "no": 16,
+   "name": "Ward Office Building, KPHB Colony",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.494805,
+   "lng": 78.393639,
+   "voters": 1245,
+   "precision": "manual"
+  },
+  {
+   "no": 17,
+   "name": "GHMC Community Hall, KPHB Colony (Room 1)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.494103,
+   "lng": 78.388825,
+   "voters": 1255,
+   "precision": "manual"
+  },
+  {
+   "no": 18,
+   "name": "GHMC Community Hall, KPHB Colony (Room 2)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.494103,
+   "lng": 78.388825,
+   "voters": 922,
+   "precision": "manual"
+  },
+  {
+   "no": 19,
+   "name": "GHMC Community Hall, KPHB Colony (Room 3)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.494103,
+   "lng": 78.388825,
+   "voters": 779,
+   "precision": "manual"
+  },
+  {
+   "no": 20,
+   "name": "GHMC Community Hall, KPHB Colony (Room 4)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.494103,
+   "lng": 78.388825,
+   "voters": 832,
+   "precision": "manual"
+  },
+  {
+   "no": 21,
+   "name": "Govt. Junior College, KPHB Colony",
+   "address": "Cross Road, KPHB Colony, Hyderabad",
+   "lat": 17.493716,
+   "lng": 78.388869,
+   "voters": 1230,
+   "precision": "manual"
+  },
+  {
+   "no": 22,
+   "name": "Govt. High School, KPHB Colony (Room 1)",
+   "address": "Main Road, KPHB Colony, Hyderabad",
+   "lat": 17.49341,
+   "lng": 78.378118,
+   "voters": 926,
+   "precision": "manual"
+  },
+  {
+   "no": 23,
+   "name": "Govt. High School, KPHB Colony (Room 2)",
+   "address": "Main Road, KPHB Colony, Hyderabad",
+   "lat": 17.49341,
+   "lng": 78.378118,
+   "voters": 1217,
+   "precision": "manual"
+  },
+  {
+   "no": 24,
+   "name": "Govt. High School, KPHB Colony (Room 3)",
+   "address": "Main Road, KPHB Colony, Hyderabad",
+   "lat": 17.49341,
+   "lng": 78.378118,
+   "voters": 1446,
+   "precision": "manual"
+  },
+  {
+   "no": 25,
+   "name": "Govt. High School, KPHB Colony (Room 4)",
+   "address": "Main Road, KPHB Colony, Hyderabad",
+   "lat": 17.49341,
+   "lng": 78.378118,
+   "voters": 1029,
+   "precision": "manual"
+  },
+  {
+   "no": 26,
+   "name": "Govt. Primary School, KPHB Colony (Room 1)",
+   "address": "Cross Road, KPHB Colony, Hyderabad",
+   "lat": 17.492072,
+   "lng": 78.379363,
+   "voters": 1132,
+   "precision": "manual"
+  },
+  {
+   "no": 27,
+   "name": "Govt. Primary School, KPHB Colony (Room 2)",
+   "address": "Cross Road, KPHB Colony, Hyderabad",
+   "lat": 17.492072,
+   "lng": 78.379363,
+   "voters": 1002,
+   "precision": "manual"
+  },
+  {
+   "no": 28,
+   "name": "Govt. Primary School, KPHB Colony (Room 3)",
+   "address": "Cross Road, KPHB Colony, Hyderabad",
+   "lat": 17.492072,
+   "lng": 78.379363,
+   "voters": 1443,
+   "precision": "manual"
+  },
+  {
+   "no": 29,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 1)",
+   "address": "Road No. 3, KPHB Colony, Hyderabad",
+   "lat": 17.491833,
+   "lng": 78.391842,
+   "voters": 753,
+   "precision": "manual"
+  },
+  {
+   "no": 30,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 2)",
+   "address": "Road No. 3, KPHB Colony, Hyderabad",
+   "lat": 17.491833,
+   "lng": 78.391842,
+   "voters": 953,
+   "precision": "manual"
+  },
+  {
+   "no": 31,
+   "name": "Mandal Parishad Primary School, KPHB Colony (Room 1)",
+   "address": "Road No. 3, KPHB Colony, Hyderabad",
+   "lat": 17.48926,
+   "lng": 78.39335,
+   "voters": 986,
+   "precision": "manual"
+  },
+  {
+   "no": 32,
+   "name": "Mandal Parishad Primary School, KPHB Colony (Room 2)",
+   "address": "Road No. 3, KPHB Colony, Hyderabad",
+   "lat": 17.48926,
+   "lng": 78.39335,
+   "voters": 1165,
+   "precision": "manual"
+  },
+  {
+   "no": 33,
+   "name": "GHMC Community Hall, KPHB Colony (Room 1)",
+   "address": "Cross Road, KPHB Colony, Hyderabad",
+   "lat": 17.488031,
+   "lng": 78.375973,
+   "voters": 987,
+   "precision": "manual"
+  },
+  {
+   "no": 34,
+   "name": "GHMC Community Hall, KPHB Colony (Room 2)",
+   "address": "Cross Road, KPHB Colony, Hyderabad",
+   "lat": 17.488031,
+   "lng": 78.375973,
+   "voters": 895,
+   "precision": "manual"
+  },
+  {
+   "no": 35,
+   "name": "GHMC Community Hall, KPHB Colony",
+   "address": "Road No. 3, KPHB Colony, Hyderabad",
+   "lat": 17.484932,
+   "lng": 78.391067,
+   "voters": 1090,
+   "precision": "manual"
+  },
+  {
+   "no": 36,
+   "name": "GHMC Community Hall, KPHB Colony (Room 1)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.484251,
+   "lng": 78.381252,
+   "voters": 745,
+   "precision": "manual"
+  },
+  {
+   "no": 37,
+   "name": "GHMC Community Hall, KPHB Colony (Room 2)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.484251,
+   "lng": 78.381252,
+   "voters": 1054,
+   "precision": "manual"
+  },
+  {
+   "no": 38,
+   "name": "GHMC Community Hall, KPHB Colony (Room 3)",
+   "address": "Colony Road, KPHB Colony, Hyderabad",
+   "lat": 17.484251,
+   "lng": 78.381252,
+   "voters": 1268,
+   "precision": "manual"
+  },
+  {
+   "no": 39,
+   "name": "GHMC Community Hall, KPHB Colony (Room 1)",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.483435,
+   "lng": 78.386198,
+   "voters": 996,
+   "precision": "manual"
+  },
+  {
+   "no": 40,
+   "name": "GHMC Community Hall, KPHB Colony (Room 2)",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.483435,
+   "lng": 78.386198,
+   "voters": 1214,
+   "precision": "manual"
+  },
+  {
+   "no": 41,
+   "name": "GHMC Community Hall, KPHB Colony (Room 3)",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.483435,
+   "lng": 78.386198,
+   "voters": 954,
+   "precision": "manual"
+  },
+  {
+   "no": 42,
+   "name": "GHMC Community Hall, KPHB Colony (Room 1)",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.48264,
+   "lng": 78.387702,
+   "voters": 754,
+   "precision": "manual"
+  },
+  {
+   "no": 43,
+   "name": "GHMC Community Hall, KPHB Colony (Room 2)",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.48264,
+   "lng": 78.387702,
+   "voters": 1163,
+   "precision": "manual"
+  },
+  {
+   "no": 44,
+   "name": "GHMC Community Hall, KPHB Colony (Room 3)",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.48264,
+   "lng": 78.387702,
+   "voters": 1105,
+   "precision": "manual"
+  },
+  {
+   "no": 45,
+   "name": "GHMC Community Hall, KPHB Colony (Room 4)",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.48264,
+   "lng": 78.387702,
+   "voters": 818,
+   "precision": "manual"
+  },
+  {
+   "no": 46,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 1)",
+   "address": "Road No. 1, KPHB Colony, Hyderabad",
+   "lat": 17.482077,
+   "lng": 78.392553,
+   "voters": 1192,
+   "precision": "manual"
+  },
+  {
+   "no": 47,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 2)",
+   "address": "Road No. 1, KPHB Colony, Hyderabad",
+   "lat": 17.482077,
+   "lng": 78.392553,
+   "voters": 778,
+   "precision": "manual"
+  },
+  {
+   "no": 48,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 3)",
+   "address": "Road No. 1, KPHB Colony, Hyderabad",
+   "lat": 17.482077,
+   "lng": 78.392553,
+   "voters": 1374,
+   "precision": "manual"
+  },
+  {
+   "no": 49,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 4)",
+   "address": "Road No. 1, KPHB Colony, Hyderabad",
+   "lat": 17.482077,
+   "lng": 78.392553,
+   "voters": 1109,
+   "precision": "manual"
+  },
+  {
+   "no": 50,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 1)",
+   "address": "Road No. 3, KPHB Colony, Hyderabad",
+   "lat": 17.482069,
+   "lng": 78.371967,
+   "voters": 903,
+   "precision": "manual"
+  },
+  {
+   "no": 51,
+   "name": "Zilla Parishad High School, KPHB Colony (Room 2)",
+   "address": "Road No. 3, KPHB Colony, Hyderabad",
+   "lat": 17.482069,
+   "lng": 78.371967,
+   "voters": 774,
+   "precision": "manual"
+  },
+  {
+   "no": 52,
+   "name": "Govt. High School, KPHB Colony (Room 1)",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.481765,
+   "lng": 78.387429,
+   "voters": 1265,
+   "precision": "manual"
+  },
+  {
+   "no": 53,
+   "name": "Govt. High School, KPHB Colony (Room 2)",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.481765,
+   "lng": 78.387429,
+   "voters": 1139,
+   "precision": "manual"
+  },
+  {
+   "no": 54,
+   "name": "Govt. High School, KPHB Colony (Room 3)",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.481765,
+   "lng": 78.387429,
+   "voters": 1447,
+   "precision": "manual"
+  },
+  {
+   "no": 55,
+   "name": "Zilla Parishad High School, KPHB Colony",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.481258,
+   "lng": 78.379391,
+   "voters": 1046,
+   "precision": "manual"
+  },
+  {
+   "no": 56,
+   "name": "Govt. Primary School, KPHB Colony (Room 1)",
+   "address": "Park Road, KPHB Colony, Hyderabad",
+   "lat": 17.480626,
+   "lng": 78.386037,
+   "voters": 804,
+   "precision": "manual"
+  },
+  {
+   "no": 57,
+   "name": "Govt. Primary School, KPHB Colony (Room 2)",
+   "address": "Park Road, KPHB Colony, Hyderabad",
+   "lat": 17.480626,
+   "lng": 78.386037,
+   "voters": 791,
+   "precision": "manual"
+  },
+  {
+   "no": 58,
+   "name": "Govt. Primary School, KPHB Colony",
+   "address": "Road No. 5, KPHB Colony, Hyderabad",
+   "lat": 17.479465,
+   "lng": 78.386345,
+   "voters": 762,
+   "precision": "manual"
+  },
+  {
+   "no": 59,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 1)",
+   "address": "Park Road, Balaji Nagar, Hyderabad",
+   "lat": 17.492616,
+   "lng": 78.402077,
+   "voters": 923,
+   "precision": "manual"
+  },
+  {
+   "no": 60,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 2)",
+   "address": "Park Road, Balaji Nagar, Hyderabad",
+   "lat": 17.492616,
+   "lng": 78.402077,
+   "voters": 1085,
+   "precision": "manual"
+  },
+  {
+   "no": 61,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 3)",
+   "address": "Park Road, Balaji Nagar, Hyderabad",
+   "lat": 17.492616,
+   "lng": 78.402077,
+   "voters": 908,
+   "precision": "manual"
+  },
+  {
+   "no": 62,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 4)",
+   "address": "Park Road, Balaji Nagar, Hyderabad",
+   "lat": 17.492616,
+   "lng": 78.402077,
+   "voters": 858,
+   "precision": "manual"
+  },
+  {
+   "no": 63,
+   "name": "Govt. Primary School, Balaji Nagar (Room 1)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.49055,
+   "lng": 78.395049,
+   "voters": 831,
+   "precision": "manual"
+  },
+  {
+   "no": 64,
+   "name": "Govt. Primary School, Balaji Nagar (Room 2)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.49055,
+   "lng": 78.395049,
+   "voters": 906,
+   "precision": "manual"
+  },
+  {
+   "no": 65,
+   "name": "Govt. Primary School, Balaji Nagar (Room 3)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.49055,
+   "lng": 78.395049,
+   "voters": 782,
+   "precision": "manual"
+  },
+  {
+   "no": 66,
+   "name": "Govt. Primary School, Balaji Nagar (Room 4)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.49055,
+   "lng": 78.395049,
+   "voters": 822,
+   "precision": "manual"
+  },
+  {
+   "no": 67,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 1)",
+   "address": "Park Road, Balaji Nagar, Hyderabad",
+   "lat": 17.488982,
+   "lng": 78.396891,
+   "voters": 1077,
+   "precision": "manual"
+  },
+  {
+   "no": 68,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 2)",
+   "address": "Park Road, Balaji Nagar, Hyderabad",
+   "lat": 17.488982,
+   "lng": 78.396891,
+   "voters": 916,
+   "precision": "manual"
+  },
+  {
+   "no": 69,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 3)",
+   "address": "Park Road, Balaji Nagar, Hyderabad",
+   "lat": 17.488982,
+   "lng": 78.396891,
+   "voters": 831,
+   "precision": "manual"
+  },
+  {
+   "no": 70,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 4)",
+   "address": "Park Road, Balaji Nagar, Hyderabad",
+   "lat": 17.488982,
+   "lng": 78.396891,
+   "voters": 735,
+   "precision": "manual"
+  },
+  {
+   "no": 71,
+   "name": "Govt. High School, Balaji Nagar",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.488034,
+   "lng": 78.39667,
+   "voters": 799,
+   "precision": "manual"
+  },
+  {
+   "no": 72,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 1)",
+   "address": "Road No. 5, Balaji Nagar, Hyderabad",
+   "lat": 17.487126,
+   "lng": 78.397509,
+   "voters": 752,
+   "precision": "manual"
+  },
+  {
+   "no": 73,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 2)",
+   "address": "Road No. 5, Balaji Nagar, Hyderabad",
+   "lat": 17.487126,
+   "lng": 78.397509,
+   "voters": 1296,
+   "precision": "manual"
+  },
+  {
+   "no": 74,
+   "name": "GHMC Community Hall, Balaji Nagar (Room 3)",
+   "address": "Road No. 5, Balaji Nagar, Hyderabad",
+   "lat": 17.487126,
+   "lng": 78.397509,
+   "voters": 1109,
+   "precision": "manual"
+  },
+  {
+   "no": 75,
+   "name": "Ward Office Building, Balaji Nagar (Room 1)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.486661,
+   "lng": 78.406497,
+   "voters": 1251,
+   "precision": "manual"
+  },
+  {
+   "no": 76,
+   "name": "Ward Office Building, Balaji Nagar (Room 2)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.486661,
+   "lng": 78.406497,
+   "voters": 859,
+   "precision": "manual"
+  },
+  {
+   "no": 77,
+   "name": "Ward Office Building, Balaji Nagar (Room 3)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.486661,
+   "lng": 78.406497,
+   "voters": 1047,
+   "precision": "manual"
+  },
+  {
+   "no": 78,
+   "name": "GHMC Community Hall, Balaji Nagar",
+   "address": "Main Road, Balaji Nagar, Hyderabad",
+   "lat": 17.485996,
+   "lng": 78.407217,
+   "voters": 1347,
+   "precision": "manual"
+  },
+  {
+   "no": 79,
+   "name": "Ward Office Building, Balaji Nagar (Room 1)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.485344,
+   "lng": 78.401654,
+   "voters": 1280,
+   "precision": "manual"
+  },
+  {
+   "no": 80,
+   "name": "Ward Office Building, Balaji Nagar (Room 2)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.485344,
+   "lng": 78.401654,
+   "voters": 1317,
+   "precision": "manual"
+  },
+  {
+   "no": 81,
+   "name": "Ward Office Building, Balaji Nagar (Room 3)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.485344,
+   "lng": 78.401654,
+   "voters": 1036,
+   "precision": "manual"
+  },
+  {
+   "no": 82,
+   "name": "Ward Office Building, Balaji Nagar",
+   "address": "Park Road, Balaji Nagar, Hyderabad",
+   "lat": 17.483401,
+   "lng": 78.399976,
+   "voters": 1362,
+   "precision": "manual"
+  },
+  {
+   "no": 83,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 1)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.483207,
+   "lng": 78.400964,
+   "voters": 1302,
+   "precision": "manual"
+  },
+  {
+   "no": 84,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 2)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.483207,
+   "lng": 78.400964,
+   "voters": 796,
+   "precision": "manual"
+  },
+  {
+   "no": 85,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 3)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.483207,
+   "lng": 78.400964,
+   "voters": 707,
+   "precision": "manual"
+  },
+  {
+   "no": 86,
+   "name": "Govt. Primary School, Balaji Nagar (Room 1)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.481731,
+   "lng": 78.408316,
+   "voters": 1242,
+   "precision": "manual"
+  },
+  {
+   "no": 87,
+   "name": "Govt. Primary School, Balaji Nagar (Room 2)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.481731,
+   "lng": 78.408316,
+   "voters": 876,
+   "precision": "manual"
+  },
+  {
+   "no": 88,
+   "name": "Govt. Primary School, Balaji Nagar (Room 3)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.481731,
+   "lng": 78.408316,
+   "voters": 725,
+   "precision": "manual"
+  },
+  {
+   "no": 89,
+   "name": "GHMC Community Hall, Balaji Nagar",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.480563,
+   "lng": 78.406081,
+   "voters": 1126,
+   "precision": "manual"
+  },
+  {
+   "no": 90,
+   "name": "Ward Office Building, Balaji Nagar",
+   "address": "Road No. 3, Balaji Nagar, Hyderabad",
+   "lat": 17.479219,
+   "lng": 78.40742,
+   "voters": 1058,
+   "precision": "manual"
+  },
+  {
+   "no": 91,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 1)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.478722,
+   "lng": 78.415855,
+   "voters": 1183,
+   "precision": "manual"
+  },
+  {
+   "no": 92,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 2)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.478722,
+   "lng": 78.415855,
+   "voters": 810,
+   "precision": "manual"
+  },
+  {
+   "no": 93,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 3)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.478722,
+   "lng": 78.415855,
+   "voters": 1309,
+   "precision": "manual"
+  },
+  {
+   "no": 94,
+   "name": "Govt. Junior College, Balaji Nagar (Room 1)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.477762,
+   "lng": 78.420495,
+   "voters": 928,
+   "precision": "manual"
+  },
+  {
+   "no": 95,
+   "name": "Govt. Junior College, Balaji Nagar (Room 2)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.477762,
+   "lng": 78.420495,
+   "voters": 725,
+   "precision": "manual"
+  },
+  {
+   "no": 96,
+   "name": "Govt. Junior College, Balaji Nagar (Room 3)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.477762,
+   "lng": 78.420495,
+   "voters": 1385,
+   "precision": "manual"
+  },
+  {
+   "no": 97,
+   "name": "Zilla Parishad High School, Balaji Nagar",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.476959,
+   "lng": 78.414256,
+   "voters": 1345,
+   "precision": "manual"
+  },
+  {
+   "no": 98,
+   "name": "Mandal Parishad Primary School, Balaji Nagar",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.47691,
+   "lng": 78.421568,
+   "voters": 1012,
+   "precision": "manual"
+  },
+  {
+   "no": 99,
+   "name": "Ward Office Building, Balaji Nagar",
+   "address": "Road No. 5, Balaji Nagar, Hyderabad",
+   "lat": 17.476764,
+   "lng": 78.419948,
+   "voters": 1449,
+   "precision": "manual"
+  },
+  {
+   "no": 100,
+   "name": "GHMC Community Hall, Balaji Nagar",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.476528,
+   "lng": 78.400609,
+   "voters": 1160,
+   "precision": "manual"
+  },
+  {
+   "no": 101,
+   "name": "Govt. Junior College, Balaji Nagar (Room 1)",
+   "address": "Main Road, Balaji Nagar, Hyderabad",
+   "lat": 17.4764,
+   "lng": 78.402011,
+   "voters": 800,
+   "precision": "manual"
+  },
+  {
+   "no": 102,
+   "name": "Govt. Junior College, Balaji Nagar (Room 2)",
+   "address": "Main Road, Balaji Nagar, Hyderabad",
+   "lat": 17.4764,
+   "lng": 78.402011,
+   "voters": 1130,
+   "precision": "manual"
+  },
+  {
+   "no": 103,
+   "name": "GHMC Community Hall, Balaji Nagar",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.476275,
+   "lng": 78.419253,
+   "voters": 856,
+   "precision": "manual"
+  },
+  {
+   "no": 104,
+   "name": "Zilla Parishad High School, Balaji Nagar",
+   "address": "Cross Road, Balaji Nagar, Hyderabad",
+   "lat": 17.47491,
+   "lng": 78.396775,
+   "voters": 1358,
+   "precision": "manual"
+  },
+  {
+   "no": 105,
+   "name": "Govt. Primary School, Balaji Nagar (Room 1)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.474696,
+   "lng": 78.422593,
+   "voters": 1274,
+   "precision": "manual"
+  },
+  {
+   "no": 106,
+   "name": "Govt. Primary School, Balaji Nagar (Room 2)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.474696,
+   "lng": 78.422593,
+   "voters": 1122,
+   "precision": "manual"
+  },
+  {
+   "no": 107,
+   "name": "Govt. Primary School, Balaji Nagar (Room 3)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.474696,
+   "lng": 78.422593,
+   "voters": 1152,
+   "precision": "manual"
+  },
+  {
+   "no": 108,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 1)",
+   "address": "Road No. 5, Balaji Nagar, Hyderabad",
+   "lat": 17.474159,
+   "lng": 78.423441,
+   "voters": 1290,
+   "precision": "manual"
+  },
+  {
+   "no": 109,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 2)",
+   "address": "Road No. 5, Balaji Nagar, Hyderabad",
+   "lat": 17.474159,
+   "lng": 78.423441,
+   "voters": 1405,
+   "precision": "manual"
+  },
+  {
+   "no": 110,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 3)",
+   "address": "Road No. 5, Balaji Nagar, Hyderabad",
+   "lat": 17.474159,
+   "lng": 78.423441,
+   "voters": 1410,
+   "precision": "manual"
+  },
+  {
+   "no": 111,
+   "name": "Govt. High School, Balaji Nagar (Room 1)",
+   "address": "Cross Road, Balaji Nagar, Hyderabad",
+   "lat": 17.472969,
+   "lng": 78.402537,
+   "voters": 1395,
+   "precision": "manual"
+  },
+  {
+   "no": 112,
+   "name": "Govt. High School, Balaji Nagar (Room 2)",
+   "address": "Cross Road, Balaji Nagar, Hyderabad",
+   "lat": 17.472969,
+   "lng": 78.402537,
+   "voters": 1292,
+   "precision": "manual"
+  },
+  {
+   "no": 113,
+   "name": "Govt. High School, Balaji Nagar (Room 3)",
+   "address": "Cross Road, Balaji Nagar, Hyderabad",
+   "lat": 17.472969,
+   "lng": 78.402537,
+   "voters": 1253,
+   "precision": "manual"
+  },
+  {
+   "no": 114,
+   "name": "Govt. High School, Balaji Nagar",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.472426,
+   "lng": 78.408485,
+   "voters": 875,
+   "precision": "manual"
+  },
+  {
+   "no": 115,
+   "name": "Govt. High School, Balaji Nagar",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.471231,
+   "lng": 78.395399,
+   "voters": 713,
+   "precision": "manual"
+  },
+  {
+   "no": 116,
+   "name": "Mandal Parishad Primary School, Balaji Nagar (Room 1)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.470348,
+   "lng": 78.395909,
+   "voters": 804,
+   "precision": "manual"
+  },
+  {
+   "no": 117,
+   "name": "Mandal Parishad Primary School, Balaji Nagar (Room 2)",
+   "address": "Colony Road, Balaji Nagar, Hyderabad",
+   "lat": 17.470348,
+   "lng": 78.395909,
+   "voters": 1173,
+   "precision": "manual"
+  },
+  {
+   "no": 118,
+   "name": "GHMC Community Hall, Balaji Nagar",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.470114,
+   "lng": 78.393905,
+   "voters": 716,
+   "precision": "manual"
+  },
+  {
+   "no": 119,
+   "name": "Mandal Parishad Primary School, Balaji Nagar",
+   "address": "Road No. 5, Balaji Nagar, Hyderabad",
+   "lat": 17.469629,
+   "lng": 78.424812,
+   "voters": 1330,
+   "precision": "manual"
+  },
+  {
+   "no": 120,
+   "name": "Govt. High School, Balaji Nagar (Room 1)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.46949,
+   "lng": 78.423001,
+   "voters": 1002,
+   "precision": "manual"
+  },
+  {
+   "no": 121,
+   "name": "Govt. High School, Balaji Nagar (Room 2)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.46949,
+   "lng": 78.423001,
+   "voters": 1175,
+   "precision": "manual"
+  },
+  {
+   "no": 122,
+   "name": "Govt. High School, Balaji Nagar (Room 3)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.46949,
+   "lng": 78.423001,
+   "voters": 1193,
+   "precision": "manual"
+  },
+  {
+   "no": 123,
+   "name": "Govt. High School, Balaji Nagar (Room 4)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.46949,
+   "lng": 78.423001,
+   "voters": 1328,
+   "precision": "manual"
+  },
+  {
+   "no": 124,
+   "name": "Govt. Primary School, Balaji Nagar",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.46856,
+   "lng": 78.4178,
+   "voters": 840,
+   "precision": "manual"
+  },
+  {
+   "no": 125,
+   "name": "Govt. High School, Balaji Nagar",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.466947,
+   "lng": 78.403153,
+   "voters": 1320,
+   "precision": "manual"
+  },
+  {
+   "no": 126,
+   "name": "Zilla Parishad High School, Balaji Nagar (Room 1)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.466912,
+   "lng": 78.387136,
+   "voters": 889,
+   "precision": "manual"
+  },
+  {
+   "no": 127,
+   "name": "Zilla Parishad High School, Balaji Nagar (Room 2)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.466912,
+   "lng": 78.387136,
+   "voters": 1130,
+   "precision": "manual"
+  },
+  {
+   "no": 128,
+   "name": "Govt. High School, Balaji Nagar (Room 1)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.466231,
+   "lng": 78.4142,
+   "voters": 929,
+   "precision": "manual"
+  },
+  {
+   "no": 129,
+   "name": "Govt. High School, Balaji Nagar (Room 2)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.466231,
+   "lng": 78.4142,
+   "voters": 724,
+   "precision": "manual"
+  },
+  {
+   "no": 130,
+   "name": "Govt. High School, Balaji Nagar (Room 3)",
+   "address": "Temple Street, Balaji Nagar, Hyderabad",
+   "lat": 17.466231,
+   "lng": 78.4142,
+   "voters": 703,
+   "precision": "manual"
+  },
+  {
+   "no": 131,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 1)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.465402,
+   "lng": 78.39923,
+   "voters": 1087,
+   "precision": "manual"
+  },
+  {
+   "no": 132,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 2)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.465402,
+   "lng": 78.39923,
+   "voters": 850,
+   "precision": "manual"
+  },
+  {
+   "no": 133,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 3)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.465402,
+   "lng": 78.39923,
+   "voters": 1141,
+   "precision": "manual"
+  },
+  {
+   "no": 134,
+   "name": "Anganwadi Centre, Balaji Nagar (Room 4)",
+   "address": "Road No. 1, Balaji Nagar, Hyderabad",
+   "lat": 17.465402,
+   "lng": 78.39923,
+   "voters": 1434,
+   "precision": "manual"
+  },
+  {
+   "no": 135,
+   "name": "Zilla Parishad High School, Balaji Nagar (Room 1)",
+   "address": "Road No. 3, Balaji Nagar, Hyderabad",
+   "lat": 17.46539,
+   "lng": 78.403241,
+   "voters": 952,
+   "precision": "manual"
+  },
+  {
+   "no": 136,
+   "name": "Zilla Parishad High School, Balaji Nagar (Room 2)",
+   "address": "Road No. 3, Balaji Nagar, Hyderabad",
+   "lat": 17.46539,
+   "lng": 78.403241,
+   "voters": 740,
+   "precision": "manual"
+  },
+  {
+   "no": 137,
+   "name": "Zilla Parishad High School, Balaji Nagar (Room 3)",
+   "address": "Road No. 3, Balaji Nagar, Hyderabad",
+   "lat": 17.46539,
+   "lng": 78.403241,
+   "voters": 922,
+   "precision": "manual"
+  },
+  {
+   "no": 138,
+   "name": "Govt. Primary School, Balaji Nagar",
+   "address": "Road No. 3, Balaji Nagar, Hyderabad",
+   "lat": 17.464389,
+   "lng": 78.396386,
+   "voters": 759,
+   "precision": "manual"
+  },
+  {
+   "no": 139,
+   "name": "Anganwadi Centre, Balaji Nagar",
+   "address": "Cross Road, Balaji Nagar, Hyderabad",
+   "lat": 17.462945,
+   "lng": 78.402016,
+   "voters": 864,
+   "precision": "manual"
+  },
+  {
+   "no": 140,
+   "name": "GHMC Community Hall, Allapur",
+   "address": "Cross Road, Allapur, Hyderabad",
+   "lat": 17.473288,
+   "lng": 78.377197,
+   "voters": 762,
+   "precision": "manual"
+  },
+  {
+   "no": 141,
+   "name": "Govt. Junior College, Allapur (Room 1)",
+   "address": "Road No. 3, Allapur, Hyderabad",
+   "lat": 17.470904,
+   "lng": 78.380791,
+   "voters": 1444,
+   "precision": "manual"
+  },
+  {
+   "no": 142,
+   "name": "Govt. Junior College, Allapur (Room 2)",
+   "address": "Road No. 3, Allapur, Hyderabad",
+   "lat": 17.470904,
+   "lng": 78.380791,
+   "voters": 1343,
+   "precision": "manual"
+  },
+  {
+   "no": 143,
+   "name": "Govt. Primary School, Allapur (Room 1)",
+   "address": "Road No. 5, Allapur, Hyderabad",
+   "lat": 17.463333,
+   "lng": 78.392918,
+   "voters": 709,
+   "precision": "manual"
+  },
+  {
+   "no": 144,
+   "name": "Govt. Primary School, Allapur (Room 2)",
+   "address": "Road No. 5, Allapur, Hyderabad",
+   "lat": 17.463333,
+   "lng": 78.392918,
+   "voters": 875,
+   "precision": "manual"
+  },
+  {
+   "no": 145,
+   "name": "Govt. Primary School, Allapur (Room 3)",
+   "address": "Road No. 5, Allapur, Hyderabad",
+   "lat": 17.463333,
+   "lng": 78.392918,
+   "voters": 1167,
+   "precision": "manual"
+  },
+  {
+   "no": 146,
+   "name": "Zilla Parishad High School, Allapur (Room 1)",
+   "address": "Main Road, Allapur, Hyderabad",
+   "lat": 17.462958,
+   "lng": 78.396558,
+   "voters": 1228,
+   "precision": "manual"
+  },
+  {
+   "no": 147,
+   "name": "Zilla Parishad High School, Allapur (Room 2)",
+   "address": "Main Road, Allapur, Hyderabad",
+   "lat": 17.462958,
+   "lng": 78.396558,
+   "voters": 1301,
+   "precision": "manual"
+  },
+  {
+   "no": 148,
+   "name": "Zilla Parishad High School, Allapur (Room 3)",
+   "address": "Main Road, Allapur, Hyderabad",
+   "lat": 17.462958,
+   "lng": 78.396558,
+   "voters": 1273,
+   "precision": "manual"
+  },
+  {
+   "no": 149,
+   "name": "Mandal Parishad Primary School, Allapur (Room 1)",
+   "address": "Temple Street, Allapur, Hyderabad",
+   "lat": 17.460469,
+   "lng": 78.412192,
+   "voters": 792,
+   "precision": "manual"
+  },
+  {
+   "no": 150,
+   "name": "Mandal Parishad Primary School, Allapur (Room 2)",
+   "address": "Temple Street, Allapur, Hyderabad",
+   "lat": 17.460469,
+   "lng": 78.412192,
+   "voters": 1447,
+   "precision": "manual"
+  },
+  {
+   "no": 151,
+   "name": "Govt. Primary School, Allapur (Room 1)",
+   "address": "Road No. 1, Allapur, Hyderabad",
+   "lat": 17.458211,
+   "lng": 78.404339,
+   "voters": 1382,
+   "precision": "manual"
+  },
+  {
+   "no": 152,
+   "name": "Govt. Primary School, Allapur (Room 2)",
+   "address": "Road No. 1, Allapur, Hyderabad",
+   "lat": 17.458211,
+   "lng": 78.404339,
+   "voters": 881,
+   "precision": "manual"
+  },
+  {
+   "no": 153,
+   "name": "Govt. Primary School, Allapur (Room 3)",
+   "address": "Road No. 1, Allapur, Hyderabad",
+   "lat": 17.458211,
+   "lng": 78.404339,
+   "voters": 1402,
+   "precision": "manual"
+  },
+  {
+   "no": 154,
+   "name": "Govt. Primary School, Allapur (Room 4)",
+   "address": "Road No. 1, Allapur, Hyderabad",
+   "lat": 17.458211,
+   "lng": 78.404339,
+   "voters": 861,
+   "precision": "manual"
+  },
+  {
+   "no": 155,
+   "name": "Govt. Primary School, Allapur (Room 1)",
+   "address": "Main Road, Allapur, Hyderabad",
+   "lat": 17.458131,
+   "lng": 78.398976,
+   "voters": 890,
+   "precision": "manual"
+  },
+  {
+   "no": 156,
+   "name": "Govt. Primary School, Allapur (Room 2)",
+   "address": "Main Road, Allapur, Hyderabad",
+   "lat": 17.458131,
+   "lng": 78.398976,
+   "voters": 1129,
+   "precision": "manual"
+  },
+  {
+   "no": 157,
+   "name": "Govt. Primary School, Allapur (Room 3)",
+   "address": "Main Road, Allapur, Hyderabad",
+   "lat": 17.458131,
+   "lng": 78.398976,
+   "voters": 1266,
+   "precision": "manual"
+  },
+  {
+   "no": 158,
+   "name": "Govt. Primary School, Allapur",
+   "address": "Road No. 3, Allapur, Hyderabad",
+   "lat": 17.457548,
+   "lng": 78.408045,
+   "voters": 705,
+   "precision": "manual"
+  },
+  {
+   "no": 159,
+   "name": "Zilla Parishad High School, Allapur (Room 1)",
+   "address": "Temple Street, Allapur, Hyderabad",
+   "lat": 17.45683,
+   "lng": 78.394982,
+   "voters": 1139,
+   "precision": "manual"
+  },
+  {
+   "no": 160,
+   "name": "Zilla Parishad High School, Allapur (Room 2)",
+   "address": "Temple Street, Allapur, Hyderabad",
+   "lat": 17.45683,
+   "lng": 78.394982,
+   "voters": 1100,
+   "precision": "manual"
+  },
+  {
+   "no": 161,
+   "name": "Zilla Parishad High School, Allapur (Room 3)",
+   "address": "Temple Street, Allapur, Hyderabad",
+   "lat": 17.45683,
+   "lng": 78.394982,
+   "voters": 1237,
+   "precision": "manual"
+  },
+  {
+   "no": 162,
+   "name": "Zilla Parishad High School, Allapur (Room 4)",
+   "address": "Temple Street, Allapur, Hyderabad",
+   "lat": 17.45683,
+   "lng": 78.394982,
+   "voters": 1343,
+   "precision": "manual"
+  },
+  {
+   "no": 163,
+   "name": "Mandal Parishad Primary School, Allapur (Room 1)",
+   "address": "Park Road, Allapur, Hyderabad",
+   "lat": 17.455949,
+   "lng": 78.393836,
+   "voters": 1250,
+   "precision": "manual"
+  },
+  {
+   "no": 164,
+   "name": "Mandal Parishad Primary School, Allapur (Room 2)",
+   "address": "Park Road, Allapur, Hyderabad",
+   "lat": 17.455949,
+   "lng": 78.393836,
+   "voters": 1377,
+   "precision": "manual"
+  },
+  {
+   "no": 165,
+   "name": "GHMC Community Hall, Allapur (Room 1)",
+   "address": "Colony Road, Allapur, Hyderabad",
+   "lat": 17.455904,
+   "lng": 78.413868,
+   "voters": 1131,
+   "precision": "manual"
+  },
+  {
+   "no": 166,
+   "name": "GHMC Community Hall, Allapur (Room 2)",
+   "address": "Colony Road, Allapur, Hyderabad",
+   "lat": 17.455904,
+   "lng": 78.413868,
+   "voters": 1446,
+   "precision": "manual"
+  },
+  {
+   "no": 167,
+   "name": "Govt. High School, Allapur (Room 1)",
+   "address": "Road No. 1, Allapur, Hyderabad",
+   "lat": 17.454173,
+   "lng": 78.40531,
+   "voters": 1377,
+   "precision": "manual"
+  },
+  {
+   "no": 168,
+   "name": "Govt. High School, Allapur (Room 2)",
+   "address": "Road No. 1, Allapur, Hyderabad",
+   "lat": 17.454173,
+   "lng": 78.40531,
+   "voters": 1430,
+   "precision": "manual"
+  },
+  {
+   "no": 169,
+   "name": "Mandal Parishad Primary School, Allapur",
+   "address": "Main Road, Allapur, Hyderabad",
+   "lat": 17.454042,
+   "lng": 78.399449,
+   "voters": 1325,
+   "precision": "manual"
+  },
+  {
+   "no": 170,
+   "name": "GHMC Community Hall, Allapur (Room 1)",
+   "address": "Main Road, Allapur, Hyderabad",
+   "lat": 17.451895,
+   "lng": 78.401191,
+   "voters": 846,
+   "precision": "manual"
+  },
+  {
+   "no": 171,
+   "name": "GHMC Community Hall, Allapur (Room 2)",
+   "address": "Main Road, Allapur, Hyderabad",
+   "lat": 17.451895,
+   "lng": 78.401191,
+   "voters": 975,
+   "precision": "manual"
+  },
+  {
+   "no": 172,
+   "name": "Mandal Parishad Primary School, Moosapet (Room 1)",
+   "address": "Road No. 1, Moosapet, Hyderabad",
+   "lat": 17.466545,
+   "lng": 78.421357,
+   "voters": 1220,
+   "precision": "manual"
+  },
+  {
+   "no": 173,
+   "name": "Mandal Parishad Primary School, Moosapet (Room 2)",
+   "address": "Road No. 1, Moosapet, Hyderabad",
+   "lat": 17.466545,
+   "lng": 78.421357,
+   "voters": 1339,
+   "precision": "manual"
+  },
+  {
+   "no": 174,
+   "name": "Mandal Parishad Primary School, Moosapet (Room 3)",
+   "address": "Road No. 1, Moosapet, Hyderabad",
+   "lat": 17.466545,
+   "lng": 78.421357,
+   "voters": 1131,
+   "precision": "manual"
+  },
+  {
+   "no": 175,
+   "name": "Mandal Parishad Primary School, Moosapet (Room 1)",
+   "address": "Road No. 3, Moosapet, Hyderabad",
+   "lat": 17.466119,
+   "lng": 78.42297,
+   "voters": 791,
+   "precision": "manual"
+  },
+  {
+   "no": 176,
+   "name": "Mandal Parishad Primary School, Moosapet (Room 2)",
+   "address": "Road No. 3, Moosapet, Hyderabad",
+   "lat": 17.466119,
+   "lng": 78.42297,
+   "voters": 1288,
+   "precision": "manual"
+  },
+  {
+   "no": 177,
+   "name": "Mandal Parishad Primary School, Moosapet (Room 3)",
+   "address": "Road No. 3, Moosapet, Hyderabad",
+   "lat": 17.466119,
+   "lng": 78.42297,
+   "voters": 1093,
+   "precision": "manual"
+  },
+  {
+   "no": 178,
+   "name": "Mandal Parishad Primary School, Moosapet (Room 4)",
+   "address": "Road No. 3, Moosapet, Hyderabad",
+   "lat": 17.466119,
+   "lng": 78.42297,
+   "voters": 733,
+   "precision": "manual"
+  },
+  {
+   "no": 179,
+   "name": "Govt. High School, Moosapet (Room 1)",
+   "address": "Colony Road, Moosapet, Hyderabad",
+   "lat": 17.464296,
+   "lng": 78.425762,
+   "voters": 799,
+   "precision": "manual"
+  },
+  {
+   "no": 180,
+   "name": "Govt. High School, Moosapet (Room 2)",
+   "address": "Colony Road, Moosapet, Hyderabad",
+   "lat": 17.464296,
+   "lng": 78.425762,
+   "voters": 1242,
+   "precision": "manual"
+  },
+  {
+   "no": 181,
+   "name": "Govt. High School, Moosapet (Room 3)",
+   "address": "Colony Road, Moosapet, Hyderabad",
+   "lat": 17.464296,
+   "lng": 78.425762,
+   "voters": 979,
+   "precision": "manual"
+  },
+  {
+   "no": 182,
+   "name": "Govt. High School, Moosapet (Room 4)",
+   "address": "Colony Road, Moosapet, Hyderabad",
+   "lat": 17.464296,
+   "lng": 78.425762,
+   "voters": 742,
+   "precision": "manual"
+  },
+  {
+   "no": 183,
+   "name": "Govt. High School, Moosapet (Room 1)",
+   "address": "Road No. 1, Moosapet, Hyderabad",
+   "lat": 17.459851,
+   "lng": 78.420865,
+   "voters": 992,
+   "precision": "manual"
+  },
+  {
+   "no": 184,
+   "name": "Govt. High School, Moosapet (Room 2)",
+   "address": "Road No. 1, Moosapet, Hyderabad",
+   "lat": 17.459851,
+   "lng": 78.420865,
+   "voters": 970,
+   "precision": "manual"
+  },
+  {
+   "no": 185,
+   "name": "Govt. High School, Moosapet (Room 3)",
+   "address": "Road No. 1, Moosapet, Hyderabad",
+   "lat": 17.459851,
+   "lng": 78.420865,
+   "voters": 869,
+   "precision": "manual"
+  },
+  {
+   "no": 186,
+   "name": "Govt. High School, Moosapet (Room 4)",
+   "address": "Road No. 1, Moosapet, Hyderabad",
+   "lat": 17.459851,
+   "lng": 78.420865,
+   "voters": 1036,
+   "precision": "manual"
+  },
+  {
+   "no": 187,
+   "name": "Zilla Parishad High School, Moosapet (Room 1)",
+   "address": "Colony Road, Moosapet, Hyderabad",
+   "lat": 17.458958,
+   "lng": 78.422461,
+   "voters": 839,
+   "precision": "manual"
+  },
+  {
+   "no": 188,
+   "name": "Zilla Parishad High School, Moosapet (Room 2)",
+   "address": "Colony Road, Moosapet, Hyderabad",
+   "lat": 17.458958,
+   "lng": 78.422461,
+   "voters": 1131,
+   "precision": "manual"
+  },
+  {
+   "no": 189,
+   "name": "Zilla Parishad High School, Moosapet (Room 3)",
+   "address": "Colony Road, Moosapet, Hyderabad",
+   "lat": 17.458958,
+   "lng": 78.422461,
+   "voters": 791,
+   "precision": "manual"
+  },
+  {
+   "no": 190,
+   "name": "Mandal Parishad Primary School, Moosapet",
+   "address": "Main Road, Moosapet, Hyderabad",
+   "lat": 17.452699,
+   "lng": 78.426238,
+   "voters": 921,
+   "precision": "manual"
+  },
+  {
+   "no": 191,
+   "name": "Govt. Primary School, Fateh Nagar (Room 1)",
+   "address": "Main Road, Fateh Nagar, Hyderabad",
+   "lat": 17.470652,
+   "lng": 78.43522,
+   "voters": 1264,
+   "precision": "manual"
+  },
+  {
+   "no": 192,
+   "name": "Govt. Primary School, Fateh Nagar (Room 2)",
+   "address": "Main Road, Fateh Nagar, Hyderabad",
+   "lat": 17.470652,
+   "lng": 78.43522,
+   "voters": 1236,
+   "precision": "manual"
+  },
+  {
+   "no": 193,
+   "name": "Govt. Primary School, Fateh Nagar (Room 3)",
+   "address": "Main Road, Fateh Nagar, Hyderabad",
+   "lat": 17.470652,
+   "lng": 78.43522,
+   "voters": 1108,
+   "precision": "manual"
+  },
+  {
+   "no": 194,
+   "name": "Govt. Primary School, Fateh Nagar (Room 4)",
+   "address": "Main Road, Fateh Nagar, Hyderabad",
+   "lat": 17.470652,
+   "lng": 78.43522,
+   "voters": 733,
+   "precision": "manual"
+  },
+  {
+   "no": 195,
+   "name": "Anganwadi Centre, Fateh Nagar (Room 1)",
+   "address": "Road No. 3, Fateh Nagar, Hyderabad",
+   "lat": 17.469779,
+   "lng": 78.433559,
+   "voters": 1372,
+   "precision": "manual"
+  },
+  {
+   "no": 196,
+   "name": "Anganwadi Centre, Fateh Nagar (Room 2)",
+   "address": "Road No. 3, Fateh Nagar, Hyderabad",
+   "lat": 17.469779,
+   "lng": 78.433559,
+   "voters": 1093,
+   "precision": "manual"
+  },
+  {
+   "no": 197,
+   "name": "Anganwadi Centre, Fateh Nagar (Room 3)",
+   "address": "Road No. 3, Fateh Nagar, Hyderabad",
+   "lat": 17.469779,
+   "lng": 78.433559,
+   "voters": 1339,
+   "precision": "manual"
+  },
+  {
+   "no": 198,
+   "name": "Anganwadi Centre, Fateh Nagar (Room 4)",
+   "address": "Road No. 3, Fateh Nagar, Hyderabad",
+   "lat": 17.469779,
+   "lng": 78.433559,
+   "voters": 1038,
+   "precision": "manual"
+  },
+  {
+   "no": 199,
+   "name": "GHMC Community Hall, Fateh Nagar",
+   "address": "Temple Street, Fateh Nagar, Hyderabad",
+   "lat": 17.468522,
+   "lng": 78.428601,
+   "voters": 1106,
+   "precision": "manual"
+  },
+  {
+   "no": 200,
+   "name": "Mandal Parishad Primary School, Fateh Nagar",
+   "address": "Cross Road, Fateh Nagar, Hyderabad",
+   "lat": 17.46767,
+   "lng": 78.43666,
+   "voters": 982,
+   "precision": "manual"
+  },
+  {
+   "no": 201,
+   "name": "Zilla Parishad High School, Fateh Nagar (Room 1)",
+   "address": "Cross Road, Fateh Nagar, Hyderabad",
+   "lat": 17.46369,
+   "lng": 78.441064,
+   "voters": 856,
+   "precision": "manual"
+  },
+  {
+   "no": 202,
+   "name": "Zilla Parishad High School, Fateh Nagar (Room 2)",
+   "address": "Cross Road, Fateh Nagar, Hyderabad",
+   "lat": 17.46369,
+   "lng": 78.441064,
+   "voters": 1407,
+   "precision": "manual"
+  },
+  {
+   "no": 203,
+   "name": "Zilla Parishad High School, Fateh Nagar (Room 3)",
+   "address": "Cross Road, Fateh Nagar, Hyderabad",
+   "lat": 17.46369,
+   "lng": 78.441064,
+   "voters": 1371,
+   "precision": "manual"
+  },
+  {
+   "no": 204,
+   "name": "Govt. High School, Fateh Nagar (Room 1)",
+   "address": "Cross Road, Fateh Nagar, Hyderabad",
+   "lat": 17.463428,
+   "lng": 78.443331,
+   "voters": 1148,
+   "precision": "manual"
+  },
+  {
+   "no": 205,
+   "name": "Govt. High School, Fateh Nagar (Room 2)",
+   "address": "Cross Road, Fateh Nagar, Hyderabad",
+   "lat": 17.463428,
+   "lng": 78.443331,
+   "voters": 796,
+   "precision": "manual"
+  },
+  {
+   "no": 206,
+   "name": "Govt. High School, Fateh Nagar (Room 3)",
+   "address": "Cross Road, Fateh Nagar, Hyderabad",
+   "lat": 17.463428,
+   "lng": 78.443331,
+   "voters": 1358,
+   "precision": "manual"
+  },
+  {
+   "no": 207,
+   "name": "GHMC Community Hall, Fateh Nagar",
+   "address": "Road No. 3, Fateh Nagar, Hyderabad",
+   "lat": 17.463307,
+   "lng": 78.452963,
+   "voters": 1411,
+   "precision": "manual"
+  },
+  {
+   "no": 208,
+   "name": "Zilla Parishad High School, Fateh Nagar (Room 1)",
+   "address": "Temple Street, Fateh Nagar, Hyderabad",
+   "lat": 17.462268,
+   "lng": 78.43755,
+   "voters": 837,
+   "precision": "manual"
+  },
+  {
+   "no": 209,
+   "name": "Zilla Parishad High School, Fateh Nagar (Room 2)",
+   "address": "Temple Street, Fateh Nagar, Hyderabad",
+   "lat": 17.462268,
+   "lng": 78.43755,
+   "voters": 1037,
+   "precision": "manual"
+  },
+  {
+   "no": 210,
+   "name": "Zilla Parishad High School, Fateh Nagar (Room 3)",
+   "address": "Temple Street, Fateh Nagar, Hyderabad",
+   "lat": 17.462268,
+   "lng": 78.43755,
+   "voters": 1014,
+   "precision": "manual"
+  },
+  {
+   "no": 211,
+   "name": "Zilla Parishad High School, Fateh Nagar (Room 4)",
+   "address": "Temple Street, Fateh Nagar, Hyderabad",
+   "lat": 17.462268,
+   "lng": 78.43755,
+   "voters": 1433,
+   "precision": "manual"
+  },
+  {
+   "no": 212,
+   "name": "Zilla Parishad High School, Fateh Nagar (Room 1)",
+   "address": "Park Road, Fateh Nagar, Hyderabad",
+   "lat": 17.460606,
+   "lng": 78.454883,
+   "voters": 947,
+   "precision": "manual"
+  },
+  {
+   "no": 213,
+   "name": "Zilla Parishad High School, Fateh Nagar (Room 2)",
+   "address": "Park Road, Fateh Nagar, Hyderabad",
+   "lat": 17.460606,
+   "lng": 78.454883,
+   "voters": 1273,
+   "precision": "manual"
+  },
+  {
+   "no": 214,
+   "name": "Zilla Parishad High School, Fateh Nagar (Room 3)",
+   "address": "Park Road, Fateh Nagar, Hyderabad",
+   "lat": 17.460606,
+   "lng": 78.454883,
+   "voters": 874,
+   "precision": "manual"
+  },
+  {
+   "no": 215,
+   "name": "Govt. Primary School, Fateh Nagar",
+   "address": "Park Road, Fateh Nagar, Hyderabad",
+   "lat": 17.460084,
+   "lng": 78.453951,
+   "voters": 1353,
+   "precision": "manual"
+  },
+  {
+   "no": 216,
+   "name": "GHMC Community Hall, Fateh Nagar (Room 1)",
+   "address": "Road No. 1, Fateh Nagar, Hyderabad",
+   "lat": 17.458601,
+   "lng": 78.460075,
+   "voters": 1105,
+   "precision": "manual"
+  },
+  {
+   "no": 217,
+   "name": "GHMC Community Hall, Fateh Nagar (Room 2)",
+   "address": "Road No. 1, Fateh Nagar, Hyderabad",
+   "lat": 17.458601,
+   "lng": 78.460075,
+   "voters": 984,
+   "precision": "manual"
+  },
+  {
+   "no": 218,
+   "name": "Govt. Primary School, Fateh Nagar (Room 1)",
+   "address": "Road No. 5, Fateh Nagar, Hyderabad",
+   "lat": 17.450128,
+   "lng": 78.451888,
+   "voters": 1368,
+   "precision": "manual"
+  },
+  {
+   "no": 219,
+   "name": "Govt. Primary School, Fateh Nagar (Room 2)",
+   "address": "Road No. 5, Fateh Nagar, Hyderabad",
+   "lat": 17.450128,
+   "lng": 78.451888,
+   "voters": 1060,
+   "precision": "manual"
+  },
+  {
+   "no": 220,
+   "name": "Govt. Primary School, Fateh Nagar (Room 3)",
+   "address": "Road No. 5, Fateh Nagar, Hyderabad",
+   "lat": 17.450128,
+   "lng": 78.451888,
+   "voters": 770,
+   "precision": "manual"
+  },
+  {
+   "no": 221,
+   "name": "Govt. Primary School, Fateh Nagar (Room 4)",
+   "address": "Road No. 5, Fateh Nagar, Hyderabad",
+   "lat": 17.450128,
+   "lng": 78.451888,
+   "voters": 1269,
+   "precision": "manual"
+  },
+  {
+   "no": 222,
+   "name": "Govt. Primary School, Old Bowenpally (Room 1)",
+   "address": "Road No. 5, Old Bowenpally, Hyderabad",
+   "lat": 17.48919,
+   "lng": 78.480749,
+   "voters": 709,
+   "precision": "manual"
+  },
+  {
+   "no": 223,
+   "name": "Govt. Primary School, Old Bowenpally (Room 2)",
+   "address": "Road No. 5, Old Bowenpally, Hyderabad",
+   "lat": 17.48919,
+   "lng": 78.480749,
+   "voters": 1340,
+   "precision": "manual"
+  },
+  {
+   "no": 224,
+   "name": "Govt. Primary School, Old Bowenpally (Room 3)",
+   "address": "Road No. 5, Old Bowenpally, Hyderabad",
+   "lat": 17.48919,
+   "lng": 78.480749,
+   "voters": 1357,
+   "precision": "manual"
+  },
+  {
+   "no": 225,
+   "name": "Govt. Junior College, Old Bowenpally",
+   "address": "Temple Street, Old Bowenpally, Hyderabad",
+   "lat": 17.480769,
+   "lng": 78.494957,
+   "voters": 1278,
+   "precision": "manual"
+  },
+  {
+   "no": 226,
+   "name": "Govt. Primary School, Old Bowenpally (Room 1)",
+   "address": "Road No. 1, Old Bowenpally, Hyderabad",
+   "lat": 17.480104,
+   "lng": 78.485087,
+   "voters": 1269,
+   "precision": "manual"
+  },
+  {
+   "no": 227,
+   "name": "Govt. Primary School, Old Bowenpally (Room 2)",
+   "address": "Road No. 1, Old Bowenpally, Hyderabad",
+   "lat": 17.480104,
+   "lng": 78.485087,
+   "voters": 1207,
+   "precision": "manual"
+  },
+  {
+   "no": 228,
+   "name": "GHMC Community Hall, Old Bowenpally (Room 1)",
+   "address": "Road No. 3, Old Bowenpally, Hyderabad",
+   "lat": 17.479312,
+   "lng": 78.488337,
+   "voters": 1312,
+   "precision": "manual"
+  },
+  {
+   "no": 229,
+   "name": "GHMC Community Hall, Old Bowenpally (Room 2)",
+   "address": "Road No. 3, Old Bowenpally, Hyderabad",
+   "lat": 17.479312,
+   "lng": 78.488337,
+   "voters": 1097,
+   "precision": "manual"
+  },
+  {
+   "no": 230,
+   "name": "Govt. High School, Old Bowenpally (Room 1)",
+   "address": "Cross Road, Old Bowenpally, Hyderabad",
+   "lat": 17.479174,
+   "lng": 78.489479,
+   "voters": 1378,
+   "precision": "manual"
+  },
+  {
+   "no": 231,
+   "name": "Govt. High School, Old Bowenpally (Room 2)",
+   "address": "Cross Road, Old Bowenpally, Hyderabad",
+   "lat": 17.479174,
+   "lng": 78.489479,
+   "voters": 1174,
+   "precision": "manual"
+  },
+  {
+   "no": 232,
+   "name": "Govt. High School, Old Bowenpally (Room 3)",
+   "address": "Cross Road, Old Bowenpally, Hyderabad",
+   "lat": 17.479174,
+   "lng": 78.489479,
+   "voters": 1263,
+   "precision": "manual"
+  },
+  {
+   "no": 233,
+   "name": "GHMC Community Hall, Old Bowenpally (Room 1)",
+   "address": "Main Road, Old Bowenpally, Hyderabad",
+   "lat": 17.478392,
+   "lng": 78.482683,
+   "voters": 1100,
+   "precision": "manual"
+  },
+  {
+   "no": 234,
+   "name": "GHMC Community Hall, Old Bowenpally (Room 2)",
+   "address": "Main Road, Old Bowenpally, Hyderabad",
+   "lat": 17.478392,
+   "lng": 78.482683,
+   "voters": 904,
+   "precision": "manual"
+  },
+  {
+   "no": 235,
+   "name": "GHMC Community Hall, Old Bowenpally (Room 3)",
+   "address": "Main Road, Old Bowenpally, Hyderabad",
+   "lat": 17.478392,
+   "lng": 78.482683,
+   "voters": 1065,
+   "precision": "manual"
+  },
+  {
+   "no": 236,
+   "name": "GHMC Community Hall, Old Bowenpally (Room 1)",
+   "address": "Road No. 3, Old Bowenpally, Hyderabad",
+   "lat": 17.477046,
+   "lng": 78.48831,
+   "voters": 1193,
+   "precision": "manual"
+  },
+  {
+   "no": 237,
+   "name": "GHMC Community Hall, Old Bowenpally (Room 2)",
+   "address": "Road No. 3, Old Bowenpally, Hyderabad",
+   "lat": 17.477046,
+   "lng": 78.48831,
+   "voters": 1012,
+   "precision": "manual"
+  },
+  {
+   "no": 238,
+   "name": "GHMC Community Hall, Old Bowenpally (Room 3)",
+   "address": "Road No. 3, Old Bowenpally, Hyderabad",
+   "lat": 17.477046,
+   "lng": 78.48831,
+   "voters": 1442,
+   "precision": "manual"
+  },
+  {
+   "no": 239,
+   "name": "GHMC Community Hall, Old Bowenpally (Room 4)",
+   "address": "Road No. 3, Old Bowenpally, Hyderabad",
+   "lat": 17.477046,
+   "lng": 78.48831,
+   "voters": 780,
+   "precision": "manual"
+  },
+  {
+   "no": 240,
+   "name": "Mandal Parishad Primary School, Old Bowenpally",
+   "address": "Road No. 1, Old Bowenpally, Hyderabad",
+   "lat": 17.475915,
+   "lng": 78.488315,
+   "voters": 1120,
+   "precision": "manual"
+  },
+  {
+   "no": 241,
+   "name": "Ward Office Building, Old Bowenpally",
+   "address": "Road No. 5, Old Bowenpally, Hyderabad",
+   "lat": 17.474865,
+   "lng": 78.491011,
+   "voters": 846,
+   "precision": "manual"
+  },
+  {
+   "no": 242,
+   "name": "Mandal Parishad Primary School, Old Bowenpally (Room 1)",
+   "address": "Temple Street, Old Bowenpally, Hyderabad",
+   "lat": 17.474815,
+   "lng": 78.484994,
+   "voters": 1236,
+   "precision": "manual"
+  },
+  {
+   "no": 243,
+   "name": "Mandal Parishad Primary School, Old Bowenpally (Room 2)",
+   "address": "Temple Street, Old Bowenpally, Hyderabad",
+   "lat": 17.474815,
+   "lng": 78.484994,
+   "voters": 1143,
+   "precision": "manual"
+  },
+  {
+   "no": 244,
+   "name": "Mandal Parishad Primary School, Old Bowenpally (Room 3)",
+   "address": "Temple Street, Old Bowenpally, Hyderabad",
+   "lat": 17.474815,
+   "lng": 78.484994,
+   "voters": 1015,
+   "precision": "manual"
+  },
+  {
+   "no": 245,
+   "name": "Govt. Junior College, Old Bowenpally (Room 1)",
+   "address": "Park Road, Old Bowenpally, Hyderabad",
+   "lat": 17.474528,
+   "lng": 78.4946,
+   "voters": 1096,
+   "precision": "manual"
+  },
+  {
+   "no": 246,
+   "name": "Govt. Junior College, Old Bowenpally (Room 2)",
+   "address": "Park Road, Old Bowenpally, Hyderabad",
+   "lat": 17.474528,
+   "lng": 78.4946,
+   "voters": 825,
+   "precision": "manual"
+  },
+  {
+   "no": 247,
+   "name": "Govt. Junior College, Old Bowenpally (Room 3)",
+   "address": "Park Road, Old Bowenpally, Hyderabad",
+   "lat": 17.474528,
+   "lng": 78.4946,
+   "voters": 1093,
+   "precision": "manual"
+  },
+  {
+   "no": 248,
+   "name": "Govt. Junior College, Old Bowenpally (Room 4)",
+   "address": "Park Road, Old Bowenpally, Hyderabad",
+   "lat": 17.474528,
+   "lng": 78.4946,
+   "voters": 826,
+   "precision": "manual"
+  },
+  {
+   "no": 249,
+   "name": "Mandal Parishad Primary School, Old Bowenpally",
+   "address": "Park Road, Old Bowenpally, Hyderabad",
+   "lat": 17.47222,
+   "lng": 78.489075,
+   "voters": 910,
+   "precision": "manual"
+  },
+  {
+   "no": 250,
+   "name": "Ward Office Building, Balanagar (Room 1)",
+   "address": "Colony Road, Balanagar, Hyderabad",
+   "lat": 17.485691,
+   "lng": 78.427516,
+   "voters": 1229,
+   "precision": "manual"
+  },
+  {
+   "no": 251,
+   "name": "Ward Office Building, Balanagar (Room 2)",
+   "address": "Colony Road, Balanagar, Hyderabad",
+   "lat": 17.485691,
+   "lng": 78.427516,
+   "voters": 1160,
+   "precision": "manual"
+  },
+  {
+   "no": 252,
+   "name": "Ward Office Building, Balanagar (Room 3)",
+   "address": "Colony Road, Balanagar, Hyderabad",
+   "lat": 17.485691,
+   "lng": 78.427516,
+   "voters": 1232,
+   "precision": "manual"
+  },
+  {
+   "no": 253,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 1)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.484702,
+   "lng": 78.428725,
+   "voters": 1166,
+   "precision": "manual"
+  },
+  {
+   "no": 254,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 2)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.484702,
+   "lng": 78.428725,
+   "voters": 943,
+   "precision": "manual"
+  },
+  {
+   "no": 255,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 3)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.484702,
+   "lng": 78.428725,
+   "voters": 1334,
+   "precision": "manual"
+  },
+  {
+   "no": 256,
+   "name": "Ward Office Building, Balanagar (Room 1)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.481925,
+   "lng": 78.46225,
+   "voters": 845,
+   "precision": "manual"
+  },
+  {
+   "no": 257,
+   "name": "Ward Office Building, Balanagar (Room 2)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.481925,
+   "lng": 78.46225,
+   "voters": 1318,
+   "precision": "manual"
+  },
+  {
+   "no": 258,
+   "name": "Ward Office Building, Balanagar (Room 3)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.481925,
+   "lng": 78.46225,
+   "voters": 859,
+   "precision": "manual"
+  },
+  {
+   "no": 259,
+   "name": "Ward Office Building, Balanagar (Room 4)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.481925,
+   "lng": 78.46225,
+   "voters": 1115,
+   "precision": "manual"
+  },
+  {
+   "no": 260,
+   "name": "GHMC Community Hall, Balanagar (Room 1)",
+   "address": "Temple Street, Balanagar, Hyderabad",
+   "lat": 17.481241,
+   "lng": 78.435815,
+   "voters": 1178,
+   "precision": "manual"
+  },
+  {
+   "no": 261,
+   "name": "GHMC Community Hall, Balanagar (Room 2)",
+   "address": "Temple Street, Balanagar, Hyderabad",
+   "lat": 17.481241,
+   "lng": 78.435815,
+   "voters": 1150,
+   "precision": "manual"
+  },
+  {
+   "no": 262,
+   "name": "GHMC Community Hall, Balanagar (Room 3)",
+   "address": "Temple Street, Balanagar, Hyderabad",
+   "lat": 17.481241,
+   "lng": 78.435815,
+   "voters": 1214,
+   "precision": "manual"
+  },
+  {
+   "no": 263,
+   "name": "Govt. Primary School, Balanagar (Room 1)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.480281,
+   "lng": 78.460973,
+   "voters": 1100,
+   "precision": "manual"
+  },
+  {
+   "no": 264,
+   "name": "Govt. Primary School, Balanagar (Room 2)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.480281,
+   "lng": 78.460973,
+   "voters": 722,
+   "precision": "manual"
+  },
+  {
+   "no": 265,
+   "name": "Govt. Junior College, Balanagar (Room 1)",
+   "address": "Road No. 1, Balanagar, Hyderabad",
+   "lat": 17.479411,
+   "lng": 78.448031,
+   "voters": 1069,
+   "precision": "manual"
+  },
+  {
+   "no": 266,
+   "name": "Govt. Junior College, Balanagar (Room 2)",
+   "address": "Road No. 1, Balanagar, Hyderabad",
+   "lat": 17.479411,
+   "lng": 78.448031,
+   "voters": 841,
+   "precision": "manual"
+  },
+  {
+   "no": 267,
+   "name": "Govt. Junior College, Balanagar (Room 3)",
+   "address": "Road No. 1, Balanagar, Hyderabad",
+   "lat": 17.479411,
+   "lng": 78.448031,
+   "voters": 800,
+   "precision": "manual"
+  },
+  {
+   "no": 268,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 1)",
+   "address": "Cross Road, Balanagar, Hyderabad",
+   "lat": 17.478682,
+   "lng": 78.434876,
+   "voters": 1169,
+   "precision": "manual"
+  },
+  {
+   "no": 269,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 2)",
+   "address": "Cross Road, Balanagar, Hyderabad",
+   "lat": 17.478682,
+   "lng": 78.434876,
+   "voters": 1093,
+   "precision": "manual"
+  },
+  {
+   "no": 270,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 3)",
+   "address": "Cross Road, Balanagar, Hyderabad",
+   "lat": 17.478682,
+   "lng": 78.434876,
+   "voters": 1113,
+   "precision": "manual"
+  },
+  {
+   "no": 271,
+   "name": "Govt. Junior College, Balanagar (Room 1)",
+   "address": "Park Road, Balanagar, Hyderabad",
+   "lat": 17.478579,
+   "lng": 78.435052,
+   "voters": 1148,
+   "precision": "manual"
+  },
+  {
+   "no": 272,
+   "name": "Govt. Junior College, Balanagar (Room 2)",
+   "address": "Park Road, Balanagar, Hyderabad",
+   "lat": 17.478579,
+   "lng": 78.435052,
+   "voters": 1029,
+   "precision": "manual"
+  },
+  {
+   "no": 273,
+   "name": "Govt. Primary School, Balanagar",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.476943,
+   "lng": 78.43293,
+   "voters": 859,
+   "precision": "manual"
+  },
+  {
+   "no": 274,
+   "name": "GHMC Community Hall, Balanagar",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.476854,
+   "lng": 78.448929,
+   "voters": 1213,
+   "precision": "manual"
+  },
+  {
+   "no": 275,
+   "name": "Govt. Primary School, Balanagar",
+   "address": "Park Road, Balanagar, Hyderabad",
+   "lat": 17.476819,
+   "lng": 78.46272,
+   "voters": 779,
+   "precision": "manual"
+  },
+  {
+   "no": 276,
+   "name": "Govt. Primary School, Balanagar (Room 1)",
+   "address": "Road No. 5, Balanagar, Hyderabad",
+   "lat": 17.476462,
+   "lng": 78.456697,
+   "voters": 819,
+   "precision": "manual"
+  },
+  {
+   "no": 277,
+   "name": "Govt. Primary School, Balanagar (Room 2)",
+   "address": "Road No. 5, Balanagar, Hyderabad",
+   "lat": 17.476462,
+   "lng": 78.456697,
+   "voters": 788,
+   "precision": "manual"
+  },
+  {
+   "no": 278,
+   "name": "Ward Office Building, Balanagar",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.476394,
+   "lng": 78.432952,
+   "voters": 985,
+   "precision": "manual"
+  },
+  {
+   "no": 279,
+   "name": "Govt. Junior College, Balanagar (Room 1)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.475179,
+   "lng": 78.44226,
+   "voters": 933,
+   "precision": "manual"
+  },
+  {
+   "no": 280,
+   "name": "Govt. Junior College, Balanagar (Room 2)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.475179,
+   "lng": 78.44226,
+   "voters": 846,
+   "precision": "manual"
+  },
+  {
+   "no": 281,
+   "name": "Govt. Junior College, Balanagar (Room 3)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.475179,
+   "lng": 78.44226,
+   "voters": 1011,
+   "precision": "manual"
+  },
+  {
+   "no": 282,
+   "name": "Mandal Parishad Primary School, Balanagar",
+   "address": "Colony Road, Balanagar, Hyderabad",
+   "lat": 17.474506,
+   "lng": 78.450833,
+   "voters": 1305,
+   "precision": "manual"
+  },
+  {
+   "no": 283,
+   "name": "Zilla Parishad High School, Balanagar (Room 1)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.473779,
+   "lng": 78.46172,
+   "voters": 1009,
+   "precision": "manual"
+  },
+  {
+   "no": 284,
+   "name": "Zilla Parishad High School, Balanagar (Room 2)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.473779,
+   "lng": 78.46172,
+   "voters": 1300,
+   "precision": "manual"
+  },
+  {
+   "no": 285,
+   "name": "Zilla Parishad High School, Balanagar (Room 3)",
+   "address": "Road No. 3, Balanagar, Hyderabad",
+   "lat": 17.473779,
+   "lng": 78.46172,
+   "voters": 1446,
+   "precision": "manual"
+  },
+  {
+   "no": 286,
+   "name": "Govt. Junior College, Balanagar (Room 1)",
+   "address": "Road No. 1, Balanagar, Hyderabad",
+   "lat": 17.473186,
+   "lng": 78.460847,
+   "voters": 1181,
+   "precision": "manual"
+  },
+  {
+   "no": 287,
+   "name": "Govt. Junior College, Balanagar (Room 2)",
+   "address": "Road No. 1, Balanagar, Hyderabad",
+   "lat": 17.473186,
+   "lng": 78.460847,
+   "voters": 919,
+   "precision": "manual"
+  },
+  {
+   "no": 288,
+   "name": "Govt. Junior College, Balanagar (Room 3)",
+   "address": "Road No. 1, Balanagar, Hyderabad",
+   "lat": 17.473186,
+   "lng": 78.460847,
+   "voters": 1324,
+   "precision": "manual"
+  },
+  {
+   "no": 289,
+   "name": "Govt. Junior College, Balanagar (Room 4)",
+   "address": "Road No. 1, Balanagar, Hyderabad",
+   "lat": 17.473186,
+   "lng": 78.460847,
+   "voters": 1027,
+   "precision": "manual"
+  },
+  {
+   "no": 290,
+   "name": "Govt. Primary School, Balanagar (Room 1)",
+   "address": "Temple Street, Balanagar, Hyderabad",
+   "lat": 17.472865,
+   "lng": 78.438386,
+   "voters": 1282,
+   "precision": "manual"
+  },
+  {
+   "no": 291,
+   "name": "Govt. Primary School, Balanagar (Room 2)",
+   "address": "Temple Street, Balanagar, Hyderabad",
+   "lat": 17.472865,
+   "lng": 78.438386,
+   "voters": 1213,
+   "precision": "manual"
+  },
+  {
+   "no": 292,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 1)",
+   "address": "Temple Street, Balanagar, Hyderabad",
+   "lat": 17.472149,
+   "lng": 78.463138,
+   "voters": 1430,
+   "precision": "manual"
+  },
+  {
+   "no": 293,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 2)",
+   "address": "Temple Street, Balanagar, Hyderabad",
+   "lat": 17.472149,
+   "lng": 78.463138,
+   "voters": 999,
+   "precision": "manual"
+  },
+  {
+   "no": 294,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 3)",
+   "address": "Temple Street, Balanagar, Hyderabad",
+   "lat": 17.472149,
+   "lng": 78.463138,
+   "voters": 1111,
+   "precision": "manual"
+  },
+  {
+   "no": 295,
+   "name": "Zilla Parishad High School, Balanagar (Room 1)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.471974,
+   "lng": 78.45922,
+   "voters": 1027,
+   "precision": "manual"
+  },
+  {
+   "no": 296,
+   "name": "Zilla Parishad High School, Balanagar (Room 2)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.471974,
+   "lng": 78.45922,
+   "voters": 1026,
+   "precision": "manual"
+  },
+  {
+   "no": 297,
+   "name": "Zilla Parishad High School, Balanagar (Room 3)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.471974,
+   "lng": 78.45922,
+   "voters": 859,
+   "precision": "manual"
+  },
+  {
+   "no": 298,
+   "name": "Anganwadi Centre, Balanagar (Room 1)",
+   "address": "Road No. 5, Balanagar, Hyderabad",
+   "lat": 17.470468,
+   "lng": 78.455326,
+   "voters": 1398,
+   "precision": "manual"
+  },
+  {
+   "no": 299,
+   "name": "Anganwadi Centre, Balanagar (Room 2)",
+   "address": "Road No. 5, Balanagar, Hyderabad",
+   "lat": 17.470468,
+   "lng": 78.455326,
+   "voters": 1025,
+   "precision": "manual"
+  },
+  {
+   "no": 300,
+   "name": "Anganwadi Centre, Balanagar (Room 1)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.470429,
+   "lng": 78.459483,
+   "voters": 887,
+   "precision": "manual"
+  },
+  {
+   "no": 301,
+   "name": "Anganwadi Centre, Balanagar (Room 2)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.470429,
+   "lng": 78.459483,
+   "voters": 1076,
+   "precision": "manual"
+  },
+  {
+   "no": 302,
+   "name": "Anganwadi Centre, Balanagar (Room 3)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.470429,
+   "lng": 78.459483,
+   "voters": 1329,
+   "precision": "manual"
+  },
+  {
+   "no": 303,
+   "name": "Govt. Junior College, Balanagar (Room 1)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.469845,
+   "lng": 78.441187,
+   "voters": 935,
+   "precision": "manual"
+  },
+  {
+   "no": 304,
+   "name": "Govt. Junior College, Balanagar (Room 2)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.469845,
+   "lng": 78.441187,
+   "voters": 837,
+   "precision": "manual"
+  },
+  {
+   "no": 305,
+   "name": "Govt. Junior College, Balanagar (Room 3)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.469845,
+   "lng": 78.441187,
+   "voters": 766,
+   "precision": "manual"
+  },
+  {
+   "no": 306,
+   "name": "Govt. Junior College, Balanagar (Room 4)",
+   "address": "Main Road, Balanagar, Hyderabad",
+   "lat": 17.469845,
+   "lng": 78.441187,
+   "voters": 1274,
+   "precision": "manual"
+  },
+  {
+   "no": 307,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 1)",
+   "address": "Cross Road, Balanagar, Hyderabad",
+   "lat": 17.468311,
+   "lng": 78.448757,
+   "voters": 1109,
+   "precision": "manual"
+  },
+  {
+   "no": 308,
+   "name": "Mandal Parishad Primary School, Balanagar (Room 2)",
+   "address": "Cross Road, Balanagar, Hyderabad",
+   "lat": 17.468311,
+   "lng": 78.448757,
+   "voters": 1056,
+   "precision": "manual"
+  },
+  {
+   "no": 309,
+   "name": "GHMC Community Hall, Balanagar (Room 1)",
+   "address": "Park Road, Balanagar, Hyderabad",
+   "lat": 17.465074,
+   "lng": 78.453839,
+   "voters": 1191,
+   "precision": "manual"
+  },
+  {
+   "no": 310,
+   "name": "GHMC Community Hall, Balanagar (Room 2)",
+   "address": "Park Road, Balanagar, Hyderabad",
+   "lat": 17.465074,
+   "lng": 78.453839,
+   "voters": 1302,
+   "precision": "manual"
+  },
+  {
+   "no": 311,
+   "name": "Anganwadi Centre, Balanagar (Room 1)",
+   "address": "Cross Road, Balanagar, Hyderabad",
+   "lat": 17.463962,
+   "lng": 78.458383,
+   "voters": 1392,
+   "precision": "manual"
+  },
+  {
+   "no": 312,
+   "name": "Anganwadi Centre, Balanagar (Room 2)",
+   "address": "Cross Road, Balanagar, Hyderabad",
+   "lat": 17.463962,
+   "lng": 78.458383,
+   "voters": 1295,
+   "precision": "manual"
+  },
+  {
+   "no": 313,
+   "name": "Anganwadi Centre, Balanagar (Room 3)",
+   "address": "Cross Road, Balanagar, Hyderabad",
+   "lat": 17.463962,
+   "lng": 78.458383,
+   "voters": 1214,
+   "precision": "manual"
+  },
+  {
+   "no": 314,
+   "name": "Anganwadi Centre, Kukatpally (Room 1)",
+   "address": "Colony Road, Kukatpally, Hyderabad",
+   "lat": 17.49636,
+   "lng": 78.422287,
+   "voters": 1284,
+   "precision": "manual"
+  },
+  {
+   "no": 315,
+   "name": "Anganwadi Centre, Kukatpally (Room 2)",
+   "address": "Colony Road, Kukatpally, Hyderabad",
+   "lat": 17.49636,
+   "lng": 78.422287,
+   "voters": 925,
+   "precision": "manual"
+  },
+  {
+   "no": 316,
+   "name": "Anganwadi Centre, Kukatpally (Room 3)",
+   "address": "Colony Road, Kukatpally, Hyderabad",
+   "lat": 17.49636,
+   "lng": 78.422287,
+   "voters": 1104,
+   "precision": "manual"
+  },
+  {
+   "no": 317,
+   "name": "Govt. High School, Kukatpally",
+   "address": "Road No. 3, Kukatpally, Hyderabad",
+   "lat": 17.495203,
+   "lng": 78.421506,
+   "voters": 1317,
+   "precision": "manual"
+  },
+  {
+   "no": 318,
+   "name": "Govt. High School, Kukatpally (Room 1)",
+   "address": "Road No. 1, Kukatpally, Hyderabad",
+   "lat": 17.49507,
+   "lng": 78.415965,
+   "voters": 1049,
+   "precision": "manual"
+  },
+  {
+   "no": 319,
+   "name": "Govt. High School, Kukatpally (Room 2)",
+   "address": "Road No. 1, Kukatpally, Hyderabad",
+   "lat": 17.49507,
+   "lng": 78.415965,
+   "voters": 880,
+   "precision": "manual"
+  },
+  {
+   "no": 320,
+   "name": "Govt. High School, Kukatpally (Room 3)",
+   "address": "Road No. 1, Kukatpally, Hyderabad",
+   "lat": 17.49507,
+   "lng": 78.415965,
+   "voters": 874,
+   "precision": "manual"
+  },
+  {
+   "no": 321,
+   "name": "Govt. High School, Kukatpally (Room 4)",
+   "address": "Road No. 1, Kukatpally, Hyderabad",
+   "lat": 17.49507,
+   "lng": 78.415965,
+   "voters": 1056,
+   "precision": "manual"
+  },
+  {
+   "no": 322,
+   "name": "Zilla Parishad High School, Kukatpally (Room 1)",
+   "address": "Colony Road, Kukatpally, Hyderabad",
+   "lat": 17.492027,
+   "lng": 78.420204,
+   "voters": 931,
+   "precision": "manual"
+  },
+  {
+   "no": 323,
+   "name": "Zilla Parishad High School, Kukatpally (Room 2)",
+   "address": "Colony Road, Kukatpally, Hyderabad",
+   "lat": 17.492027,
+   "lng": 78.420204,
+   "voters": 781,
+   "precision": "manual"
+  },
+  {
+   "no": 324,
+   "name": "Ward Office Building, Kukatpally (Room 1)",
+   "address": "Temple Street, Kukatpally, Hyderabad",
+   "lat": 17.491848,
+   "lng": 78.420766,
+   "voters": 734,
+   "precision": "manual"
+  },
+  {
+   "no": 325,
+   "name": "Ward Office Building, Kukatpally (Room 2)",
+   "address": "Temple Street, Kukatpally, Hyderabad",
+   "lat": 17.491848,
+   "lng": 78.420766,
+   "voters": 1224,
+   "precision": "manual"
+  },
+  {
+   "no": 326,
+   "name": "Ward Office Building, Kukatpally (Room 3)",
+   "address": "Temple Street, Kukatpally, Hyderabad",
+   "lat": 17.491848,
+   "lng": 78.420766,
+   "voters": 883,
+   "precision": "manual"
+  },
+  {
+   "no": 327,
+   "name": "Ward Office Building, Kukatpally (Room 4)",
+   "address": "Temple Street, Kukatpally, Hyderabad",
+   "lat": 17.491848,
+   "lng": 78.420766,
+   "voters": 891,
+   "precision": "manual"
+  },
+  {
+   "no": 328,
+   "name": "Mandal Parishad Primary School, Kukatpally (Room 1)",
+   "address": "Road No. 5, Kukatpally, Hyderabad",
+   "lat": 17.491049,
+   "lng": 78.424089,
+   "voters": 1036,
+   "precision": "manual"
+  },
+  {
+   "no": 329,
+   "name": "Mandal Parishad Primary School, Kukatpally (Room 2)",
+   "address": "Road No. 5, Kukatpally, Hyderabad",
+   "lat": 17.491049,
+   "lng": 78.424089,
+   "voters": 1220,
+   "precision": "manual"
+  },
+  {
+   "no": 330,
+   "name": "Mandal Parishad Primary School, Kukatpally (Room 3)",
+   "address": "Road No. 5, Kukatpally, Hyderabad",
+   "lat": 17.491049,
+   "lng": 78.424089,
+   "voters": 1370,
+   "precision": "manual"
+  },
+  {
+   "no": 331,
+   "name": "Govt. Primary School, Kukatpally (Room 1)",
+   "address": "Road No. 1, Kukatpally, Hyderabad",
+   "lat": 17.486213,
+   "lng": 78.422874,
+   "voters": 901,
+   "precision": "manual"
+  },
+  {
+   "no": 332,
+   "name": "Govt. Primary School, Kukatpally (Room 2)",
+   "address": "Road No. 1, Kukatpally, Hyderabad",
+   "lat": 17.486213,
+   "lng": 78.422874,
+   "voters": 923,
+   "precision": "manual"
+  },
+  {
+   "no": 333,
+   "name": "Anganwadi Centre, Kukatpally",
+   "address": "Temple Street, Kukatpally, Hyderabad",
+   "lat": 17.484623,
+   "lng": 78.418286,
+   "voters": 1015,
+   "precision": "manual"
+  },
+  {
+   "no": 334,
+   "name": "GHMC Community Hall, Kukatpally (Room 1)",
+   "address": "Colony Road, Kukatpally, Hyderabad",
+   "lat": 17.484238,
+   "lng": 78.424432,
+   "voters": 1021,
+   "precision": "manual"
+  },
+  {
+   "no": 335,
+   "name": "GHMC Community Hall, Kukatpally (Room 2)",
+   "address": "Colony Road, Kukatpally, Hyderabad",
+   "lat": 17.484238,
+   "lng": 78.424432,
+   "voters": 711,
+   "precision": "manual"
+  },
+  {
+   "no": 336,
+   "name": "GHMC Community Hall, Kukatpally (Room 3)",
+   "address": "Colony Road, Kukatpally, Hyderabad",
+   "lat": 17.484238,
+   "lng": 78.424432,
+   "voters": 1225,
+   "precision": "manual"
+  },
+  {
+   "no": 337,
+   "name": "GHMC Community Hall, Kukatpally (Room 4)",
+   "address": "Colony Road, Kukatpally, Hyderabad",
+   "lat": 17.484238,
+   "lng": 78.424432,
+   "voters": 1225,
+   "precision": "manual"
+  },
+  {
+   "no": 338,
+   "name": "Govt. Primary School, Kukatpally (Room 1)",
+   "address": "Road No. 5, Kukatpally, Hyderabad",
+   "lat": 17.483355,
+   "lng": 78.417991,
+   "voters": 1061,
+   "precision": "manual"
+  },
+  {
+   "no": 339,
+   "name": "Govt. Primary School, Kukatpally (Room 2)",
+   "address": "Road No. 5, Kukatpally, Hyderabad",
+   "lat": 17.483355,
+   "lng": 78.417991,
+   "voters": 986,
+   "precision": "manual"
+  },
+  {
+   "no": 340,
+   "name": "Govt. Primary School, Kukatpally (Room 3)",
+   "address": "Road No. 5, Kukatpally, Hyderabad",
+   "lat": 17.483355,
+   "lng": 78.417991,
+   "voters": 1083,
+   "precision": "manual"
+  },
+  {
+   "no": 341,
+   "name": "Govt. Primary School, Kukatpally (Room 4)",
+   "address": "Road No. 5, Kukatpally, Hyderabad",
+   "lat": 17.483355,
+   "lng": 78.417991,
+   "voters": 1193,
+   "precision": "manual"
+  },
+  {
+   "no": 342,
+   "name": "GHMC Community Hall, Kukatpally (Room 1)",
+   "address": "Cross Road, Kukatpally, Hyderabad",
+   "lat": 17.478708,
+   "lng": 78.426934,
+   "voters": 1246,
+   "precision": "manual"
+  },
+  {
+   "no": 343,
+   "name": "GHMC Community Hall, Kukatpally (Room 2)",
+   "address": "Cross Road, Kukatpally, Hyderabad",
+   "lat": 17.478708,
+   "lng": 78.426934,
+   "voters": 1420,
+   "precision": "manual"
+  },
+  {
+   "no": 344,
+   "name": "GHMC Community Hall, Kukatpally (Room 3)",
+   "address": "Cross Road, Kukatpally, Hyderabad",
+   "lat": 17.478708,
+   "lng": 78.426934,
+   "voters": 1144,
+   "precision": "manual"
+  },
+  {
+   "no": 345,
+   "name": "Anganwadi Centre, Vivekananda Nagar Colony (Room 1)",
+   "address": "Park Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.50082,
+   "lng": 78.418739,
+   "voters": 752,
+   "precision": "manual"
+  },
+  {
+   "no": 346,
+   "name": "Anganwadi Centre, Vivekananda Nagar Colony (Room 2)",
+   "address": "Park Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.50082,
+   "lng": 78.418739,
+   "voters": 1121,
+   "precision": "manual"
+  },
+  {
+   "no": 347,
+   "name": "Anganwadi Centre, Vivekananda Nagar Colony (Room 3)",
+   "address": "Park Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.50082,
+   "lng": 78.418739,
+   "voters": 1440,
+   "precision": "manual"
+  },
+  {
+   "no": 348,
+   "name": "Govt. High School, Vivekananda Nagar Colony (Room 1)",
+   "address": "Cross Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.500577,
+   "lng": 78.420593,
+   "voters": 1112,
+   "precision": "manual"
+  },
+  {
+   "no": 349,
+   "name": "Govt. High School, Vivekananda Nagar Colony (Room 2)",
+   "address": "Cross Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.500577,
+   "lng": 78.420593,
+   "voters": 750,
+   "precision": "manual"
+  },
+  {
+   "no": 350,
+   "name": "Govt. High School, Vivekananda Nagar Colony (Room 3)",
+   "address": "Cross Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.500577,
+   "lng": 78.420593,
+   "voters": 1253,
+   "precision": "manual"
+  },
+  {
+   "no": 351,
+   "name": "Zilla Parishad High School, Vivekananda Nagar Colony (Room 1)",
+   "address": "Temple Street, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.499544,
+   "lng": 78.416915,
+   "voters": 1038,
+   "precision": "manual"
+  },
+  {
+   "no": 352,
+   "name": "Zilla Parishad High School, Vivekananda Nagar Colony (Room 2)",
+   "address": "Temple Street, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.499544,
+   "lng": 78.416915,
+   "voters": 1223,
+   "precision": "manual"
+  },
+  {
+   "no": 353,
+   "name": "Govt. Primary School, Vivekananda Nagar Colony (Room 1)",
+   "address": "Main Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.499428,
+   "lng": 78.42564,
+   "voters": 750,
+   "precision": "manual"
+  },
+  {
+   "no": 354,
+   "name": "Govt. Primary School, Vivekananda Nagar Colony (Room 2)",
+   "address": "Main Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.499428,
+   "lng": 78.42564,
+   "voters": 1343,
+   "precision": "manual"
+  },
+  {
+   "no": 355,
+   "name": "Govt. Primary School, Vivekananda Nagar Colony (Room 3)",
+   "address": "Main Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.499428,
+   "lng": 78.42564,
+   "voters": 1303,
+   "precision": "manual"
+  },
+  {
+   "no": 356,
+   "name": "Zilla Parishad High School, Vivekananda Nagar Colony (Room 1)",
+   "address": "Colony Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.498756,
+   "lng": 78.413845,
+   "voters": 1375,
+   "precision": "manual"
+  },
+  {
+   "no": 357,
+   "name": "Zilla Parishad High School, Vivekananda Nagar Colony (Room 2)",
+   "address": "Colony Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.498756,
+   "lng": 78.413845,
+   "voters": 722,
+   "precision": "manual"
+  },
+  {
+   "no": 358,
+   "name": "Anganwadi Centre, Vivekananda Nagar Colony",
+   "address": "Temple Street, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.489476,
+   "lng": 78.41004,
+   "voters": 1149,
+   "precision": "manual"
+  },
+  {
+   "no": 359,
+   "name": "GHMC Community Hall, Vivekananda Nagar Colony (Room 1)",
+   "address": "Park Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.484465,
+   "lng": 78.412289,
+   "voters": 1440,
+   "precision": "manual"
+  },
+  {
+   "no": 360,
+   "name": "GHMC Community Hall, Vivekananda Nagar Colony (Room 2)",
+   "address": "Park Road, Vivekananda Nagar Colony, Hyderabad",
+   "lat": 17.484465,
+   "lng": 78.412289,
+   "voters": 1055,
+   "precision": "manual"
+  },
+  {
+   "no": 361,
+   "name": "Govt. Primary School, Hydernagar (Room 1)",
+   "address": "Road No. 1, Hydernagar, Hyderabad",
+   "lat": 17.506883,
+   "lng": 78.385885,
+   "voters": 1275,
+   "precision": "manual"
+  },
+  {
+   "no": 362,
+   "name": "Govt. Primary School, Hydernagar (Room 2)",
+   "address": "Road No. 1, Hydernagar, Hyderabad",
+   "lat": 17.506883,
+   "lng": 78.385885,
+   "voters": 1037,
+   "precision": "manual"
+  },
+  {
+   "no": 363,
+   "name": "Zilla Parishad High School, Hydernagar (Room 1)",
+   "address": "Park Road, Hydernagar, Hyderabad",
+   "lat": 17.505026,
+   "lng": 78.396494,
+   "voters": 919,
+   "precision": "manual"
+  },
+  {
+   "no": 364,
+   "name": "Zilla Parishad High School, Hydernagar (Room 2)",
+   "address": "Park Road, Hydernagar, Hyderabad",
+   "lat": 17.505026,
+   "lng": 78.396494,
+   "voters": 1309,
+   "precision": "manual"
+  },
+  {
+   "no": 365,
+   "name": "Govt. Primary School, Hydernagar (Room 1)",
+   "address": "Main Road, Hydernagar, Hyderabad",
+   "lat": 17.50479,
+   "lng": 78.393219,
+   "voters": 713,
+   "precision": "manual"
+  },
+  {
+   "no": 366,
+   "name": "Govt. Primary School, Hydernagar (Room 2)",
+   "address": "Main Road, Hydernagar, Hyderabad",
+   "lat": 17.50479,
+   "lng": 78.393219,
+   "voters": 1107,
+   "precision": "manual"
+  },
+  {
+   "no": 367,
+   "name": "Govt. High School, Hydernagar (Room 1)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.504465,
+   "lng": 78.392596,
+   "voters": 1339,
+   "precision": "manual"
+  },
+  {
+   "no": 368,
+   "name": "Govt. High School, Hydernagar (Room 2)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.504465,
+   "lng": 78.392596,
+   "voters": 1169,
+   "precision": "manual"
+  },
+  {
+   "no": 369,
+   "name": "Govt. High School, Hydernagar (Room 3)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.504465,
+   "lng": 78.392596,
+   "voters": 1343,
+   "precision": "manual"
+  },
+  {
+   "no": 370,
+   "name": "Mandal Parishad Primary School, Hydernagar (Room 1)",
+   "address": "Park Road, Hydernagar, Hyderabad",
+   "lat": 17.504317,
+   "lng": 78.37762,
+   "voters": 779,
+   "precision": "manual"
+  },
+  {
+   "no": 371,
+   "name": "Mandal Parishad Primary School, Hydernagar (Room 2)",
+   "address": "Park Road, Hydernagar, Hyderabad",
+   "lat": 17.504317,
+   "lng": 78.37762,
+   "voters": 1013,
+   "precision": "manual"
+  },
+  {
+   "no": 372,
+   "name": "Mandal Parishad Primary School, Hydernagar (Room 3)",
+   "address": "Park Road, Hydernagar, Hyderabad",
+   "lat": 17.504317,
+   "lng": 78.37762,
+   "voters": 873,
+   "precision": "manual"
+  },
+  {
+   "no": 373,
+   "name": "Mandal Parishad Primary School, Hydernagar (Room 4)",
+   "address": "Park Road, Hydernagar, Hyderabad",
+   "lat": 17.504317,
+   "lng": 78.37762,
+   "voters": 907,
+   "precision": "manual"
+  },
+  {
+   "no": 374,
+   "name": "Anganwadi Centre, Hydernagar (Room 1)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.503789,
+   "lng": 78.391882,
+   "voters": 761,
+   "precision": "manual"
+  },
+  {
+   "no": 375,
+   "name": "Anganwadi Centre, Hydernagar (Room 2)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.503789,
+   "lng": 78.391882,
+   "voters": 1199,
+   "precision": "manual"
+  },
+  {
+   "no": 376,
+   "name": "Anganwadi Centre, Hydernagar (Room 3)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.503789,
+   "lng": 78.391882,
+   "voters": 1344,
+   "precision": "manual"
+  },
+  {
+   "no": 377,
+   "name": "Govt. High School, Hydernagar (Room 1)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.503765,
+   "lng": 78.399094,
+   "voters": 996,
+   "precision": "manual"
+  },
+  {
+   "no": 378,
+   "name": "Govt. High School, Hydernagar (Room 2)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.503765,
+   "lng": 78.399094,
+   "voters": 1197,
+   "precision": "manual"
+  },
+  {
+   "no": 379,
+   "name": "Govt. High School, Hydernagar (Room 3)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.503765,
+   "lng": 78.399094,
+   "voters": 874,
+   "precision": "manual"
+  },
+  {
+   "no": 380,
+   "name": "Govt. High School, Hydernagar (Room 4)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.503765,
+   "lng": 78.399094,
+   "voters": 1300,
+   "precision": "manual"
+  },
+  {
+   "no": 381,
+   "name": "Govt. Junior College, Hydernagar (Room 1)",
+   "address": "Main Road, Hydernagar, Hyderabad",
+   "lat": 17.503183,
+   "lng": 78.383551,
+   "voters": 1155,
+   "precision": "manual"
+  },
+  {
+   "no": 382,
+   "name": "Govt. Junior College, Hydernagar (Room 2)",
+   "address": "Main Road, Hydernagar, Hyderabad",
+   "lat": 17.503183,
+   "lng": 78.383551,
+   "voters": 1224,
+   "precision": "manual"
+  },
+  {
+   "no": 383,
+   "name": "Govt. High School, Hydernagar (Room 1)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.502472,
+   "lng": 78.396766,
+   "voters": 974,
+   "precision": "manual"
+  },
+  {
+   "no": 384,
+   "name": "Govt. High School, Hydernagar (Room 2)",
+   "address": "Colony Road, Hydernagar, Hyderabad",
+   "lat": 17.502472,
+   "lng": 78.396766,
+   "voters": 1312,
+   "precision": "manual"
+  },
+  {
+   "no": 385,
+   "name": "Anganwadi Centre, Hydernagar (Room 1)",
+   "address": "Road No. 5, Hydernagar, Hyderabad",
+   "lat": 17.501937,
+   "lng": 78.378716,
+   "voters": 753,
+   "precision": "manual"
+  },
+  {
+   "no": 386,
+   "name": "Anganwadi Centre, Hydernagar (Room 2)",
+   "address": "Road No. 5, Hydernagar, Hyderabad",
+   "lat": 17.501937,
+   "lng": 78.378716,
+   "voters": 1097,
+   "precision": "manual"
+  },
+  {
+   "no": 387,
+   "name": "Anganwadi Centre, Hydernagar (Room 3)",
+   "address": "Road No. 5, Hydernagar, Hyderabad",
+   "lat": 17.501937,
+   "lng": 78.378716,
+   "voters": 1420,
+   "precision": "manual"
+  },
+  {
+   "no": 388,
+   "name": "Govt. High School, Hydernagar",
+   "address": "Main Road, Hydernagar, Hyderabad",
+   "lat": 17.501633,
+   "lng": 78.375517,
+   "voters": 911,
+   "precision": "manual"
+  },
+  {
+   "no": 389,
+   "name": "Anganwadi Centre, Hydernagar (Room 1)",
+   "address": "Cross Road, Hydernagar, Hyderabad",
+   "lat": 17.500725,
+   "lng": 78.38893,
+   "voters": 1071,
+   "precision": "manual"
+  },
+  {
+   "no": 390,
+   "name": "Anganwadi Centre, Hydernagar (Room 2)",
+   "address": "Cross Road, Hydernagar, Hyderabad",
+   "lat": 17.500725,
+   "lng": 78.38893,
+   "voters": 1155,
+   "precision": "manual"
+  },
+  {
+   "no": 391,
+   "name": "Anganwadi Centre, Hydernagar (Room 3)",
+   "address": "Cross Road, Hydernagar, Hyderabad",
+   "lat": 17.500725,
+   "lng": 78.38893,
+   "voters": 1428,
+   "precision": "manual"
+  },
+  {
+   "no": 392,
+   "name": "Mandal Parishad Primary School, Hydernagar (Room 1)",
+   "address": "Road No. 1, Hydernagar, Hyderabad",
+   "lat": 17.499892,
+   "lng": 78.379692,
+   "voters": 852,
+   "precision": "manual"
+  },
+  {
+   "no": 393,
+   "name": "Mandal Parishad Primary School, Hydernagar (Room 2)",
+   "address": "Road No. 1, Hydernagar, Hyderabad",
+   "lat": 17.499892,
+   "lng": 78.379692,
+   "voters": 906,
+   "precision": "manual"
+  },
+  {
+   "no": 394,
+   "name": "Govt. Primary School, Alwyn Colony (Room 1)",
+   "address": "Road No. 3, Alwyn Colony, Hyderabad",
+   "lat": 17.510257,
+   "lng": 78.409154,
+   "voters": 704,
+   "precision": "manual"
+  },
+  {
+   "no": 395,
+   "name": "Govt. Primary School, Alwyn Colony (Room 2)",
+   "address": "Road No. 3, Alwyn Colony, Hyderabad",
+   "lat": 17.510257,
+   "lng": 78.409154,
+   "voters": 1276,
+   "precision": "manual"
+  },
+  {
+   "no": 396,
+   "name": "Govt. Primary School, Alwyn Colony (Room 3)",
+   "address": "Road No. 3, Alwyn Colony, Hyderabad",
+   "lat": 17.510257,
+   "lng": 78.409154,
+   "voters": 1258,
+   "precision": "manual"
+  },
+  {
+   "no": 397,
+   "name": "Govt. Junior College, Alwyn Colony",
+   "address": "Road No. 5, Alwyn Colony, Hyderabad",
+   "lat": 17.510256,
+   "lng": 78.408698,
+   "voters": 1124,
+   "precision": "manual"
+  },
+  {
+   "no": 398,
+   "name": "Govt. Primary School, Alwyn Colony (Room 1)",
+   "address": "Temple Street, Alwyn Colony, Hyderabad",
+   "lat": 17.508915,
+   "lng": 78.410366,
+   "voters": 1078,
+   "precision": "manual"
+  },
+  {
+   "no": 399,
+   "name": "Govt. Primary School, Alwyn Colony (Room 2)",
+   "address": "Temple Street, Alwyn Colony, Hyderabad",
+   "lat": 17.508915,
+   "lng": 78.410366,
+   "voters": 876,
+   "precision": "manual"
+  },
+  {
+   "no": 400,
+   "name": "Govt. Primary School, Alwyn Colony (Room 3)",
+   "address": "Temple Street, Alwyn Colony, Hyderabad",
+   "lat": 17.508915,
+   "lng": 78.410366,
+   "voters": 1447,
+   "precision": "manual"
+  },
+  {
+   "no": 401,
+   "name": "Govt. Primary School, Alwyn Colony (Room 4)",
+   "address": "Temple Street, Alwyn Colony, Hyderabad",
+   "lat": 17.508915,
+   "lng": 78.410366,
+   "voters": 1337,
+   "precision": "manual"
+  },
+  {
+   "no": 402,
+   "name": "Govt. Junior College, Alwyn Colony (Room 1)",
+   "address": "Colony Road, Alwyn Colony, Hyderabad",
+   "lat": 17.506508,
+   "lng": 78.404084,
+   "voters": 979,
+   "precision": "manual"
+  },
+  {
+   "no": 403,
+   "name": "Govt. Junior College, Alwyn Colony (Room 2)",
+   "address": "Colony Road, Alwyn Colony, Hyderabad",
+   "lat": 17.506508,
+   "lng": 78.404084,
+   "voters": 1386,
+   "precision": "manual"
+  },
+  {
+   "no": 404,
+   "name": "Zilla Parishad High School, Alwyn Colony (Room 1)",
+   "address": "Road No. 1, Alwyn Colony, Hyderabad",
+   "lat": 17.505822,
+   "lng": 78.416291,
+   "voters": 1196,
+   "precision": "manual"
+  },
+  {
+   "no": 405,
+   "name": "Zilla Parishad High School, Alwyn Colony (Room 2)",
+   "address": "Road No. 1, Alwyn Colony, Hyderabad",
+   "lat": 17.505822,
+   "lng": 78.416291,
+   "voters": 720,
+   "precision": "manual"
+  },
+  {
+   "no": 406,
+   "name": "Zilla Parishad High School, Alwyn Colony (Room 3)",
+   "address": "Road No. 1, Alwyn Colony, Hyderabad",
+   "lat": 17.505822,
+   "lng": 78.416291,
+   "voters": 775,
+   "precision": "manual"
+  },
+  {
+   "no": 407,
+   "name": "Govt. Junior College, Alwyn Colony (Room 1)",
+   "address": "Park Road, Alwyn Colony, Hyderabad",
+   "lat": 17.502408,
+   "lng": 78.410306,
+   "voters": 1010,
+   "precision": "manual"
+  },
+  {
+   "no": 408,
+   "name": "Govt. Junior College, Alwyn Colony (Room 2)",
+   "address": "Park Road, Alwyn Colony, Hyderabad",
+   "lat": 17.502408,
+   "lng": 78.410306,
+   "voters": 1164,
+   "precision": "manual"
+  },
+  {
+   "no": 409,
+   "name": "Ward Office Building, Alwyn Colony (Room 1)",
+   "address": "Road No. 3, Alwyn Colony, Hyderabad",
+   "lat": 17.502219,
+   "lng": 78.410291,
+   "voters": 1201,
+   "precision": "manual"
+  },
+  {
+   "no": 410,
+   "name": "Ward Office Building, Alwyn Colony (Room 2)",
+   "address": "Road No. 3, Alwyn Colony, Hyderabad",
+   "lat": 17.502219,
+   "lng": 78.410291,
+   "voters": 973,
+   "precision": "manual"
+  },
+  {
+   "no": 411,
+   "name": "Ward Office Building, Alwyn Colony (Room 3)",
+   "address": "Road No. 3, Alwyn Colony, Hyderabad",
+   "lat": 17.502219,
+   "lng": 78.410291,
+   "voters": 1281,
+   "precision": "manual"
+  },
+  {
+   "no": 412,
+   "name": "Ward Office Building, Alwyn Colony (Room 1)",
+   "address": "Main Road, Alwyn Colony, Hyderabad",
+   "lat": 17.502002,
+   "lng": 78.416008,
+   "voters": 1083,
+   "precision": "manual"
+  },
+  {
+   "no": 413,
+   "name": "Ward Office Building, Alwyn Colony (Room 2)",
+   "address": "Main Road, Alwyn Colony, Hyderabad",
+   "lat": 17.502002,
+   "lng": 78.416008,
+   "voters": 1088,
+   "precision": "manual"
+  },
+  {
+   "no": 414,
+   "name": "Ward Office Building, Alwyn Colony (Room 3)",
+   "address": "Main Road, Alwyn Colony, Hyderabad",
+   "lat": 17.502002,
+   "lng": 78.416008,
+   "voters": 1287,
+   "precision": "manual"
+  },
+  {
+   "no": 415,
+   "name": "Mandal Parishad Primary School, Alwyn Colony (Room 1)",
+   "address": "Temple Street, Alwyn Colony, Hyderabad",
+   "lat": 17.501766,
+   "lng": 78.412638,
+   "voters": 798,
+   "precision": "manual"
+  },
+  {
+   "no": 416,
+   "name": "Mandal Parishad Primary School, Alwyn Colony (Room 2)",
+   "address": "Temple Street, Alwyn Colony, Hyderabad",
+   "lat": 17.501766,
+   "lng": 78.412638,
+   "voters": 1029,
+   "precision": "manual"
+  },
+  {
+   "no": 417,
+   "name": "Govt. Junior College, Alwyn Colony",
+   "address": "Cross Road, Alwyn Colony, Hyderabad",
+   "lat": 17.499395,
+   "lng": 78.4101,
+   "voters": 1219,
+   "precision": "manual"
+  }
+ ]
 }
