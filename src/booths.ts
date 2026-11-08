@@ -5,6 +5,20 @@ import { kukatpallyWards, projection } from './geo'
 /** How the booth's position was obtained (set by scripts/import-booths.mjs). */
 export type Precision = 'manual' | 'geocoded' | 'approx'
 
+export const AGE_BANDS = ['18–19', '20–29', '30–39', '40–49', '50–59', '60–69', '70–79', '80+']
+
+/** Electoral-roll breakdown for one station (all optional in real imports). */
+export interface Electors {
+  male: number
+  female: number
+  thirdGender: number
+  /** Elector counts per AGE_BANDS entry. */
+  ages: number[]
+  households?: number
+  /** Turnout at the last assembly election, percent. */
+  turnout?: number
+}
+
 export interface Booth {
   no: number
   name: string
@@ -12,6 +26,7 @@ export interface Booth {
   lat: number
   lng: number
   voters?: number
+  electors?: Electors
   precision: Precision
   /** Projected map position (virtual units). */
   x: number
@@ -80,3 +95,49 @@ export const siteOf = new Map(sites.flatMap((s) => s.booths.map((b) => [b.no, s]
 
 /** Building name without the trailing "(Room n)". */
 export const buildingName = (b: Booth) => b.name.replace(/\s*\(Room\s*\w+\)\s*$/i, '')
+
+export interface ElectorSummary {
+  stations: number
+  electors: number
+  male: number
+  female: number
+  thirdGender: number
+  ages: number[]
+  households: number
+  /** Elector-weighted turnout, percent (undefined if no station has it). */
+  turnout?: number
+  votesPolled: number
+}
+
+/** Adds up the elector breakdown of a set of stations. */
+export function summarize(list: Booth[]): ElectorSummary | null {
+  const withData = list.filter((b) => b.electors)
+  if (withData.length === 0) return null
+  const s: ElectorSummary = {
+    stations: list.length,
+    electors: 0,
+    male: 0,
+    female: 0,
+    thirdGender: 0,
+    ages: AGE_BANDS.map(() => 0),
+    households: 0,
+    votesPolled: 0,
+  }
+  let turnoutBase = 0
+  for (const b of withData) {
+    const e = b.electors!
+    const total = e.male + e.female + e.thirdGender
+    s.electors += total
+    s.male += e.male
+    s.female += e.female
+    s.thirdGender += e.thirdGender
+    e.ages.forEach((n, i) => (s.ages[i] += n))
+    s.households += e.households ?? 0
+    if (e.turnout !== undefined) {
+      s.votesPolled += Math.round((total * e.turnout) / 100)
+      turnoutBase += total
+    }
+  }
+  if (turnoutBase > 0) s.turnout = (s.votesPolled / turnoutBase) * 100
+  return s
+}

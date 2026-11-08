@@ -49,6 +49,31 @@ const BUILDINGS = [
 ]
 const STREETS = ['Main Road', 'Road No. 1', 'Road No. 3', 'Road No. 5', 'Colony Road', 'Temple Street', 'Park Road', 'Cross Road']
 
+// Elector age bands (must match AGE_BANDS in src/booths.ts) and a rough urban
+// Hyderabad profile to jitter around.
+const AGE_SHARES = [0.025, 0.21, 0.25, 0.2, 0.14, 0.1, 0.05, 0.025] // 18-19 … 80+
+const wardTurnout = Object.fromEntries(KUKATPALLY_WARDS.map((n) => [n, 44 + rnd() * 10]))
+
+/** Synthetic electoral-roll breakdown for one station. */
+function electorsFor(total, wardNo) {
+  const tg = rnd() < 0.15 ? 1 + Math.floor(rnd() * 2) : 0
+  const female = Math.round((total - tg) * (0.465 + rnd() * 0.04))
+  const male = total - tg - female
+  const w = AGE_SHARES.map((s) => s * (0.8 + rnd() * 0.4))
+  const sum = w.reduce((a, b) => a + b, 0)
+  const ages = w.map((x) => Math.floor((x / sum) * total))
+  ages[3] += total - ages.reduce((a, b) => a + b, 0) // keep the bands summing to total
+  const turnout = Math.min(72, Math.max(34, wardTurnout[wardNo] + (rnd() - 0.5) * 16))
+  return {
+    male,
+    female,
+    thirdGender: tg,
+    ages,
+    households: Math.round(total / (2.2 + rnd() * 0.6)),
+    turnout: +turnout.toFixed(1),
+  }
+}
+
 const totalArea = wards.reduce((a, w) => a + w.area, 0)
 const booths = []
 for (const w of wards) {
@@ -64,14 +89,16 @@ for (const w of wards) {
     const address = `${pick(STREETS)}, ${w.name}, Hyderabad`
     const rooms = Math.min(n - made, 1 + Math.floor(rnd() * 4))
     for (let r = 1; r <= rooms; r++) {
+      const voters = 700 + Math.round(rnd() * 750)
       booths.push({
         ward: w.no,
         name: rooms > 1 ? `${building} (Room ${r})` : building,
         address,
         lat: +pt[1].toFixed(6),
         lng: +pt[0].toFixed(6),
-        voters: 700 + Math.round(rnd() * 750),
+        voters,
         precision: 'manual',
+        electors: electorsFor(voters, w.no),
       })
     }
     made += rooms

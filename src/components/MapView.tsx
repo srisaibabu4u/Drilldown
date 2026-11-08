@@ -15,7 +15,7 @@ import {
   type ViewId,
 } from '../geo'
 import { densityColor, densityScale, fmtInt, fmtDensity } from '../format'
-import { boothMeta, buildingName, type Booth, type Site } from '../booths'
+import { boothMeta, buildingName, summarize, type Booth, type Site } from '../booths'
 
 interface Props {
   view: ViewId
@@ -388,6 +388,15 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
                   <b>{fmtInt(hover.s.booths.reduce((a, b) => a + (b.voters ?? 0), 0))}</b>
                 </div>
               )}
+              {(() => {
+                const t = summarize(hover.s.booths)?.turnout
+                return t !== undefined ? (
+                  <div className="tt-row">
+                    <span>Turnout (last AE)</span>
+                    <b>{t.toFixed(1)}%</b>
+                  </div>
+                ) : null
+              })()}
               {boothMeta.synthetic && <div className="tt-note">Sample data · not a real station</div>}
               {!boothMeta.synthetic && hover.s.booths[0].precision === 'approx' && (
                 <div className="tt-note">Approximate location</div>

@@ -25,7 +25,9 @@ npm run build    # production build into dist/
 
 At the Kukatpally level, the map can show polling station pins. Click a pin to see the station number, building, address, number of electors, ward, and a link to Google Maps. The side panel lists the stations, either for the whole area or for the selected ward, with a search box.
 
-For now, `src/data/booths.json` holds **417 synthetic stations** made by `npm run sample:booths`. They are random points inside the wards with generic names. The app labels them "Sample data · not real polling stations" and hides the Google Maps link. To load the real list instead:
+**Voter statistics.** Each station can carry an elector breakdown: men, women and third gender, eight age bands from 18–19 to 80+, households, and turnout at the last assembly election. The Kukatpally, ward and station panels show these as totals (electors, turnout with approximate votes polled, first-time voters, gender ratio, households, electors aged 80+), plus charts by gender and age and the five lowest-turnout stations. These are aggregate counts only. The app holds no individual voter records.
+
+For now, `src/data/booths.json` holds **417 synthetic stations** made by `npm run sample:booths`. They are random points inside the wards with generic names and synthetic voter statistics. The app labels them "Sample data · not real polling stations" and hides the Google Maps link. To load the real list instead:
 
 1. Download the AC 46 Kukatpally polling station list from the Chief Electoral Officer, Telangana (ceotelangana.nic.in).
 2. Convert the table to CSV with the columns in `data/booths-template.csv`: `ps_no,name,address,lat,lng,voters`. If the list is a PDF, Tabula works well, or you can open it in Excel or Google Sheets. `lat`, `lng` and `voters` are optional.

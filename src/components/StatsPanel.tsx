@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import type { Stats } from '../data/stats'
-import { VIEWS, type Region, type ViewId } from '../geo'
+import { kukatpallyWards, VIEWS, type Region, type ViewId } from '../geo'
 import { fmtArea, fmtDensity, fmtInt, fmtPct, fmtShort } from '../format'
 import { boothMeta, booths, boothsInWard, searchBooths, siteOf, type Booth } from '../booths'
+import ElectorStats from './ElectorStats'
 
 interface Props {
   view: ViewId
@@ -54,6 +55,20 @@ function AreaPanel({
         {stats && <SourceBadge source={stats.source} />}
       </div>
 
+      {view === 'kukatpally' && booths.length > 0 && (
+        <>
+          <ElectorStats
+            list={selected?.wardNo !== undefined ? boothsInWard(selected.wardNo) : booths}
+            title={selected ? 'Voters in this ward' : `Voters · AC ${boothMeta.ac} ${boothMeta.acName}`}
+            onPick={onPickBooth}
+          />
+          <BoothsCard wardNo={selected?.wardNo} onPick={onPickBooth} show={showBooths} onToggle={onToggleBooths} />
+          <div className="section-title">
+            <h3>Residents</h3>
+          </div>
+        </>
+      )}
+
       {stats ? (
         <>
           <Kpis stats={stats} area={area} />
@@ -64,13 +79,8 @@ function AreaPanel({
         <p className="muted">No statistics available for this area yet.</p>
       )}
 
-      {view === 'kukatpally' && (
-        <BoothsCard
-          wardNo={selected?.wardNo}
-          onPick={onPickBooth}
-          show={showBooths}
-          onToggle={onToggleBooths}
-        />
+      {view === 'kukatpally' && booths.length === 0 && (
+        <BoothsCard wardNo={selected?.wardNo} onPick={onPickBooth} show={showBooths} onToggle={onToggleBooths} />
       )}
 
       {!selected && <Ranking view={view} onPick={onPick} />}
@@ -240,19 +250,26 @@ function BoothDetail({ booth, onBack, onPick }: { booth: Booth; onBack: () => vo
           </a>
         )}
       </section>
-      <div className="kpis">
-        {booth.voters !== undefined && (
-          <div className="kpi">
-            <div className="kpi-label">Electors</div>
-            <div className="kpi-value">{fmtInt(booth.voters)}</div>
+      {booth.electors ? (
+        <ElectorStats list={[booth]} title="Voters at this station" />
+      ) : (
+        booth.voters !== undefined && (
+          <div className="kpis">
+            <div className="kpi">
+              <div className="kpi-label">Electors</div>
+              <div className="kpi-value">{fmtInt(booth.voters)}</div>
+            </div>
           </div>
-        )}
-        <div className="kpi">
-          <div className="kpi-label">Ward</div>
-          <div className="kpi-value">{booth.wardNo ?? '—'}</div>
-          {booth.wardNo === undefined && <div className="kpi-hint">outside mapped wards</div>}
-        </div>
-      </div>
+        )
+      )}
+      <section className="card">
+        <h3>Ward</h3>
+        <p className="small">
+          {booth.wardNo !== undefined
+            ? `Ward ${booth.wardNo} · ${kukatpallyWards.find((w) => w.wardNo === booth.wardNo)?.name ?? ''}`
+            : 'Outside the mapped Kukatpally wards'}
+        </p>
+      </section>
       {siblings.length > 0 && (
         <section className="card">
           <h3>Other stations in this building</h3>

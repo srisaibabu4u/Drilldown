@@ -1109,3 +1109,21 @@ li.msr-empty {
 .pin-popup.is-below {
   transform: none;
 }
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 4px 0;
+}
+.section-title h3 {
+  font-size: 12px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.section-title .badge {
+  margin-top: 0;
+}
