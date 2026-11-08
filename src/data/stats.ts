@@ -21,7 +21,6 @@ export interface Stats {
   sexRatio?: number // females per 1000 males
   literacy?: number // percent
   ageGroups?: AgeGroup[]
-  languages?: { label: string; share: number }[]
   workers?: number // percent of population in workforce
 }
 
@@ -166,9 +165,6 @@ export function wardStats(wardNo: number): Stats {
   const youth = between(0.17, 0.21)
   const adult = between(0.33, 0.38)
   const mid = between(0.12, 0.15)
-  const telugu = between(0.52, 0.7)
-  const hindi = between(0.1, 0.18)
-  const urdu = between(0.05, 0.15)
   const s: Stats = {
     population,
     source: 'sample',
@@ -183,12 +179,6 @@ export function wardStats(wardNo: number): Stats {
       { label: '45–59', share: mid },
       { label: '60+', share: 1 - young - youth - adult - mid },
     ],
-    languages: [
-      { label: 'Telugu', share: telugu },
-      { label: 'Hindi', share: hindi },
-      { label: 'Urdu', share: urdu },
-      { label: 'Other', share: 1 - telugu - hindi - urdu },
-    ],
   }
   wardCache.set(wardNo, s)
   return s
@@ -199,7 +189,7 @@ export function combine(list: Stats[]): Stats {
   const pop = list.reduce((a, s) => a + s.population, 0)
   const w = (f: (s: Stats) => number | undefined) =>
     list.reduce((a, s) => a + (f(s) ?? 0) * s.population, 0) / pop
-  const shares = (key: 'ageGroups' | 'languages') =>
+  const shares = (key: 'ageGroups') =>
     list[0][key]!.map((g, i) => ({ label: g.label, share: w((s) => s[key]![i].share) }))
   return {
     population: pop,
@@ -209,6 +199,5 @@ export function combine(list: Stats[]): Stats {
     literacy: +w((s) => s.literacy).toFixed(1),
     workers: +w((s) => s.workers).toFixed(1),
     ageGroups: shares('ageGroups'),
-    languages: shares('languages'),
   }
 }

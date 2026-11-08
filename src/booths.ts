@@ -7,6 +7,14 @@ export type Precision = 'manual' | 'geocoded' | 'approx'
 
 export const AGE_BANDS = ['18–19', '20–29', '30–39', '40–49', '50–59', '60–69', '70–79', '80+']
 
+/** Broad social categories used in Telangana. */
+export const SOCIAL_GROUPS = [
+  { key: 'SC', label: 'SC', name: 'Scheduled Castes' },
+  { key: 'ST', label: 'ST', name: 'Scheduled Tribes' },
+  { key: 'BC', label: 'BC', name: 'Backward Classes' },
+  { key: 'OC', label: 'OC', name: 'Other Castes' },
+]
+
 /** Electoral-roll breakdown for one station (all optional in real imports). */
 export interface Electors {
   male: number
@@ -14,6 +22,8 @@ export interface Electors {
   thirdGender: number
   /** Elector counts per AGE_BANDS entry. */
   ages: number[]
+  /** Elector counts per SOCIAL_GROUPS entry (survey-based; not on official rolls). */
+  social?: number[]
   households?: number
   /** Turnout at the last assembly election, percent. */
   turnout?: number
@@ -103,6 +113,8 @@ export interface ElectorSummary {
   female: number
   thirdGender: number
   ages: number[]
+  /** Summed over stations that have it; undefined if none do. */
+  social?: number[]
   households: number
   /** Elector-weighted turnout, percent (undefined if no station has it). */
   turnout?: number
@@ -132,6 +144,10 @@ export function summarize(list: Booth[]): ElectorSummary | null {
     s.female += e.female
     s.thirdGender += e.thirdGender
     e.ages.forEach((n, i) => (s.ages[i] += n))
+    if (e.social) {
+      s.social ??= SOCIAL_GROUPS.map(() => 0)
+      e.social.forEach((n, i) => (s.social![i] += n))
+    }
     s.households += e.households ?? 0
     if (e.turnout !== undefined) {
       s.votesPolled += Math.round((total * e.turnout) / 100)

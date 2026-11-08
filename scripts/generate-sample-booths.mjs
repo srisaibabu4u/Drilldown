@@ -24,6 +24,16 @@ const rnd = () => {
 }
 const pick = (a) => a[Math.floor(rnd() * a.length)]
 
+// Separate random stream for social categories, so adding them doesn't move
+// any station or change the other numbers.
+let seed2 = 2024
+const rnd2 = () => {
+  seed2 = (seed2 + 0x6d2b79f5) | 0
+  let t = Math.imul(seed2 ^ (seed2 >>> 15), 1 | seed2)
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+}
+
 // Same winding fix as src/geo.ts
 const fixPoly = (rings) =>
   geoArea({ type: 'Polygon', coordinates: rings }) > 2 * Math.PI ? rings.map((r) => [...r].reverse()) : rings
@@ -52,6 +62,9 @@ const STREETS = ['Main Road', 'Road No. 1', 'Road No. 3', 'Road No. 5', 'Colony 
 // Elector age bands (must match AGE_BANDS in src/booths.ts) and a rough urban
 // Hyderabad profile to jitter around.
 const AGE_SHARES = [0.025, 0.21, 0.25, 0.2, 0.14, 0.1, 0.05, 0.025] // 18-19 … 80+
+// Social categories (must match SOCIAL_GROUPS in src/booths.ts): SC, ST, BC, OC.
+// Rough urban mix to jitter around; illustrative only.
+const SOCIAL_SHARES = [0.15, 0.04, 0.47, 0.34]
 const wardTurnout = Object.fromEntries(KUKATPALLY_WARDS.map((n) => [n, 44 + rnd() * 10]))
 
 /** Synthetic electoral-roll breakdown for one station. */
@@ -64,11 +77,16 @@ function electorsFor(total, wardNo) {
   const ages = w.map((x) => Math.floor((x / sum) * total))
   ages[3] += total - ages.reduce((a, b) => a + b, 0) // keep the bands summing to total
   const turnout = Math.min(72, Math.max(34, wardTurnout[wardNo] + (rnd() - 0.5) * 16))
+  const sw = SOCIAL_SHARES.map((x) => x * (0.7 + rnd2() * 0.6))
+  const ssum = sw.reduce((a, b) => a + b, 0)
+  const social = sw.map((x) => Math.floor((x / ssum) * total))
+  social[2] += total - social.reduce((a, b) => a + b, 0)
   return {
     male,
     female,
     thirdGender: tg,
     ages,
+    social,
     households: Math.round(total / (2.2 + rnd() * 0.6)),
     turnout: +turnout.toFixed(1),
   }

@@ -17,8 +17,6 @@ interface Props {
   onToggleBooths: (v: boolean) => void
 }
 
-const LANG_COLORS = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 'var(--series-other)']
-
 export default function StatsPanel(props: Props) {
   if (props.booth) return <BoothDetail booth={props.booth} onBack={props.onClearBooth} onPick={props.onPickBooth} />
   return <AreaPanel {...props} />
@@ -73,7 +71,6 @@ function AreaPanel({
         <>
           <Kpis stats={stats} area={area} />
           {stats.ageGroups && <AgeChart stats={stats} />}
-          {stats.languages && <LanguageBar stats={stats} />}
         </>
       ) : (
         <p className="muted">No statistics available for this area yet.</p>
@@ -152,33 +149,6 @@ function AgeChart({ stats }: { stats: Stats }) {
           </div>
         ))}
       </div>
-    </section>
-  )
-}
-
-function LanguageBar({ stats }: { stats: Stats }) {
-  const langs = stats.languages!
-  return (
-    <section className="card">
-      <h3>Mother tongue</h3>
-      <div className="stack" role="img" aria-label={langs.map((l) => `${l.label} ${fmtPct(l.share, 0)}`).join(', ')}>
-        {langs.map((l, i) => (
-          <span
-            key={l.label}
-            className="stack-seg"
-            style={{ flexGrow: l.share, background: LANG_COLORS[i] }}
-            title={`${l.label}: ${fmtPct(l.share)}`}
-          />
-        ))}
-      </div>
-      <ul className="legend">
-        {langs.map((l, i) => (
-          <li key={l.label}>
-            <span className="swatch" style={{ background: LANG_COLORS[i] }} />
-            {l.label} <b>{fmtPct(l.share, 0)}</b>
-          </li>
-        ))}
-      </ul>
     </section>
   )
 }

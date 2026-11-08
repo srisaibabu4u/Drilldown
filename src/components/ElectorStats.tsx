@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AGE_BANDS, boothMeta, summarize, type Booth } from '../booths'
+import { AGE_BANDS, boothMeta, SOCIAL_GROUPS, summarize, type Booth } from '../booths'
 import { fmtInt, fmtPct, fmtShort } from '../format'
 
 const GENDER = [
@@ -7,6 +7,9 @@ const GENDER = [
   { key: 'female', label: 'Women', color: 'var(--series-2)' },
   { key: 'thirdGender', label: 'Third gender', color: 'var(--series-3)' },
 ] as const
+
+// Categorical slots 1-4 in fixed order (see palette notes in the README).
+const SOCIAL_COLORS = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 'var(--series-4)']
 
 /**
  * Electoral-roll dashboard for one station or a group of stations (ward / area):
@@ -92,6 +95,39 @@ export default function ElectorStats({
           ))}
         </ul>
       </section>
+
+      {s.social && (
+        <section className="card">
+          <h3>Electors by social category</h3>
+          <div
+            className="stack"
+            role="img"
+            aria-label={SOCIAL_GROUPS.map((g, i) => `${g.name} ${fmtInt(s.social![i])}`).join(', ')}
+          >
+            {SOCIAL_GROUPS.map((g, i) => (
+              <span
+                key={g.key}
+                className="stack-seg"
+                style={{ flexGrow: s.social![i], background: SOCIAL_COLORS[i] }}
+                title={`${g.name} (${g.label}): ${fmtInt(s.social![i])} (${fmtPct(s.social![i] / s.electors)})`}
+              />
+            ))}
+          </div>
+          <ul className="legend">
+            {SOCIAL_GROUPS.map((g, i) => (
+              <li key={g.key} title={g.name}>
+                <span className="swatch" style={{ background: SOCIAL_COLORS[i] }} />
+                {g.label} <b>{fmtPct(s.social![i] / s.electors, 0)}</b>
+                <span className="muted"> · {single ? fmtInt(s.social![i]) : fmtShort(s.social![i])}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="muted small note">
+            SC Scheduled Castes · ST Scheduled Tribes · BC Backward Classes · OC Other Castes. Electoral rolls
+            don’t record caste; real figures would come from a survey.
+          </p>
+        </section>
+      )}
 
       <section className="card">
         <h3>Electors by age</h3>

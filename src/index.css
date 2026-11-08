@@ -13,6 +13,7 @@
   --series-1: #2a78d6;
   --series-2: #eb6834;
   --series-3: #1baf7a;
+  --series-4: #eda100;
   --series-other: #b9b8b1;
   --bar: #2a78d6;
   --track: #e9edf3;
@@ -50,6 +51,7 @@
     --series-1: #3987e5;
     --series-2: #d95926;
     --series-3: #199e70;
+    --series-4: #c98500;
     --series-other: #6b6a64;
     --bar: #3987e5;
     --track: #262c35;
@@ -79,6 +81,7 @@
   --series-1: #3987e5;
   --series-2: #d95926;
   --series-3: #199e70;
+  --series-4: #c98500;
   --series-other: #6b6a64;
   --bar: #3987e5;
   --track: #262c35;
@@ -1126,4 +1129,10 @@ li.msr-empty {
 }
 .section-title .badge {
   margin-top: 0;
+}
+
+.card .note {
+  margin-top: 10px;
+  font-size: 11.5px;
+  line-height: 1.4;
 }
