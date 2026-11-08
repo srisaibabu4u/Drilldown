@@ -14,6 +14,10 @@
   --series-2: #eb6834;
   --series-3: #1baf7a;
   --series-4: #eda100;
+  --div-low: #d03b3b;
+  --div-mid: #8a8984;
+  --div-high: #2a78d6;
+  --land-muted: #e3e7ee;
   --series-other: #b9b8b1;
   --bar: #2a78d6;
   --track: #e9edf3;
@@ -52,6 +56,10 @@
     --series-2: #d95926;
     --series-3: #199e70;
     --series-4: #c98500;
+    --div-low: #d04a4a;
+    --div-mid: #96958e;
+    --div-high: #3b8ae8;
+    --land-muted: #2f3640;
     --series-other: #6b6a64;
     --bar: #3987e5;
     --track: #262c35;
@@ -82,6 +90,10 @@
   --series-2: #d95926;
   --series-3: #199e70;
   --series-4: #c98500;
+  --div-low: #d04a4a;
+  --div-mid: #96958e;
+  --div-high: #3b8ae8;
+  --land-muted: #2f3640;
   --series-other: #6b6a64;
   --bar: #3987e5;
   --track: #262c35;
@@ -1135,4 +1147,70 @@ li.msr-empty {
   margin-top: 10px;
   font-size: 11.5px;
   line-height: 1.4;
+}
+
+/* Stations coloured by a measure (fill comes inline from the class) */
+.booth.is-coloured .booth-pin,
+.booth.is-coloured .booth-dot {
+  stroke: var(--surface);
+}
+.booth.is-coloured:hover .booth-pin,
+.booth.is-coloured:hover .booth-dot {
+  stroke: var(--text-primary);
+}
+.booth.is-coloured.is-selected .booth-pin,
+.booth.is-coloured.is-selected .booth-dot {
+  stroke: var(--text-primary);
+  stroke-width: 2.5px;
+}
+.booth.is-coloured .booth-pin-eye {
+  fill: var(--surface);
+}
+.tt-class {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.class-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+.legend-select {
+  width: 100%;
+  font: inherit;
+  font-size: 12.5px;
+  padding: 5px 8px;
+  margin: 2px 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+.legend-classes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 3px;
+}
+.legend-classes li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-classes b {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.measure-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }

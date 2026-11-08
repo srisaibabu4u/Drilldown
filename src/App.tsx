@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import MapView from './components/MapView'
 import StatsPanel from './components/StatsPanel'
 import MapSearch from './components/MapSearch'
+import { availableMeasures, CLASS_LABELS, MEASURES, scaleFor } from './measures'
 import { pathGen, VIEW_ORDER, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
 import type { Session } from './auth'
@@ -20,6 +21,23 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   // Zoom the camera onto the selected station (set by the map search).
   const [zoomToBooth, setZoomToBooth] = useState(false)
   const viewRef = useRef(view)
+  // Measure to colour polling stations by ('none' = wards keep the density colours).
+  const [colorBy, setColorBy] = useState<string>(() => {
+    try {
+      return localStorage.getItem('kd-color-by') ?? 'turnout'
+    } catch {
+      return 'turnout'
+    }
+  })
+  const chooseColorBy = (id: string) => {
+    setColorBy(id)
+    try {
+      localStorage.setItem('kd-color-by', id)
+    } catch {
+      /* per-viewer convenience only */
+    }
+  }
+  const measures = useMemo(availableMeasures, [])
   const [theme, setTheme] = useState<'light' | 'dark' | null>(null)
 
   useEffect(() => {
@@ -77,6 +95,10 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const crumbs = VIEW_ORDER.slice(0, level + 1)
 
   const scale = useMemo(() => densityScale(VIEWS[view].regions), [view])
+  const colorScale = useMemo(() => {
+    const m = MEASURES.find((x) => x.id === colorBy)
+    return view === 'kukatpally' && showBooths && m ? scaleFor(m) : null
+  }, [view, showBooths, colorBy])
 
   return (
     <div className="app">
@@ -165,6 +187,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             focus={focusSite ? { x: focusSite.x, y: focusSite.y } : undefined}
             focusBounds={focusWard ? pathGen.bounds(focusWard.feature) : undefined}
             focusWardNo={focusWard?.wardNo}
+            colorScale={colorScale}
           />
 
           <div className="map-top">
@@ -183,30 +206,66 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           </div>
 
           <div className="map-legend">
-            <div className="legend-title">Population density (people / km²)</div>
-            <div className="legend-ramp">
-              {RAMP.map((c) => (
-                <span key={c} style={{ background: c }} />
-              ))}
-            </div>
-            <div className="legend-ticks">
-              <span>{fmtInt(scale.thresholds[0])}</span>
-              <span>{fmtInt(scale.thresholds[Math.floor(scale.thresholds.length / 2)])}</span>
-              <span>{fmtInt(scale.thresholds[scale.thresholds.length - 1])}+</span>
-            </div>
-            <div className="legend-hint">
-              <span className="hl-swatch" /> Glowing outline = click to zoom in
-            </div>
-            {view === 'kukatpally' && showBooths && booths.length > 0 && (
-              <div className="legend-hint">
-                <span className="pin-swatch" /> Polling station{boothMeta.synthetic ? ' (sample)' : ''}
-                {!focusWard && !focusSite && ' · click a ward to zoom in'}
-                {!boothMeta.synthetic && (
-                  <>
-                    <span className="pin-swatch is-approx" /> approx.
-                  </>
+            {view === 'kukatpally' && showBooths && measures.length > 0 && (
+              <label>
+                <span className="legend-title">Colour stations by</span>
+                <select className="legend-select" value={colorBy} onChange={(e) => chooseColorBy(e.target.value)}>
+                  <option value="none">Nothing (show ward density)</option>
+                  {measures.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {colorScale ? (
+              <>
+                <ul className="legend-classes">
+                  {CLASS_LABELS.map((label, i) => (
+                    <li key={label}>
+                      <span className="class-swatch" style={{ background: `var(--div-${['low', 'mid', 'high'][i]})` }} />
+                      {label}
+                      <b>
+                        {i === 0 && `< ${colorScale.measure.format(colorScale.low)}`}
+                        {i === 1 &&
+                          `${colorScale.measure.format(colorScale.low)}–${colorScale.measure.format(colorScale.high)}`}
+                        {i === 2 && `> ${colorScale.measure.format(colorScale.high)}`}
+                      </b>
+                    </li>
+                  ))}
+                </ul>
+                <div className="legend-hint">
+                  Kukatpally average {colorScale.measure.format(colorScale.average)}
+                  {boothMeta.synthetic ? ' · sample data' : ''}
+                </div>
+                {!focusWard && !focusSite && <div className="legend-hint">Click a ward to zoom in</div>}
+              </>
+            ) : (
+              <>
+                <div className="legend-title">Population density (people / km²)</div>
+                <div className="legend-ramp">
+                  {RAMP.map((c) => (
+                    <span key={c} style={{ background: c }} />
+                  ))}
+                </div>
+                <div className="legend-ticks">
+                  <span>{fmtInt(scale.thresholds[0])}</span>
+                  <span>{fmtInt(scale.thresholds[Math.floor(scale.thresholds.length / 2)])}</span>
+                  <span>{fmtInt(scale.thresholds[scale.thresholds.length - 1])}+</span>
+                </div>
+                {view !== 'kukatpally' && (
+                  <div className="legend-hint">
+                    <span className="hl-swatch" /> Glowing outline = click to zoom in
+                  </div>
                 )}
-              </div>
+                {view === 'kukatpally' && showBooths && booths.length > 0 && (
+                  <div className="legend-hint">
+                    <span className="pin-swatch" /> Polling station{boothMeta.synthetic ? ' (sample)' : ''}
+                    {!focusWard && !focusSite && ' · click a ward to zoom in'}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </section>
@@ -221,6 +280,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           onClearBooth={clearBooth}
           showBooths={showBooths}
           onToggleBooths={setShowBooths}
+          colorScale={colorScale}
         />
       </main>
 

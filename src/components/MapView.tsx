@@ -16,6 +16,7 @@ import {
 } from '../geo'
 import { densityColor, densityScale, fmtInt, fmtDensity } from '../format'
 import { boothMeta, buildingName, summarize, type Booth, type Site } from '../booths'
+import { CLASS_LABELS, type MeasureScale } from '../measures'
 
 interface Props {
   view: ViewId
@@ -33,7 +34,11 @@ interface Props {
   focusBounds?: [[number, number], [number, number]]
   /** Ward the user zoomed into: stations elsewhere are faded. */
   focusWardNo?: number
+  /** Colour station pins by this measure (and show Kukatpally wards in neutral grey). */
+  colorScale?: MeasureScale | null
 }
+
+const CLASS_FILL = ['var(--div-low)', 'var(--div-mid)', 'var(--div-high)']
 
 type Hover = { kind: 'region'; r: Region; x: number; y: number } | { kind: 'site'; s: Site; x: number; y: number }
 
@@ -75,7 +80,7 @@ function d(r: Region) {
   return p
 }
 
-export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothNo, onBoothClick, onBoothClose, focus, focusBounds, focusWardNo }: Props) {
+export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothNo, onBoothClick, onBoothClose, focus, focusBounds, focusWardNo, colorScale }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const [size, setSize] = useState<Size>({ w: 800, h: 700 })
@@ -199,7 +204,11 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
     <g className={`layer ${cls} ${isActive ? 'is-active' : 'is-context'}`}>
       {regions.map((r) => {
         const isSel = r.id === selectedId
-        const fill = isActive ? densityColor(scale, r) : undefined
+        const fill = !isActive
+          ? undefined
+          : colorScale && view === 'kukatpally'
+            ? 'var(--land-muted)'
+            : densityColor(scale, r)
         return (
           <path
             key={r.id}
@@ -286,6 +295,8 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
                 onBoothClick(first)
               }
               const faded = focusWardNo !== undefined && first.wardNo !== focusWardNo && !sel
+              const cls = colorScale ? colorScale.classOf(colorScale.siteValue(site)) : undefined
+              const fillStyle = cls !== undefined ? { fill: CLASS_FILL[cls] } : undefined
               return (
                 <g
                   key={site.key}
@@ -295,6 +306,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
                     sel && 'is-selected',
                     faded && 'is-faded',
                     first.precision === 'approx' && 'is-approx',
+                    cls !== undefined && 'is-coloured',
                   ]
                     .filter(Boolean)
                     .join(' ')}
@@ -318,7 +330,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
                   {zoomedIn ? (
                     <>
                       <circle className="booth-hit" cx={0} cy={-10} r={12} />
-                      <path className="booth-pin" d={sel ? PIN_LARGE : PIN} />
+                      <path className="booth-pin" d={sel ? PIN_LARGE : PIN} style={fillStyle} />
                       {n > 1 ? (
                         <text className="booth-count" y={sel ? -14 : -11.5}>
                           {n}
@@ -330,7 +342,11 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
                   ) : (
                     <>
                       <circle className="booth-hit" r={7} />
-                      <circle className="booth-dot" r={sel ? 5 : n > 1 ? 3 : 2.4} />
+                      <circle
+                        className="booth-dot"
+                        r={sel ? 5 : cls !== undefined ? 3.4 : n > 1 ? 3 : 2.4}
+                        style={fillStyle}
+                      />
                     </>
                   )}
                 </g>
@@ -390,13 +406,30 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
               )}
               {(() => {
                 const t = summarize(hover.s.booths)?.turnout
-                return t !== undefined ? (
+                return t !== undefined && colorScale?.measure.id !== 'turnout' ? (
                   <div className="tt-row">
                     <span>Turnout (last AE)</span>
                     <b>{t.toFixed(1)}%</b>
                   </div>
                 ) : null
               })()}
+              {colorScale &&
+                (() => {
+                  const v = colorScale.siteValue(hover.s)
+                  const c = colorScale.classOf(v)
+                  return v !== undefined && c !== undefined ? (
+                    <>
+                      <div className="tt-row">
+                        <span>{colorScale.measure.label}</span>
+                        <b>{colorScale.measure.format(v)}</b>
+                      </div>
+                      <div className="tt-class">
+                        <span className="class-swatch" style={{ background: CLASS_FILL[c] }} />
+                        {CLASS_LABELS[c]} (avg {colorScale.measure.format(colorScale.average)})
+                      </div>
+                    </>
+                  ) : null
+                })()}
               {boothMeta.synthetic && <div className="tt-note">Sample data · not a real station</div>}
               {!boothMeta.synthetic && hover.s.booths[0].precision === 'approx' && (
                 <div className="tt-note">Approximate location</div>

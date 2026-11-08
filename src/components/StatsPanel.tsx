@@ -2,8 +2,9 @@ import { useState } from 'react'
 import type { Stats } from '../data/stats'
 import { kukatpallyWards, VIEWS, type Region, type ViewId } from '../geo'
 import { fmtArea, fmtDensity, fmtInt, fmtPct, fmtShort } from '../format'
-import { boothMeta, booths, boothsInWard, searchBooths, siteOf, type Booth } from '../booths'
+import { boothMeta, booths, boothsInWard, searchBooths, siteOf, summarize, type Booth } from '../booths'
 import ElectorStats from './ElectorStats'
+import type { MeasureScale } from '../measures'
 
 interface Props {
   view: ViewId
@@ -15,6 +16,7 @@ interface Props {
   onClearBooth: () => void
   showBooths: boolean
   onToggleBooths: (v: boolean) => void
+  colorScale?: MeasureScale | null
 }
 
 export default function StatsPanel(props: Props) {
@@ -30,6 +32,7 @@ function AreaPanel({
   onPickBooth,
   showBooths,
   onToggleBooths,
+  colorScale,
 }: Props) {
   const v = VIEWS[view]
   const stats: Stats | undefined = selected ? selected.stats : v.total
@@ -60,7 +63,13 @@ function AreaPanel({
             title={selected ? 'Voters in this ward' : `Voters · AC ${boothMeta.ac} ${boothMeta.acName}`}
             onPick={onPickBooth}
           />
-          <BoothsCard wardNo={selected?.wardNo} onPick={onPickBooth} show={showBooths} onToggle={onToggleBooths} />
+          <BoothsCard
+            wardNo={selected?.wardNo}
+            onPick={onPickBooth}
+            show={showBooths}
+            onToggle={onToggleBooths}
+            colorScale={colorScale}
+          />
           <div className="section-title">
             <h3>Residents</h3>
           </div>
@@ -281,11 +290,13 @@ function BoothsCard({
   onPick,
   show,
   onToggle,
+  colorScale,
 }: {
   wardNo?: number
   onPick: (b: Booth) => void
   show: boolean
   onToggle: (v: boolean) => void
+  colorScale?: MeasureScale | null
 }) {
   const [q, setQ] = useState('')
   if (booths.length === 0) {
@@ -335,7 +346,11 @@ function BoothsCard({
                 {b.name}
                 {b.precision === 'approx' && <span className="muted"> · approx.</span>}
               </span>
-              {b.voters !== undefined && <span className="rank-val">{fmtShort(b.voters)}</span>}
+              {colorScale ? (
+                <MeasureCell scale={colorScale} booth={b} />
+              ) : (
+                b.voters !== undefined && <span className="rank-val">{fmtShort(b.voters)}</span>
+              )}
             </button>
           </li>
         ))}
@@ -350,5 +365,18 @@ function SampleBoothBadge() {
     <div className="badge badge-sample" title="Synthetic stations for demo – replace with the official CEO Telangana list">
       ⚠ Sample data · not real polling stations
     </div>
+  )
+}
+
+function MeasureCell({ scale, booth }: { scale: MeasureScale; booth: Booth }) {
+  const sum = summarize([booth])
+  const v = sum ? scale.measure.value(sum) : undefined
+  const c = scale.classOf(v)
+  if (v === undefined || c === undefined) return <span className="rank-val">—</span>
+  return (
+    <span className="rank-val measure-cell" title={`${scale.measure.label}: ${scale.measure.format(v)}`}>
+      <span className="class-swatch" style={{ background: `var(--div-${['low', 'mid', 'high'][c]})` }} />
+      {scale.measure.format(v)}
+    </span>
   )
 }
