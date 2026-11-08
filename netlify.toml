@@ -7,14 +7,21 @@
   # Vite 8 needs Node 20.19+ / 22.12+
   NODE_VERSION = "22"
 
-# Single-page app: serve index.html for any unknown path
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Sign-in: netlify/edge-functions/guard.ts runs before every request and only
+# serves the app to visitors with a valid session cookie. The login, logout and
+# "who am I" endpoints are in netlify/functions. Required environment variables
+# (Site configuration → Environment variables): SESSION_SECRET and AUTH_USERS.
+# See the README ("Sign-in") for how to create them.
 
 # Hashed build assets can be cached forever
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "same-origin"

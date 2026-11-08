@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="robots" content="noindex" />
+    <title>Sign in · Kukatpally Drilldown</title>
+    <!-- Self-contained on purpose: this is the only page served to signed-out visitors. -->
+    <style>
+      :root {
+        color-scheme: light;
+        --bg-grad: radial-gradient(1200px 700px at 30% 20%, #ffffff 0%, #e6edf6 55%, #dde6f1 100%);
+        --surface: #ffffff;
+        --surface-2: #f5f7fa;
+        --border: #dfe4ec;
+        --text-primary: #0b0b0b;
+        --text-secondary: #52514e;
+        --accent: #eb6834;
+        --focus: #2a78d6;
+        --track: #e9edf3;
+        --shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 8px 24px rgb(16 24 40 / 0.08);
+        font: 15px/1.45 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          color-scheme: dark;
+          --bg-grad: radial-gradient(1200px 700px at 30% 20%, #1c232d 0%, #12161c 55%, #0d1014 100%);
+          --surface: #171b21;
+          --surface-2: #1e232b;
+          --border: #2a313b;
+          --text-primary: #f0efec;
+          --text-secondary: #c3c2b7;
+          --accent: #f07a45;
+          --focus: #3987e5;
+          --track: #262c35;
+          --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+        }
+      }
+      :root[data-theme='dark'] {
+        color-scheme: dark;
+        --bg-grad: radial-gradient(1200px 700px at 30% 20%, #1c232d 0%, #12161c 55%, #0d1014 100%);
+        --surface: #171b21;
+        --surface-2: #1e232b;
+        --border: #2a313b;
+        --text-primary: #f0efec;
+        --text-secondary: #c3c2b7;
+        --accent: #f07a45;
+        --focus: #3987e5;
+        --track: #262c35;
+        --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        display: grid;
+        place-items: center;
+        padding: 24px 16px;
+        background: var(--bg-grad);
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+      }
+      form {
+        width: 100%;
+        max-width: 380px;
+        display: grid;
+        gap: 16px;
+        padding: 28px 26px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+      }
+      .brand { display: flex; gap: 12px; align-items: center; margin-bottom: 6px; }
+      .logo {
+        display: grid; place-items: center; width: 38px; height: 38px; flex: none;
+        border-radius: 11px; background: linear-gradient(135deg, #2a78d6, #eb6834); color: #fff; font-size: 20px;
+      }
+      h1 { margin: 0; font-size: 18px; letter-spacing: -0.01em; }
+      .brand p { margin: 0; color: var(--text-secondary); font-size: 13px; }
+      .field { display: grid; gap: 6px; font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+      input {
+        width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border-radius: 10px;
+        border: 1px solid var(--border); background: var(--surface-2); color: var(--text-primary);
+      }
+      input:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+      .pw { position: relative; }
+      .pw input { padding-right: 44px; }
+      .eye {
+        position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
+        display: grid; place-items: center; width: 34px; height: 34px;
+        border: 0; border-radius: 8px; background: none; color: var(--text-secondary); cursor: pointer;
+      }
+      .eye:hover { background: var(--track); color: var(--text-primary); }
+      .eye:focus-visible { outline: 2px solid var(--focus); }
+      .eye .slash { display: none; }
+      .eye[aria-pressed='true'] .slash { display: inline; }
+      button[type='submit'] {
+        width: 100%; border: 0; border-radius: 999px; padding: 11px 16px;
+        background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; box-shadow: var(--shadow);
+      }
+      button[type='submit']:disabled { opacity: 0.55; cursor: not-allowed; }
+      .error {
+        display: none; padding: 8px 12px; border-radius: 10px; font-size: 13px;
+        background: color-mix(in srgb, #d03b3b 12%, transparent);
+        border: 1px solid color-mix(in srgb, #d03b3b 40%, transparent);
+      }
+      .error.show { display: block; }
+    </style>
+  </head>
+  <body>
+    <form id="login" novalidate>
+      <div class="brand">
+        <span class="logo" aria-hidden="true">◉</span>
+        <div>
+          <h1>Kukatpally Drilldown</h1>
+          <p>Sign in to explore the map</p>
+        </div>
+      </div>
+
+      <label class="field">
+        <span>Username</span>
+        <input id="username" name="username" autocomplete="username" autofocus required />
+      </label>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="pw">
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+          <button type="button" class="eye" id="eye" aria-label="Show password" aria-pressed="false" title="Show password">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+              <circle cx="12" cy="12" r="3" />
+              <path class="slash" d="M3 3l18 18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="error" id="error" role="alert"></div>
+
+      <button type="submit" id="submit" disabled>Sign in</button>
+    </form>
+
+    <script>
+      const form = document.getElementById('login')
+      const user = document.getElementById('username')
+      const pass = document.getElementById('password')
+      const eye = document.getElementById('eye')
+      const submit = document.getElementById('submit')
+      const error = document.getElementById('error')
+
+      // Already signed in? Go straight to the map.
+      fetch('/api/me', { credentials: 'same-origin' })
+        .then((r) => { if (r.ok) location.replace('/') })
+        .catch(() => {})
+
+      const update = () => { submit.disabled = !user.value || !pass.value }
+      user.addEventListener('input', update)
+      pass.addEventListener('input', update)
+
+      eye.addEventListener('click', () => {
+        const show = pass.type === 'password'
+        pass.type = show ? 'text' : 'password'
+        eye.setAttribute('aria-pressed', String(show))
+        eye.setAttribute('aria-label', show ? 'Hide password' : 'Show password')
+        eye.title = show ? 'Hide password' : 'Show password'
+      })
+
+      const fail = (msg) => { error.textContent = msg; error.classList.add('show') }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        if (!user.value || !pass.value) return
+        submit.disabled = true
+        submit.textContent = 'Signing in…'
+        error.classList.remove('show')
+        try {
+          const res = await fetch('/api/login', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: user.value, password: pass.value }),
+          })
+          if (res.ok) return location.replace('/')
+          if (res.status === 401) fail('Incorrect username or password.')
+          else if (res.status === 503)
+            fail('Sign-in isn’t set up on the server yet. An administrator needs to add SESSION_SECRET and AUTH_USERS in Netlify.')
+          else fail('Sign-in failed (' + res.status + '). Please try again.')
+        } catch {
+          fail('Couldn’t reach the sign-in service. Check your connection and try again.')
+        }
+        submit.textContent = 'Sign in'
+        update()
+      })
+    </script>
+  </body>
+</html>

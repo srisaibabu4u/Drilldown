@@ -38,11 +38,32 @@ For now, `src/data/booths.json` holds **417 synthetic stations** made by `npm ru
 
 Each station is assigned to a ward automatically by its position. Stations outside the 11 mapped wards still appear, with the ward shown as "—".
 
-## Login (temporary)
+## Sign-in
 
-The app opens on a login page. There is one hard-coded user, `admin`. Its password is stored as a SHA-256 hash in `src/auth.ts`, and that file explains how to add more users.
+Sign-in is checked on the server, so signed-out visitors never receive the app or its data.
 
-> ⚠ This is a client-side check only. The site is static, so anyone who reads the JavaScript can get past it. It keeps casual visitors out, but it is not real security. Before putting real data behind it, switch to a proper auth provider such as Netlify Identity, Auth0 or Supabase.
+- `netlify/edge-functions/guard.ts` runs before **every** request. Without a valid session cookie it returns only `/login.html`: page visits are redirected there, and any other file gets a 401.
+- `POST /api/login` (`netlify/functions/login.mts`) checks the password against a PBKDF2-SHA256 hash (210,000 iterations). On success it sets a signed (HMAC-SHA256), `HttpOnly`, `Secure`, `SameSite=Lax` cookie that lasts 12 hours. Failed attempts are slowed down.
+- `GET /api/me` returns the signed-in user and `POST /api/logout` clears the cookie.
+- Passwords and the signing secret live in Netlify environment variables, never in this repo.
+
+### Setting it up (once)
+
+1. On your computer, run `npm run add-user -- admin "Admin" --secret`. Type a password of at least 10 characters (twice, hidden). It prints an `AUTH_USERS` value and a `SESSION_SECRET`.
+2. In Netlify, go to **Site configuration → Environment variables** and add both:
+   - `SESSION_SECRET`: the printed secret.
+   - `AUTH_USERS`: the printed JSON array.
+3. Redeploy: **Deploys → Trigger deploy → Deploy site**. Until both variables exist, the login page says sign-in isn't set up, and nobody can get in.
+
+**Adding a user:** run `npm run add-user -- <username> "<Display name>"` and add the printed object to the `AUTH_USERS` array, then redeploy.
+
+**Removing a user:** delete them from `AUTH_USERS` and redeploy.
+
+**Signing everyone out:** change `SESSION_SECRET` and redeploy.
+
+### Local development
+
+`npm run dev` runs plain Vite without the Netlify functions, so it signs you in automatically as "Developer". To test the real sign-in locally, use the Netlify CLI (`npx netlify-cli dev`) with the same two variables set.
 
 ## Deploy to Netlify
 
@@ -75,8 +96,16 @@ src/
   geo.ts                 projection, regions, and the level (view) definitions
   format.ts              number formatting + density colour scale
   components/MapView.tsx SVG map, camera animation, tooltip, labels
-  components/StatsPanel.tsx  KPIs, age chart, language bar, ranking
+  measures.ts            "colour stations by" measures and their below/around/above-average classes
+  session.ts             asks the server who is signed in; logout
+  components/StatsPanel.tsx  KPIs, age chart, ranking, station list
+  components/ElectorStats.tsx voter statistics (gender, social category, age, turnout)
   App.tsx                header, breadcrumb, legend, routing
+public/login.html        stand-alone sign-in page (the only page signed-out visitors get)
+netlify/
+  edge-functions/guard.ts  blocks every request without a valid session
+  functions/*.mts          /api/login, /api/logout, /api/me
+  lib/session.ts           password hashing, signed cookies, settings
 ```
 
 ### Adding a level or feature

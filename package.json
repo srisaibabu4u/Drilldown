@@ -9,7 +9,9 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "import:booths": "node scripts/import-booths.mjs",
-    "sample:booths": "node scripts/generate-sample-booths.mjs"
+    "sample:booths": "node scripts/generate-sample-booths.mjs",
+    "add-user": "node scripts/add-user.mjs",
+    "typecheck:netlify": "tsc -p netlify/tsconfig.json"
   },
   "dependencies": {
     "d3-ease": "^3.0.2",

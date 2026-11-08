@@ -5,7 +5,7 @@ import MapSearch from './components/MapSearch'
 import { availableMeasures, CLASS_LABELS, MEASURES, scaleFor } from './measures'
 import { pathGen, VIEW_ORDER, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
-import type { Session } from './auth'
+import type { Session } from './session'
 import { boothMeta, booths, siteOf, sites, type Booth } from './booths'
 
 function readHash(): ViewId {

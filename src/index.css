@@ -717,64 +717,6 @@ button.crumb:hover {
   padding: 0;
 }
 
-/* Login */
-.login-page {
-  min-height: 100%;
-  display: grid;
-  place-items: center;
-  padding: 24px 16px;
-  background: var(--bg-grad);
-}
-.login-card {
-  width: 100%;
-  max-width: 380px;
-  display: grid;
-  gap: 16px;
-  padding: 28px 26px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-}
-.login-card .brand {
-  margin-bottom: 6px;
-}
-.field {
-  display: grid;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-.field input {
-  font: inherit;
-  font-size: 15px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text-primary);
-}
-.field input:focus {
-  outline: 2px solid var(--series-1);
-  outline-offset: 1px;
-}
-.login-btn {
-  width: 100%;
-  padding: 11px 16px;
-}
-.login-btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-.login-error {
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 13px;
-  background: color-mix(in srgb, #d03b3b 12%, transparent);
-  color: var(--text-primary);
-  border: 1px solid color-mix(in srgb, #d03b3b 40%, transparent);
-}
 .user-chip {
   align-self: center;
   font-size: 13px;
@@ -787,34 +729,6 @@ button.crumb:hover {
   }
 }
 
-.pw-wrap {
-  position: relative;
-}
-.pw-wrap input {
-  width: 100%;
-  padding-right: 44px;
-}
-.pw-toggle {
-  position: absolute;
-  top: 50%;
-  right: 6px;
-  transform: translateY(-50%);
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 8px;
-  background: none;
-  color: var(--text-secondary);
-}
-.pw-toggle:hover {
-  background: var(--track);
-  color: var(--text-primary);
-}
-.pw-toggle:focus-visible {
-  outline: 2px solid var(--series-1);
-}
 
 /* Polling booths */
 .booth {
