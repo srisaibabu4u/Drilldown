@@ -29,6 +29,10 @@ interface Props {
   onBoothClose: () => void
   /** When set, the camera zooms in on this point (virtual units) instead of the whole view. */
   focus?: { x: number; y: number }
+  /** When set (and no `focus`), the camera fits these bounds, e.g. a selected ward. */
+  focusBounds?: [[number, number], [number, number]]
+  /** Ward the user zoomed into: stations elsewhere are faded. */
+  focusWardNo?: number
 }
 
 type Hover = { kind: 'region'; r: Region; x: number; y: number } | { kind: 'site'; s: Site; x: number; y: number }
@@ -40,14 +44,20 @@ interface Size {
 
 /** Camera as a d3 ZoomView: [centerX, centerY, width] in projected units. */
 function cameraFor(view: ViewId, size: Size): ZoomView {
-  const [[x0, y0], [x1, y1]] = boundsOf(VIEWS[view].focus)
-  const pad = view === 'india' ? 1.04 : 1.18
+  return fitBounds(boundsOf(VIEWS[view].focus), size, view === 'india' ? 1.04 : 1.18)
+}
+
+function fitBounds([[x0, y0], [x1, y1]]: [[number, number], [number, number]], size: Size, pad: number): ZoomView {
   const aspect = size.w / size.h
   const bw = (x1 - x0) * pad
   const bh = (y1 - y0) * pad
   const width = Math.max(bw, bh * aspect)
   return [(x0 + x1) / 2, (y0 + y1) / 2, width]
 }
+
+// Map-pin marker in screen pixels, tip at (0,0).
+const PIN = 'M0,0 C-1.8,-3.6 -6,-6.6 -6,-11.5 A6,6 0 1 1 6,-11.5 C6,-6.6 1.8,-3.6 0,0Z'
+const PIN_LARGE = 'M0,0 C-2.4,-4.6 -7.5,-8.2 -7.5,-14 A7.5,7.5 0 1 1 7.5,-14 C7.5,-8.2 2.4,-4.6 0,0Z'
 
 function viewBox(z: ZoomView, size: Size) {
   const w = z[2]
@@ -65,7 +75,7 @@ function d(r: Region) {
   return p
 }
 
-export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothNo, onBoothClick, onBoothClose, focus }: Props) {
+export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothNo, onBoothClick, onBoothClose, focus, focusBounds, focusWardNo }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const [size, setSize] = useState<Size>({ w: 800, h: 700 })
@@ -100,12 +110,17 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
     return () => ro.disconnect()
   }, [])
 
-  // Animate the camera whenever the view (or container size) changes.
+  // focusBounds arrives as a fresh array each render; compare it by value.
+  const focusKey = focusBounds ? focusBounds.flat().join(',') : ''
+
+  // Animate the camera whenever the view, focus or container size changes.
   useEffect(() => {
     const svg = svgRef.current!
     const target: ZoomView = focus
       ? [focus.x, focus.y, cameraFor('kukatpally', size)[2] / 4]
-      : cameraFor(view, size)
+      : focusBounds
+        ? fitBounds(focusBounds, size, 1.25)
+        : cameraFor(view, size)
     const from = camRef.current
     if (!from) {
       camRef.current = target
@@ -133,7 +148,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
     }
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [view, size, focus?.x, focus?.y])
+  }, [view, size, focus?.x, focus?.y, focusKey])
 
   const level = VIEW_ORDER.indexOf(view)
   const active = VIEWS[view].regions
@@ -141,6 +156,8 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
 
   // px -> user units at the settled camera (for label sizes / stroke tweaks)
   const unit = settled ? settled[2] / size.w : 1
+  // Zoomed in past the whole-Kukatpally view (a ward or a single station): show pin icons.
+  const zoomedIn = settled !== null && settled[2] < cameraFor('kukatpally', size)[2] * 0.6
 
   const pointer = (e: React.PointerEvent) => {
     const box = wrapRef.current!.getBoundingClientRect()
@@ -263,18 +280,32 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
               const first = site.booths[0]
               const n = site.booths.length
               const sel = site.booths.some((b) => b.no === selectedBoothNo)
-              const open = () => onBoothClick(first)
+              const open = () => {
+                cancelHide()
+                setHover(null)
+                onBoothClick(first)
+              }
+              const faded = focusWardNo !== undefined && first.wardNo !== focusWardNo && !sel
               return (
                 <g
                   key={site.key}
-                  className={`booth ${sel ? 'is-selected' : ''} ${first.precision === 'approx' ? 'is-approx' : ''}`}
-                  transform={`translate(${site.x},${site.y})`}
+                  className={[
+                    'booth',
+                    zoomedIn ? 'is-pin' : 'is-dot',
+                    sel && 'is-selected',
+                    faded && 'is-faded',
+                    first.precision === 'approx' && 'is-approx',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  // scale(unit) lets the marker be drawn in screen pixels
+                  transform={`translate(${site.x},${site.y}) scale(${unit})`}
                   onPointerEnter={() => {
                     if (site !== selectedSite) show({ kind: 'site', s: site, ...toScreen(site.x, site.y) })
                   }}
                   onPointerLeave={() => scheduleHide()}
                   onClick={open}
-                  tabIndex={0}
+                  tabIndex={zoomedIn || sel ? 0 : -1}
                   role="button"
                   aria-label={`${buildingName(first)}, ${n} polling station${n > 1 ? 's' : ''}`}
                   onKeyDown={(e) => {
@@ -284,16 +315,23 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
                     }
                   }}
                 >
-                  <circle className="booth-hit" r={11 * unit} />
-                  <circle
-                    className="booth-dot"
-                    r={(n > 1 ? 7.5 : sel ? 6 : 4.5) * unit}
-                    style={{ strokeWidth: 1.5 * unit }}
-                  />
-                  {n > 1 && (
-                    <text className="booth-count" style={{ fontSize: 9 * unit }}>
-                      {n}
-                    </text>
+                  {zoomedIn ? (
+                    <>
+                      <circle className="booth-hit" cx={0} cy={-10} r={12} />
+                      <path className="booth-pin" d={sel ? PIN_LARGE : PIN} />
+                      {n > 1 ? (
+                        <text className="booth-count" y={sel ? -14 : -11.5}>
+                          {n}
+                        </text>
+                      ) : (
+                        <circle className="booth-pin-eye" cy={sel ? -14 : -11.5} r={sel ? 2.4 : 2} />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <circle className="booth-hit" r={7} />
+                      <circle className="booth-dot" r={sel ? 5 : n > 1 ? 3 : 2.4} />
+                    </>
                   )}
                 </g>
               )
@@ -383,10 +421,15 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
         const p = toScreen(selectedSite.x, selectedSite.y)
         if (p.x < 0 || p.y < 0 || p.x > size.w || p.y > size.h) return null
         const sel = selectedSite.booths.find((b) => b.no === selectedBoothNo)!
+        const below = p.y < 190
         return (
           <div
-            className="pin-popup"
-            style={{ left: Math.max(8, Math.min(p.x - 120, size.w - 248)), top: Math.max(120, p.y - 14) }}
+            className={`pin-popup ${below ? 'is-below' : ''}`}
+            style={{
+              left: Math.max(8, Math.min(p.x - 120, size.w - 248)),
+              // sit above the marker, or below it when there's no room under the search bar
+              top: below ? p.y + 10 : p.y - (zoomedIn ? 26 : 12),
+            }}
           >
             <button className="pin-close" aria-label="Close" onClick={onBoothClose}>
               ×

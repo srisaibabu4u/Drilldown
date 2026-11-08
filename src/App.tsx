@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import MapView from './components/MapView'
 import StatsPanel from './components/StatsPanel'
 import MapSearch from './components/MapSearch'
-import { VIEW_ORDER, VIEWS, type Region, type ViewId } from './geo'
+import { pathGen, VIEW_ORDER, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
 import type { Session } from './auth'
 import { boothMeta, booths, siteOf, sites, type Booth } from './booths'
@@ -64,6 +64,12 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   }
 
   const focusSite = booth && zoomToBooth ? siteOf.get(booth.no) : undefined
+  // Clicking a ward in Kukatpally zooms the map to fill the screen with it.
+  const focusWard = view === 'kukatpally' && !focusSite ? selected : undefined
+  const zoomedOut = () => {
+    clearBooth()
+    setSelected(undefined)
+  }
 
   const onPick = (r: Region) => (r.drillTo ? go(r.drillTo) : setSelected(r))
 
@@ -157,11 +163,13 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             onBoothClick={setBooth}
             onBoothClose={clearBooth}
             focus={focusSite ? { x: focusSite.x, y: focusSite.y } : undefined}
+            focusBounds={focusWard ? pathGen.bounds(focusWard.feature) : undefined}
+            focusWardNo={focusWard?.wardNo}
           />
 
           <div className="map-top">
-            {zoomToBooth && booth ? (
-              <button className="back ghost" onClick={clearBooth}>
+            {(zoomToBooth && booth) || focusWard ? (
+              <button className="back ghost" onClick={zoomedOut}>
                 ← All of Kukatpally
               </button>
             ) : (
@@ -192,6 +200,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             {view === 'kukatpally' && showBooths && booths.length > 0 && (
               <div className="legend-hint">
                 <span className="pin-swatch" /> Polling station{boothMeta.synthetic ? ' (sample)' : ''}
+                {!focusWard && !focusSite && ' · click a ward to zoom in'}
                 {!boothMeta.synthetic && (
                   <>
                     <span className="pin-swatch is-approx" /> approx.

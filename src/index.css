@@ -812,19 +812,42 @@ button.crumb:hover {
 .booth-dot {
   fill: var(--text-primary);
   stroke: var(--surface);
-  transition: r 150ms ease;
+  stroke-width: 1px;
 }
 .booth.is-approx .booth-dot {
   fill: var(--surface);
   stroke: var(--text-primary);
 }
-.booth:hover .booth-dot,
-.booth:focus-visible .booth-dot {
-  fill: var(--accent);
+.booth-pin {
+  fill: var(--text-primary);
+  stroke: var(--surface);
+  stroke-width: 1.2px;
+  filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.35));
 }
-.booth.is-selected .booth-dot {
+.booth-pin-eye {
+  fill: var(--surface);
+}
+.booth.is-approx .booth-pin {
+  fill: var(--surface);
+  stroke: var(--text-primary);
+}
+.booth.is-approx .booth-pin-eye {
+  fill: var(--text-primary);
+}
+.booth:hover .booth-dot,
+.booth:focus-visible .booth-dot,
+.booth:hover .booth-pin,
+.booth:focus-visible .booth-pin,
+.booth.is-selected .booth-dot,
+.booth.is-selected .booth-pin {
   fill: var(--accent);
   stroke: var(--surface);
+}
+.booth.is-faded {
+  opacity: 0.3;
+}
+.booth.is-faded:hover {
+  opacity: 1;
 }
 .tt-addr {
   color: var(--text-secondary);
@@ -932,6 +955,7 @@ button.crumb:hover {
 
 .booth-count {
   fill: var(--surface);
+  font-size: 8.5px;
   font-weight: 700;
   text-anchor: middle;
   dominant-baseline: central;
@@ -1075,4 +1099,13 @@ li.msr-empty {
   .map-search input {
     font-size: 16px; /* stops iOS zooming into the field */
   }
+}
+/* In the whole-area overview, dots are display-only so taps reach the ward
+   underneath (tap a ward to zoom in, then the pins are clickable). */
+.booth.is-dot:not(.is-selected) {
+  pointer-events: none;
+}
+
+.pin-popup.is-below {
+  transform: none;
 }
