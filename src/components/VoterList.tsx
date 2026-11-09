@@ -6,14 +6,28 @@ import { fmtInt } from '../format'
 const PAGE = 50
 
 /** Full voter list for one polling station, shown over the map. */
-export default function VoterList({ booth, onClose }: { booth: Booth; onClose: () => void }) {
+export default function VoterList({
+  booth,
+  onClose,
+  focusSerial,
+}: {
+  booth: Booth
+  onClose: () => void
+  /** Open the list at this voter (e.g. from Find voter). */
+  focusSerial?: number
+}) {
   const all = useMemo(() => votersOf(booth), [booth])
   const [q, setQ] = useState('')
   const [gender, setGender] = useState<'' | Gender>('')
   const [band, setBand] = useState<number | ''>('')
-  const [page, setPage] = useState(0)
-  const [open, setOpen] = useState<Voter | null>(null)
+  const [page, setPage] = useState(() => (focusSerial ? Math.floor((focusSerial - 1) / PAGE) : 0))
+  const [open, setOpen] = useState<Voter | null>(() => (focusSerial ? (all[focusSerial - 1] ?? null) : null))
   const closeRef = useRef<HTMLButtonElement>(null)
+
+  // Bring the focused voter's row into view.
+  useEffect(() => {
+    if (focusSerial) document.querySelector('.vs-table tr.is-open')?.scrollIntoView({ block: 'center' })
+  }, [focusSerial])
 
   useEffect(() => {
     closeRef.current?.focus()

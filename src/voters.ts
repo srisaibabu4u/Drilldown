@@ -9,7 +9,11 @@
 // don't record it, and attaching it to named individuals would make the tool
 // usable for caste-based targeting. Caste appears only as station / ward / AC
 // percentages. Names use initials rather than surnames for the same reason.
-import { AGE_BANDS, type Booth } from './booths'
+import { AGE_BANDS } from './constants'
+import type { Booth } from './booths'
+
+/** The fields of a station the generator needs (so a worker can pass plain objects). */
+export type VoterSource = Pick<Booth, 'id' | 'ac' | 'electors'>
 
 export type Gender = 'M' | 'F' | 'TG'
 
@@ -34,12 +38,15 @@ const MALE = [
   'Anil', 'Sai Kumar', 'Kiran', 'Praveen', 'Narsimha', 'Yadagiri', 'Mallesh', 'Anjaneyulu', 'Raghu', 'Vijay',
   'Harish', 'Shiva', 'Ramu', 'Balaraju', 'Chandrashekar', 'Rajesh', 'Satish', 'Madhu', 'Gopal', 'Lakshman',
   'Arjun', 'Karthik', 'Nagaraju', 'Sudhakar', 'Bhaskar', 'Prakash', 'Sampath', 'Vamshi', 'Akhil', 'Rohith',
+  // Same name, different spellings — as on real rolls (for testing duplicate / fuzzy search).
+  'Santhosh', 'Santosh', 'Santhos', 'Srinivasa', 'Sreenivas', 'Venkatesh Kumar', 'Sai Kiran',
 ]
 const FEMALE = [
   'Lakshmi', 'Padma', 'Sunitha', 'Anitha', 'Kavitha', 'Swathi', 'Sravani', 'Bhavani', 'Saritha', 'Renuka',
   'Manjula', 'Jyothi', 'Radha', 'Sujatha', 'Vijaya', 'Laxmamma', 'Yadamma', 'Sailaja', 'Divya', 'Priyanka',
   'Mounika', 'Haritha', 'Sandhya', 'Rani', 'Aruna', 'Pushpa', 'Saraswathi', 'Kalpana', 'Shobha', 'Vani',
   'Keerthi', 'Navya', 'Sowmya', 'Pavani', 'Deepika', 'Rajitha', 'Sirisha', 'Hema', 'Geetha', 'Usha',
+  'Laxmi', 'Sravanthi', 'Shravani', 'Swaroopa',
 ]
 const INITIALS = 'ABCDGJKLMNPRSTVY'
 
@@ -66,8 +73,9 @@ const BAND_RANGE: [number, number][] = [
 const cache = new Map<string, Voter[]>()
 
 /** The (synthetic) voter list for a station; [] if the station has no breakdown. */
-export function votersOf(booth: Booth): Voter[] {
-  const hit = cache.get(booth.id)
+export function votersOf(booth: VoterSource, opts: { cache?: boolean } = {}): Voter[] {
+  const useCache = opts.cache ?? true
+  const hit = useCache ? cache.get(booth.id) : undefined
   if (hit) return hit
   const e = booth.electors
   if (!e) return []
@@ -174,7 +182,7 @@ export function votersOf(booth: Booth): Voter[] {
     used.add(id)
     return { ...p, serial: i + 1, id }
   })
-  cache.set(booth.id, list)
+  if (useCache) cache.set(booth.id, list)
   return list
 }
 

@@ -1,0 +1,231 @@
+import { useEffect, useRef, useState } from 'react'
+import { acMeta, acName, boothById, booths, buildingName, type Booth } from '../booths'
+import { AC_VIEWS, VIEWS } from '../geo'
+import { fmtInt } from '../format'
+import { votersOf, type Gender, type Voter } from '../voters'
+import { onStatus, searchVoters, warmUp, type IndexStatus, type SearchQuery } from '../voterSearch'
+
+interface Row {
+  booth: Booth
+  voter: Voter
+  score: number
+}
+
+/** "Find voter": fuzzy name search across every voter list, showing each match's polling station. */
+export default function VoterFinder({
+  onClose,
+  onPick,
+}: {
+  onClose: () => void
+  onPick: (booth: Booth, serial: number) => void
+}) {
+  const [status, setStatus] = useState<IndexStatus>({ state: 'idle', progress: 0 })
+  const [name, setName] = useState('')
+  const [relative, setRelative] = useState('')
+  const [age, setAge] = useState('')
+  const [gender, setGender] = useState<'' | Gender>('')
+  const [ac, setAc] = useState('')
+  const [rows, setRows] = useState<Row[]>([])
+  const [total, setTotal] = useState<number | null>(null)
+  const [ms, setMs] = useState(0)
+  const nameRef = useRef<HTMLInputElement>(null)
+  const latest = useRef(0)
+
+  useEffect(() => {
+    warmUp()
+    nameRef.current?.focus()
+    return onStatus(setStatus)
+  }, [])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  // Search as you type (debounced); ignore answers to older queries.
+  useEffect(() => {
+    const q = name.trim()
+    if (q.length < 2) {
+      setRows([])
+      setTotal(null)
+      return
+    }
+    const query: SearchQuery = {
+      name: q,
+      relative: relative.trim() || undefined,
+      age: Number(age) >= 18 ? Number(age) : undefined,
+      gender: gender || undefined,
+      ac: ac ? Number(ac) : undefined,
+      limit: 100,
+    }
+    const t = setTimeout(async () => {
+      const id = ++latest.current
+      const res = await searchVoters(query)
+      if (id !== latest.current) return
+      setRows(
+        res.hits.flatMap((h) => {
+          const booth = boothById.get(h.boothId)
+          const voter = booth && votersOf(booth)[h.serial - 1]
+          return booth && voter ? [{ booth, voter, score: h.score }] : []
+        }),
+      )
+      setTotal(res.total)
+      setMs(res.ms)
+    }, 220)
+    return () => clearTimeout(t)
+  }, [name, relative, age, gender, ac])
+
+  const anySample = booths.some((b) => acMeta(b.ac).synthetic)
+
+  return (
+    <div className="voter-sheet finder" role="dialog" aria-modal="false" aria-label="Find a voter">
+      <div className="vs-head">
+        <div>
+          <div className="kicker">Find a voter · Kukatpally &amp; Gadwal</div>
+          <h2>Which polling station is this voter at?</h2>
+          <div className="vs-chips">
+            {status.state === 'ready' ? (
+              <span>
+                Searching <b>{fmtInt(status.voters ?? 0)}</b> voters
+              </span>
+            ) : (
+              <span className="index-progress">
+                Preparing voter index… <b>{Math.round(status.progress * 100)}%</b>
+                <span className="bar-track">
+                  <span className="bar-fill" style={{ width: `${status.progress * 100}%` }} />
+                </span>
+              </span>
+            )}
+            {anySample && <span className="badge badge-sample">⚠ Sample data · made-up people</span>}
+          </div>
+        </div>
+        <button className="ghost vs-close" onClick={onClose} aria-label="Close voter search">
+          ✕
+        </button>
+      </div>
+
+      <div className="vs-controls finder-controls">
+        <input
+          ref={nameRef}
+          className="search"
+          type="search"
+          placeholder="Voter name, e.g. Santhosh Rote or R. Santosh — or a voter ID (SMP…)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          aria-label="Voter name or voter ID"
+        />
+        <input
+          className="search"
+          type="search"
+          placeholder="Father / husband name (optional)"
+          value={relative}
+          onChange={(e) => setRelative(e.target.value)}
+          aria-label="Relative's name"
+        />
+        <input
+          className="search"
+          type="number"
+          inputMode="numeric"
+          min={18}
+          max={110}
+          placeholder="Age ±2"
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
+          aria-label="Approximate age"
+        />
+        <select className="legend-select" value={gender} onChange={(e) => setGender(e.target.value as '' | Gender)} aria-label="Gender">
+          <option value="">Any gender</option>
+          <option value="M">Men</option>
+          <option value="F">Women</option>
+          <option value="TG">Third gender</option>
+        </select>
+        <select className="legend-select" value={ac} onChange={(e) => setAc(e.target.value)} aria-label="Constituency">
+          <option value="">Both constituencies</option>
+          {AC_VIEWS.map((v) => (
+            <option key={v} value={VIEWS[v].ac!.no}>
+              AC {VIEWS[v].ac!.no} {VIEWS[v].ac!.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="vs-body">
+        <div className="vs-table-wrap">
+          {total === null ? (
+            <div className="finder-help muted">
+              <p>Type at least 2 letters of a name. Spelling variants are matched, so <b>Santhosh</b>, <b>Santosh</b> and <b>Santhos</b> all find each other, and an initial like <b>R.</b> can stand for a full name like <b>Rote</b>.</p>
+              <p>Add the father’s or husband’s name, an approximate age or gender to narrow it down.</p>
+            </div>
+          ) : (
+            <table className="vs-table">
+              <thead>
+                <tr>
+                  <th>Match</th>
+                  <th>Name</th>
+                  <th className="hide-sm">Relative</th>
+                  <th>Age</th>
+                  <th className="hide-sm">Gender</th>
+                  <th>Polling station</th>
+                  <th className="hide-sm">Voter ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map(({ booth, voter, score }) => (
+                  <tr
+                    key={`${booth.id}-${voter.serial}`}
+                    onClick={() => onPick(booth, voter.serial)}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        onPick(booth, voter.serial)
+                      }
+                    }}
+                    title="Show on the map and open this station's voter list"
+                  >
+                    <td>
+                      <span className={`match ${score >= 0.95 ? 'is-exact' : score >= 0.8 ? 'is-close' : ''}`}>
+                        {Math.round(score * 100)}%
+                      </span>
+                    </td>
+                    <td>{voter.name}</td>
+                    <td className="hide-sm muted">
+                      {voter.relation} {voter.relative}
+                    </td>
+                    <td className="num">{voter.age}</td>
+                    <td className="hide-sm">{voter.gender}</td>
+                    <td className="station-cell">
+                      <b>
+                        {acName(booth.ac)} · PS {booth.no}
+                      </b>
+                      <span className="muted">{buildingName(booth)}</span>
+                    </td>
+                    <td className="hide-sm mono">{voter.id}</td>
+                  </tr>
+                ))}
+                {rows.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="muted">
+                      No voters match. Try fewer words, or remove a filter.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      <div className="vs-foot">
+        <span className="muted">
+          {total === null
+            ? 'Matches show the voter’s polling station; click one to see it on the map.'
+            : total > rows.length
+              ? `Best ${fmtInt(rows.length)} of ${fmtInt(total)} matches (${ms} ms). Add a filter to narrow down.`
+              : `${fmtInt(total)} match${total === 1 ? '' : 'es'} (${ms} ms)`}
+        </span>
+      </div>
+    </div>
+  )
+}

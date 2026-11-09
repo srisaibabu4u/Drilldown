@@ -11,6 +11,7 @@ India → Telangana → Gadwal (4 mandals)                        → polling st
 - Each level's map is shaded by population density. In a constituency you can colour polling stations by turnout, electors, first-time voters, women, electors aged 80+, or social-category share, as below, around or above the constituency average.
 - The side panel shows population figures, voter statistics (gender, age, turnout, households) and a caste-share dashboard (SC, ST, BC, OC, with the difference from the constituency average) for the constituency, a ward or mandal, and each station.
 - Click a ward or mandal to zoom in on it. Click a station for its details. **View voter list** opens that station's voters, with search, gender and age filters, pages, and a card per voter showing their household.
+- **Find voter** (header button): type a name and see which polling station each matching voter is at, across both constituencies. Spelling variants match (Santhosh / Santosh / Santhos, Lakshmi / Laxmi, Sreenivas / Srinivas), and an initial can stand for a full word ("R. Santosh" finds "Santhosh Rote"). Narrow it down by father's or husband's name, age (±2), gender or constituency, or paste a sample voter ID. Click a match to fly to the station and open its voter list at that person.
 - The search box finds a station in either constituency by number, building, street, ward or mandal (for example "gadwal 12" or "ghattu school").
 - Each level has its own URL (`#india`, `#telangana`, `#ghmc`, `#kukatpally`, `#gadwal`).
 - Includes light and dark themes, a mobile layout and keyboard support.
@@ -116,6 +117,9 @@ src/
   components/ElectorStats.tsx voter statistics and caste-share dashboard
   components/VoterList.tsx    a station's voter list, filters and voter card
   voters.ts              synthetic voter generator (matches each station's totals)
+  nameMatch.ts           fuzzy matching for Indian name spellings (voter search, duplicates)
+  voterSearch.worker.ts  background index + search over every voter
+  components/VoterFinder.tsx  the Find voter panel
   App.tsx                header, breadcrumb, legend, routing
 public/login.html        stand-alone sign-in page (the only page signed-out visitors get)
 netlify/

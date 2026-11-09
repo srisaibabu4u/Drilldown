@@ -1394,3 +1394,73 @@ li.msr-empty {
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
+
+/* Find voter */
+.find-voter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.finder {
+  z-index: 7;
+}
+.finder-controls {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) 90px 130px 190px;
+}
+.finder-help {
+  padding: 16px 18px;
+  max-width: 640px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.index-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.index-progress .bar-track {
+  width: 120px;
+  height: 6px;
+}
+.match {
+  display: inline-block;
+  min-width: 42px;
+  text-align: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.match.is-close {
+  border-color: var(--series-1);
+}
+.match.is-exact {
+  background: var(--series-1);
+  border-color: var(--series-1);
+  color: #fff;
+}
+.station-cell {
+  display: grid;
+  line-height: 1.25;
+}
+.station-cell .muted {
+  font-size: 12px;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 900px) {
+  .finder-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+  .finder-controls .search:first-child {
+    grid-column: 1 / -1;
+  }
+  .find-voter-btn {
+    padding: 8px 11px;
+  }
+}

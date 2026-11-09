@@ -1,19 +1,12 @@
 import { geoContains } from 'd3-geo'
 import raw from './data/booths.json'
 import { AC_VIEWS, projection, unitsOf, VIEWS } from './geo'
+import { AGE_BANDS, SOCIAL_GROUPS } from './constants'
+
+export { AGE_BANDS, SOCIAL_GROUPS }
 
 /** How the booth's position was obtained (set by scripts/import-booths.mjs). */
 export type Precision = 'manual' | 'geocoded' | 'approx'
-
-export const AGE_BANDS = ['18–19', '20–29', '30–39', '40–49', '50–59', '60–69', '70–79', '80+']
-
-/** Broad social categories used in Telangana. */
-export const SOCIAL_GROUPS = [
-  { key: 'SC', label: 'SC', name: 'Scheduled Castes' },
-  { key: 'ST', label: 'ST', name: 'Scheduled Tribes' },
-  { key: 'BC', label: 'BC', name: 'Backward Classes' },
-  { key: 'OC', label: 'OC', name: 'Other Castes' },
-]
 
 /** Electoral-roll breakdown for one station (all optional in real imports). */
 export interface Electors {
