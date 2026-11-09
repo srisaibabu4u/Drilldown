@@ -3,9 +3,10 @@ import type { Feature, FeatureCollection, Geometry, Position } from 'geojson'
 import indiaRaw from './data/geo/india-states.json'
 import tsRaw from './data/geo/telangana-districts.json'
 import wardsRaw from './data/geo/ghmc-wards.json'
-import { combine, DISTRICTS, GHMC, INDIA, STATES, wardStats, type Stats } from './data/stats'
+import mandalsRaw from './data/geo/gadwal-mandals.json'
+import { combine, DISTRICTS, GHMC, INDIA, RURAL_MANDAL, STATES, wardStats, type Stats } from './data/stats'
 
-export type ViewId = 'india' | 'telangana' | 'ghmc' | 'kukatpally'
+export type ViewId = 'india' | 'telangana' | 'ghmc' | 'kukatpally' | 'gadwal'
 
 export interface Region {
   id: string
@@ -16,6 +17,8 @@ export interface Region {
   /** View this region opens when clicked, if it can be drilled into. */
   drillTo?: ViewId
   wardNo?: number
+  /** Polling stations are assigned to the unit (ward / mandal) they fall in. */
+  unitId?: string
 }
 
 export const VIRTUAL_W = 1000
@@ -54,7 +57,13 @@ const km2 = (f: Feature) => geoArea(f) * EARTH_R * EARTH_R
 /** GHMC wards that make up the Kukatpally area (Kukatpally / Moosapet circles). */
 export const KUKATPALLY_WARDS = [114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124]
 
-const DRILLABLE_DISTRICTS = new Set(['Hyderabad', 'Medchal Malkajgiri', 'Ranga Reddy', 'Sangareddy'])
+const DRILLABLE_DISTRICTS: Record<string, ViewId> = {
+  Hyderabad: 'ghmc',
+  'Medchal Malkajgiri': 'ghmc',
+  'Ranga Reddy': 'ghmc',
+  Sangareddy: 'ghmc',
+  'Jogulamba Gadwal': 'gadwal',
+}
 
 export const states: Region[] = indiaFc.features.map((f) => {
   const name = f.properties!.st_nm as string
@@ -76,7 +85,7 @@ export const districts: Region[] = rewind(tsRaw as unknown as FeatureCollection)
     feature: f,
     areaKm2: km2(f),
     stats: DISTRICTS[name],
-    drillTo: DRILLABLE_DISTRICTS.has(name) ? 'ghmc' : undefined,
+    drillTo: DRILLABLE_DISTRICTS[name],
   }
 })
 
@@ -98,9 +107,22 @@ export const wards: Region[] = rewind(wardsRaw as unknown as FeatureCollection).
   })
   .filter((w) => Number.isFinite(w.wardNo))
 
-export const kukatpallyWards = wards
+export const kukatpallyWards: Region[] = wards
   .filter((w) => KUKATPALLY_WARDS.includes(w.wardNo!))
-  .map((w) => ({ ...w, drillTo: undefined }))
+  .map((w) => ({ ...w, drillTo: undefined, unitId: `ward-${w.wardNo}` }))
+
+/** Mandals of Gadwal assembly constituency (pre-2016 mandal boundaries). */
+export const gadwalMandals: Region[] = rewind(mandalsRaw as unknown as FeatureCollection).features.map((f, i) => {
+  const name = f.properties!.name as string
+  return {
+    id: `md-${name}`,
+    name,
+    feature: f,
+    areaKm2: km2(f),
+    stats: wardStats(9001 + i, RURAL_MANDAL),
+    unitId: `mandal-${name.toLowerCase()}`,
+  }
+})
 
 export interface ViewDef {
   id: ViewId
@@ -113,6 +135,15 @@ export interface ViewDef {
   total: Stats
   areaKm2: number
   parent?: ViewId
+  /** Set for assembly-constituency views, which have polling stations. */
+  ac?: AcDef
+}
+
+export interface AcDef {
+  no: number
+  name: string
+  /** What the constituency's map units are called ("Ward", "Mandal"). */
+  unitLabel: string
 }
 
 const sum = (rs: Region[]) => rs.reduce((a, r) => a + r.areaKm2, 0)
@@ -165,10 +196,38 @@ export const VIEWS: Record<ViewId, ViewDef> = {
     total: combine(kukatpallyWards.map((w) => w.stats!)),
     areaKm2: sum(kukatpallyWards),
     parent: 'ghmc',
+    ac: { no: 46, name: 'Kukatpally', unitLabel: 'Ward' },
+  },
+  gadwal: {
+    id: 'gadwal',
+    title: 'Gadwal',
+    subtitle: `Assembly constituency · ${gadwalMandals.length} mandals`,
+    levelLabel: 'Area',
+    childLabel: 'Mandals',
+    regions: gadwalMandals,
+    focus: gadwalMandals.map((m) => m.feature),
+    total: combine(gadwalMandals.map((m) => m.stats!)),
+    areaKm2: sum(gadwalMandals),
+    parent: 'telangana',
+    ac: { no: 79, name: 'Gadwal', unitLabel: 'Mandal' },
   },
 }
 
-export const VIEW_ORDER: ViewId[] = ['india', 'telangana', 'ghmc', 'kukatpally']
+export const VIEW_IDS = Object.keys(VIEWS) as ViewId[]
+
+/** Root-first chain of views down to `v` (for breadcrumbs). */
+export function viewPath(v: ViewId): ViewId[] {
+  const out: ViewId[] = []
+  for (let cur: ViewId | undefined = v; cur; cur = VIEWS[cur].parent) out.unshift(cur)
+  return out
+}
+
+/** Depth of a view in the drill-down (India = 0). */
+export const depth = (v: ViewId) => viewPath(v).length - 1
+
+export const AC_VIEWS = VIEW_IDS.filter((v) => VIEWS[v].ac)
+export const viewForAc = (acNo: number) => AC_VIEWS.find((v) => VIEWS[v].ac!.no === acNo)!
+export const unitsOf = (v: ViewId) => (VIEWS[v].ac ? VIEWS[v].regions : [])
 
 /** Bounding box of features in projected (virtual) units. */
 export function boundsOf(features: Feature[]): [[number, number], [number, number]] {

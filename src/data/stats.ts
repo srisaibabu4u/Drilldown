@@ -154,12 +154,20 @@ function mulberry32(seed: number) {
 
 const wardCache = new Map<number, Stats>()
 
-export function wardStats(wardNo: number): Stats {
+export interface SampleProfile {
+  population: [number, number]
+  literacy: [number, number]
+}
+const URBAN_WARD: SampleProfile = { population: [42_000, 78_000], literacy: [81, 92] }
+/** Rural mandal (e.g. Gadwal) — larger, lower literacy. */
+export const RURAL_MANDAL: SampleProfile = { population: [45_000, 120_000], literacy: [48, 62] }
+
+export function wardStats(wardNo: number, profile: SampleProfile = URBAN_WARD): Stats {
   const cached = wardCache.get(wardNo)
   if (cached) return cached
   const r = mulberry32(wardNo * 7919)
   const between = (a: number, b: number) => a + (b - a) * r()
-  const population = Math.round(between(42_000, 78_000) / 10) * 10
+  const population = Math.round(between(...profile.population) / 10) * 10
   const hhSize = between(3.5, 4.2)
   const young = between(0.2, 0.26)
   const youth = between(0.17, 0.21)
@@ -170,7 +178,7 @@ export function wardStats(wardNo: number): Stats {
     source: 'sample',
     households: Math.round(population / hhSize),
     sexRatio: Math.round(between(918, 972)),
-    literacy: +between(81, 92).toFixed(1),
+    literacy: +between(...profile.literacy).toFixed(1),
     workers: +between(36, 45).toFixed(1),
     ageGroups: [
       { label: '0–14', share: young },

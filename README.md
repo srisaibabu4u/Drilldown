@@ -1,16 +1,18 @@
 # Kukatpally Drilldown
 
-An interactive map that starts with India and zooms step by step into **Kukatpally, Hyderabad**, showing population statistics at each level.
+An interactive map that starts with India and zooms step by step into two assembly constituencies, **Kukatpally (AC 46, Hyderabad)** and **Gadwal (AC 79, Jogulamba Gadwal)**. It then drills down to polling stations and each station's voter list.
 
 ```
-India (36 states/UTs) → Telangana (33 districts) → Greater Hyderabad (GHMC wards) → Kukatpally (11 wards)
+India → Telangana → Greater Hyderabad → Kukatpally (11 wards) → polling station → voters
+India → Telangana → Gadwal (4 mandals)                        → polling station → voters
 ```
 
-- One smooth, continuous zoom between levels: every level uses the same map projection, so moving from India to a ward is a single animated camera move. The "Fly to Kukatpally" button does the whole trip in one go.
-- Each level's map is shaded by population density (people per km²).
-- The side panel shows population, density, area, households, sex ratio and literacy, plus an age profile, mother-tongue split and a ranked list of the areas one level down.
-- Hover over an area for a tooltip. Click an area with a glowing outline to zoom in; click any other area to see its stats. The breadcrumb and back button take you up a level.
-- Each level has its own URL (`#india`, `#telangana`, `#ghmc`, `#kukatpally`), so you can bookmark or share one.
+- One smooth, continuous zoom between levels: every level uses the same map projection. The "Kukatpally ✈" and "Gadwal ✈" buttons do the whole trip in one go.
+- Each level's map is shaded by population density. In a constituency you can colour polling stations by turnout, electors, first-time voters, women, electors aged 80+, or social-category share, as below, around or above the constituency average.
+- The side panel shows population figures, voter statistics (gender, age, turnout, households) and a caste-share dashboard (SC, ST, BC, OC, with the difference from the constituency average) for the constituency, a ward or mandal, and each station.
+- Click a ward or mandal to zoom in on it. Click a station for its details. **View voter list** opens that station's voters, with search, gender and age filters, pages, and a card per voter showing their household.
+- The search box finds a station in either constituency by number, building, street, ward or mandal (for example "gadwal 12" or "ghattu school").
+- Each level has its own URL (`#india`, `#telangana`, `#ghmc`, `#kukatpally`, `#gadwal`).
 - Includes light and dark themes, a mobile layout and keyboard support.
 
 ## Run it
@@ -21,13 +23,13 @@ npm run dev      # http://localhost:5173
 npm run build    # production build into dist/
 ```
 
-## Polling stations (Kukatpally, AC 46)
+## Polling stations and voters
 
 At the Kukatpally level, the map can show polling station pins. Click a pin to see the station number, building, address, number of electors, ward, and a link to Google Maps. The side panel lists the stations, either for the whole area or for the selected ward, with a search box.
 
 **Voter statistics.** Each station can carry an elector breakdown: men, women and third gender, eight age bands from 18–19 to 80+, households, broad social category (SC, ST, BC, OC), and turnout at the last assembly election. The Kukatpally, ward and station panels show these as totals (electors, turnout with approximate votes polled, first-time voters, gender ratio, households, electors aged 80+), plus charts by gender, social category and age and the five lowest-turnout stations. These are aggregate counts only. The app holds no individual voter records. Electoral rolls don't record caste, so real social-category figures would have to come from a survey, such as Telangana's 2024 caste survey.
 
-For now, `src/data/booths.json` holds **417 synthetic stations** made by `npm run sample:booths`. They are random points inside the wards with generic names and synthetic voter statistics. The app labels them "Sample data · not real polling stations" and hides the Google Maps link. To load the real list instead:
+For now, `src/data/booths.json` holds **synthetic stations** made by `npm run sample:booths`: 417 for Kukatpally and 295 for Gadwal. They are random points inside the wards with generic names and synthetic voter statistics. The app labels them "Sample data · not real polling stations" and hides the Google Maps link. To load the real list instead:
 
 1. Download the AC 46 Kukatpally polling station list from the Chief Electoral Officer, Telangana (ceotelangana.nic.in).
 2. Convert the table to CSV with the columns in `data/booths-template.csv`: `ps_no,name,address,lat,lng,voters`. If the list is a PDF, Tabula works well, or you can open it in Excel or Google Sheets. `lat`, `lng` and `voters` are optional.
@@ -37,6 +39,17 @@ For now, `src/data/booths.json` holds **417 synthetic stations** made by `npm ru
 4. Commit `src/data/booths.json` and push. Netlify redeploys automatically.
 
 Each station is assigned to a ward automatically by its position. Stations outside the 11 mapped wards still appear, with the ward shown as "—".
+
+**Voter lists.** Each station's voter list is generated in the browser from that station's own totals, so the list always matches the dashboard (same counts by gender and age band, grouped into its households). Each voter has a serial number, a name, a relative, age, gender, house number and a **sample** voter ID (`SMP` + 7 digits, never a real ID number). The list is labelled "made-up people".
+
+> Caste is deliberately **not** attached to individual voters. Electoral rolls don't record it, and pairing caste with named people would make the tool usable for caste-based targeting, which India's election law treats as a corrupt practice. Caste appears only as percentages for a station, ward or mandal, or a whole constituency. Names use initials rather than surnames for the same reason.
+
+**Importing real stations for one constituency** (the other one is left untouched):
+
+```bash
+npm run import:booths -- kukatpally.csv --ac 46 --source "CEO Telangana PS list, 2025"
+npm run import:booths -- gadwal.csv --ac 79 --name Gadwal --source "CEO Telangana PS list, 2025"
+```
 
 ## Sign-in
 
@@ -80,6 +93,7 @@ Or use the CLI: `npx netlify-cli deploy --build --prod`.
 |---|---|---|
 | India states | [udit-001/india-maps-data](https://github.com/udit-001/india-maps-data) (districts merged into states) | Census of India 2011 |
 | Telangana districts | same source (33 districts) | Census 2011, regrouped into the post-2016 districts |
+| Gadwal mandals (Gadwal, Dharur, Maldakal, Ghattu; pre-2016 boundaries) | [gggodhwani/telangana_boundaries](https://github.com/gggodhwani/telangana_boundaries) | **Sample data** |
 | GHMC wards | [DataMeet Municipal_Spatial_Data](https://github.com/datameet/Municipal_Spatial_Data) (based on OpenStreetMap) | **Sample data** |
 | Kukatpally wards 114–124 | same | **Sample data** |
 
@@ -99,7 +113,9 @@ src/
   measures.ts            "colour stations by" measures and their below/around/above-average classes
   session.ts             asks the server who is signed in; logout
   components/StatsPanel.tsx  KPIs, age chart, ranking, station list
-  components/ElectorStats.tsx voter statistics (gender, social category, age, turnout)
+  components/ElectorStats.tsx voter statistics and caste-share dashboard
+  components/VoterList.tsx    a station's voter list, filters and voter card
+  voters.ts              synthetic voter generator (matches each station's totals)
   App.tsx                header, breadcrumb, legend, routing
 public/login.html        stand-alone sign-in page (the only page signed-out visitors get)
 netlify/

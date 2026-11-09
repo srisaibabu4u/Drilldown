@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 // Writes SYNTHETIC polling stations to src/data/booths.json so the booth layer
-// can be demoed before the official list is imported. Every station is made up:
-// positions are random points inside the Kukatpally wards and names are generic.
+// can be demoed before the official lists are imported. Every station is made up:
+// positions are random points inside the map units and names are generic.
+//   - AC 46 Kukatpally: urban stations inside the 11 GHMC wards
+//   - AC 79 Gadwal: rural village stations inside its 4 mandals
+// Each AC uses its own random streams, so changing one never moves the other.
 // The app labels this data "Sample" everywhere. Replace it with
 // `npm run import:booths -- stations.csv` when the real list is available.
 //
-// Usage: node scripts/generate-sample-booths.mjs [count=417]
+// Usage: node scripts/generate-sample-booths.mjs [kukatpallyCount=417] [gadwalCount=296]
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -93,7 +96,7 @@ function electorsFor(total, wardNo) {
 }
 
 const totalArea = wards.reduce((a, w) => a + w.area, 0)
-const booths = []
+const booths = [] // Kukatpally
 for (const w of wards) {
   const n = Math.max(6, Math.round((w.area / totalArea) * COUNT))
   const [[x0, y0], [x1, y1]] = geoBounds(w.f)
@@ -123,14 +126,110 @@ for (const w of wards) {
   }
 }
 booths.sort((a, b) => a.ward - b.ward || b.lat - a.lat)
-const out = booths.slice(0, COUNT).map(({ ward, ...b }, i) => ({ no: i + 1, ...b }))
+const kukatpally = booths.slice(0, COUNT).map(({ ward, ...b }, i) => ({ ac: 46, no: i + 1, ...b }))
+
+// ---------------------------------------------------------------------------
+// AC 79 Gadwal — rural: stations sit in village schools spread over 4 mandals.
+// ---------------------------------------------------------------------------
+const G_COUNT = Number(process.argv[3] ?? 296)
+const stream = (s) => () => {
+  s = (s + 0x6d2b79f5) | 0
+  let t = Math.imul(s ^ (s >>> 15), 1 | s)
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+}
+const g = stream(79)
+const gPick = (a) => a[Math.floor(g() * a.length)]
+const mandals = JSON.parse(readFileSync(resolve(root, 'src/data/geo/gadwal-mandals.json'), 'utf8')).features.map((f) => {
+  const geom = f.geometry
+  if (geom.type === 'Polygon') geom.coordinates = fixPoly(geom.coordinates)
+  else geom.coordinates = geom.coordinates.map(fixPoly)
+  return { name: f.properties.name, f, area: geoArea(f) }
+})
+const G_BUILDINGS = [
+  'Mandal Parishad Primary School',
+  'Zilla Parishad High School',
+  'Gram Panchayat Office',
+  'Anganwadi Centre',
+  'Mandal Parishad Upper Primary School',
+  'Community Hall',
+]
+// Rural Gadwal mix (illustrative): older roll, near-equal gender, high turnout.
+const G_AGE = [0.03, 0.2, 0.22, 0.19, 0.15, 0.11, 0.07, 0.03]
+const G_SOCIAL = [0.19, 0.02, 0.58, 0.21]
+const mandalTurnout = Object.fromEntries(mandals.map((m) => [m.name, 77 + g() * 8]))
+
+function gElectors(total, mandal) {
+  const tg = g() < 0.05 ? 1 : 0
+  const female = Math.round((total - tg) * (0.485 + g() * 0.03))
+  const w = G_AGE.map((s) => s * (0.8 + g() * 0.4))
+  const sum = w.reduce((a, b) => a + b, 0)
+  const ages = w.map((x) => Math.floor((x / sum) * total))
+  ages[3] += total - ages.reduce((a, b) => a + b, 0)
+  const sw = G_SOCIAL.map((x) => x * (0.6 + g() * 0.8))
+  const ssum = sw.reduce((a, b) => a + b, 0)
+  const social = sw.map((x) => Math.floor((x / ssum) * total))
+  social[2] += total - social.reduce((a, b) => a + b, 0)
+  return {
+    male: total - tg - female,
+    female,
+    thirdGender: tg,
+    ages,
+    social,
+    households: Math.round(total / (2.4 + g() * 0.7)),
+    turnout: +Math.min(92, Math.max(62, mandalTurnout[mandal] + (g() - 0.5) * 14)).toFixed(1),
+  }
+}
+
+const gBooths = []
+const gArea = mandals.reduce((a, m) => a + m.area, 0)
+for (const m of mandals) {
+  const n = Math.round((m.area / gArea) * G_COUNT)
+  const [[x0, y0], [x1, y1]] = geoBounds(m.f)
+  let made = 0
+  let village = 0
+  while (made < n) {
+    village++
+    let pt
+    do pt = [x0 + g() * (x1 - x0), y0 + g() * (y1 - y0)]
+    while (!geoContains(m.f, pt))
+    const vname = `${m.name} Village ${String(village).padStart(2, '0')}`
+    const building = `${gPick(G_BUILDINGS)}, ${vname}`
+    const rooms = Math.min(n - made, g() < 0.6 ? 1 : 2 + Math.floor(g() * 2))
+    for (let r = 1; r <= rooms; r++) {
+      const voters = 420 + Math.round(g() * 780)
+      gBooths.push({
+        mandal: m.name,
+        name: rooms > 1 ? `${building} (Room ${r})` : building,
+        address: `${vname}, ${m.name} mandal, Jogulamba Gadwal`,
+        lat: +pt[1].toFixed(6),
+        lng: +pt[0].toFixed(6),
+        voters,
+        precision: 'manual',
+        electors: gElectors(voters, m.name),
+      })
+    }
+    made += rooms
+  }
+}
+gBooths.sort((a, b) => a.mandal.localeCompare(b.mandal) || b.lat - a.lat)
+const gadwal = gBooths.slice(0, G_COUNT).map(({ mandal, ...b }, i) => ({ ac: 79, no: i + 1, ...b }))
 
 writeFileSync(
   resolve(root, 'src/data/booths.json'),
   JSON.stringify(
-    { ac: 46, acName: 'Kukatpally', synthetic: true, source: 'Synthetic sample data (not real polling stations)', updated: new Date().toISOString().slice(0, 10), booths: out },
+    {
+      acs: [46, 79].map((ac) => ({
+        ac,
+        name: ac === 46 ? 'Kukatpally' : 'Gadwal',
+        synthetic: true,
+        source: 'Synthetic sample data (not real polling stations)',
+        updated: new Date().toISOString().slice(0, 10),
+      })),
+      booths: [...kukatpally, ...gadwal],
+    },
     null,
     1,
   ) + '\n',
 )
-console.log(`Wrote ${out.length} synthetic stations`)
+console.log(`Wrote ${kukatpally.length} Kukatpally + ${gadwal.length} Gadwal synthetic stations`)

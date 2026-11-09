@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-// Import Kukatpally (AC 46) polling stations into src/data/booths.json.
+// Import one constituency's polling stations into src/data/booths.json,
+// replacing only that constituency (others are kept as they are).
 //
 // Usage:
-//   node scripts/import-booths.mjs <stations.csv> [--source "CEO Telangana PS list, 2025"]
+//   node scripts/import-booths.mjs <stations.csv> [--ac 46] [--name Kukatpally] [--source "CEO Telangana PS list, 2025"]
+// Defaults to AC 46 Kukatpally. For Gadwal use: --ac 79 --name Gadwal
 //
 // CSV columns (header row required, see data/booths-template.csv):
 //   ps_no, name, address, lat, lng, voters
@@ -24,12 +26,19 @@ const OUT = resolve(root, 'src/data/booths.json')
 const CACHE = resolve(root, 'scripts/.geocode-cache.json')
 
 // Rough box around Kukatpally / Moosapet / Balanagar (lng/lat) to keep matches local.
-const VIEWBOX = '78.33,17.53,78.50,17.43'
+// Rough lng/lat boxes per constituency to keep geocoding matches local.
+const VIEWBOXES = { 46: '78.33,17.53,78.50,17.43', 79: '77.55,16.45,77.98,16.05' }
+const DISTRICT = { 46: 'Hyderabad', 79: 'Jogulamba Gadwal' }
 
 const args = process.argv.slice(2)
 const input = args.find((a) => !a.startsWith('--'))
 const sourceIdx = args.indexOf('--source')
 const source = sourceIdx >= 0 ? args[sourceIdx + 1] : 'Chief Electoral Officer, Telangana'
+const argVal = (flag) => (args.indexOf(flag) >= 0 ? args[args.indexOf(flag) + 1] : undefined)
+const AC = Number(argVal('--ac') ?? 46)
+const AC_NAME = argVal('--name') ?? (AC === 46 ? 'Kukatpally' : AC === 79 ? 'Gadwal' : `AC ${AC}`)
+const VIEWBOX = VIEWBOXES[AC] ?? VIEWBOXES[46]
+const PLACE = DISTRICT[AC] ?? 'Telangana'
 if (!input) {
   console.error('Usage: node scripts/import-booths.mjs <stations.csv> [--source "..."]')
   process.exit(1)
@@ -80,13 +89,13 @@ const clean = (s) => s.replace(/\s+/g, ' ').replace(/^(room|r\.?no\.?)\s*[\w-]+[
 
 async function locate(name, address) {
   const tries = [
-    [`${clean(name)}, ${address}, Hyderabad`, 'geocoded'],
-    [`${clean(name)}, Kukatpally, Hyderabad`, 'geocoded'],
-    [`${address}, Hyderabad`, 'approx'],
+    [`${clean(name)}, ${address}, ${PLACE}`, 'geocoded'],
+    [`${clean(name)}, ${AC_NAME}, ${PLACE}`, 'geocoded'],
+    [`${address}, ${PLACE}`, 'approx'],
   ]
   // Last resort: the most specific locality word in the address.
   const locality = address.split(',').map((s) => s.trim()).filter(Boolean).pop()
-  if (locality) tries.push([`${locality}, Hyderabad`, 'approx'])
+  if (locality) tries.push([`${locality}, ${PLACE}`, 'approx'])
   for (const [q, precision] of tries) {
     const hit = await nominatim(q)
     if (hit) return { ...hit, precision }
@@ -109,7 +118,22 @@ for (const r of rows) {
   process.stdout.write(`\r${out.length}/${rows.length} located`)
 }
 
-writeFileSync(OUT, JSON.stringify({ ac: 46, acName: 'Kukatpally', synthetic: false, source, updated: new Date().toISOString().slice(0, 10), booths: out }, null, 1) + '\n')
+// Replace only this constituency; keep the others.
+const existing = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : { acs: [], booths: [] }
+const oldAcs = existing.acs ?? (existing.ac ? [{ ac: existing.ac, name: existing.acName, synthetic: !!existing.synthetic, source: existing.source, updated: existing.updated }] : [])
+const oldBooths = (existing.booths ?? []).map((b) => ({ ac: b.ac ?? existing.ac ?? 46, ...b }))
+const meta = { ac: AC, name: AC_NAME, synthetic: false, source, updated: new Date().toISOString().slice(0, 10) }
+writeFileSync(
+  OUT,
+  JSON.stringify(
+    {
+      acs: [...oldAcs.filter((m) => m.ac !== AC), meta].sort((a, b) => a.ac - b.ac),
+      booths: [...oldBooths.filter((b) => b.ac !== AC), ...out.map((b) => ({ ac: AC, ...b }))],
+    },
+    null,
+    1,
+  ) + '\n',
+)
 const approx = out.filter((b) => b.precision === 'approx').map((b) => b.no)
 console.log(`\nWrote ${out.length} booths to ${OUT}`)
 if (approx.length) console.log(`Approximate (locality only), check by hand: ${approx.join(', ')}`)

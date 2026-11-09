@@ -1,4 +1,4 @@
-import { booths, sites, summarize, type ElectorSummary, type Site } from './booths'
+import { boothsOfAc, summarize, type ElectorSummary, type Site } from './booths'
 
 /** A per-station statistic the map can colour polling stations by. */
 export interface Measure {
@@ -31,7 +31,7 @@ export type MeasureClass = 0 | 1 | 2 // below, around, above average
 
 export interface MeasureScale {
   measure: Measure
-  /** Kukatpally-wide value (elector-weighted where it applies). */
+  /** Constituency-wide value (elector-weighted where it applies). */
   average: number
   low: number
   high: number
@@ -43,10 +43,11 @@ export interface MeasureScale {
 export const CLASS_LABELS = ['Below average', 'Around average', 'Above average']
 
 /**
- * Three classes around the Kukatpally average: a station is "around average" when
- * it is within half a standard deviation of it (measured across stations).
+ * Three classes around the constituency average: a station is "around average"
+ * when it is within half a standard deviation of it (measured across stations).
  */
-export function scaleFor(measure: Measure): MeasureScale | null {
+export function scaleFor(measure: Measure, ac: number): MeasureScale | null {
+  const booths = boothsOfAc(ac)
   const all = summarize(booths)
   const average = all ? measure.value(all) : undefined
   const values = booths.map((b) => summarize([b])).map((s) => (s ? measure.value(s) : undefined))
@@ -73,6 +74,5 @@ export function scaleFor(measure: Measure): MeasureScale | null {
   }
 }
 
-/** Measures that actually have data in the loaded stations. */
-export const availableMeasures = () =>
-  booths.length === 0 ? [] : MEASURES.filter((m) => scaleFor(m) !== null && sites.length > 0)
+/** Measures that actually have data in a constituency's stations. */
+export const availableMeasures = (ac: number) => MEASURES.filter((m) => scaleFor(m, ac) !== null)

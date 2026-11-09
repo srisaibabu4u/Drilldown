@@ -2,15 +2,16 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import MapView from './components/MapView'
 import StatsPanel from './components/StatsPanel'
 import MapSearch from './components/MapSearch'
+import VoterList from './components/VoterList'
 import { availableMeasures, CLASS_LABELS, MEASURES, scaleFor } from './measures'
-import { pathGen, VIEW_ORDER, VIEWS, type Region, type ViewId } from './geo'
+import { AC_VIEWS, pathGen, VIEW_IDS, viewForAc, viewPath, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
 import type { Session } from './session'
-import { boothMeta, booths, siteOf, sites, type Booth } from './booths'
+import { acMeta, boothMeta, boothsOfAc, siteOf, sitesOfAc, type Booth } from './booths'
 
 function readHash(): ViewId {
   const h = window.location.hash.replace('#', '') as ViewId
-  return VIEW_ORDER.includes(h) ? h : 'india'
+  return VIEW_IDS.includes(h) ? h : 'india'
 }
 
 export default function App({ user, onLogout }: { user: Session; onLogout: () => void }) {
@@ -18,6 +19,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const [selected, setSelected] = useState<Region | undefined>()
   const [booth, setBooth] = useState<Booth | undefined>()
   const [showBooths, setShowBooths] = useState(true)
+  // Station whose voter list is open (drill-down below a station).
+  const [voterBooth, setVoterBooth] = useState<Booth | undefined>()
   // Zoom the camera onto the selected station (set by the map search).
   const [zoomToBooth, setZoomToBooth] = useState(false)
   const viewRef = useRef(view)
@@ -37,7 +40,6 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
       /* per-viewer convenience only */
     }
   }
-  const measures = useMemo(availableMeasures, [])
   const [theme, setTheme] = useState<'light' | 'dark' | null>(null)
 
   useEffect(() => {
@@ -48,6 +50,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
       setView(v)
       setSelected(undefined)
       setBooth(undefined)
+      setVoterBooth(undefined)
       setZoomToBooth(false)
     }
     window.addEventListener('hashchange', onHash)
@@ -61,6 +64,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const go = (v: ViewId) => {
     setSelected(undefined)
     setBooth(undefined)
+    setVoterBooth(undefined)
     setZoomToBooth(false)
     if (v !== view) {
       viewRef.current = v
@@ -70,7 +74,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   }
 
   const findBooth = (b: Booth) => {
-    if (view !== 'kukatpally') go('kukatpally')
+    const target = viewForAc(b.ac)
+    if (view !== target) go(target)
     setSelected(undefined)
     setBooth(b)
     setZoomToBooth(true)
@@ -78,12 +83,14 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
 
   const clearBooth = () => {
     setBooth(undefined)
+    setVoterBooth(undefined)
     setZoomToBooth(false)
   }
 
-  const focusSite = booth && zoomToBooth ? siteOf.get(booth.no) : undefined
-  // Clicking a ward in Kukatpally zooms the map to fill the screen with it.
-  const focusWard = view === 'kukatpally' && !focusSite ? selected : undefined
+  const ac = VIEWS[view].ac
+  const focusSite = booth && zoomToBooth ? siteOf.get(booth.id) : undefined
+  // Clicking a ward / mandal in a constituency zooms the map to fill the screen with it.
+  const focusWard = ac && !focusSite ? selected : undefined
   const zoomedOut = () => {
     clearBooth()
     setSelected(undefined)
@@ -91,14 +98,15 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
 
   const onPick = (r: Region) => (r.drillTo ? go(r.drillTo) : setSelected(r))
 
-  const level = VIEW_ORDER.indexOf(view)
-  const crumbs = VIEW_ORDER.slice(0, level + 1)
+  const crumbs = viewPath(view)
+  const acBooths = ac ? boothsOfAc(ac.no) : []
+  const measures = useMemo(() => (ac ? availableMeasures(ac.no) : []), [ac])
 
   const scale = useMemo(() => densityScale(VIEWS[view].regions), [view])
   const colorScale = useMemo(() => {
     const m = MEASURES.find((x) => x.id === colorBy)
-    return view === 'kukatpally' && showBooths && m ? scaleFor(m) : null
-  }, [view, showBooths, colorBy])
+    return ac && showBooths && m ? scaleFor(m, ac.no) : null
+  }, [ac, showBooths, colorBy])
 
   return (
     <div className="app">
@@ -109,7 +117,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           </span>
           <div>
             <h1>Kukatpally Drilldown</h1>
-            <p>India → Telangana → Hyderabad → Kukatpally · who lives where</p>
+            <p>India → Telangana → Kukatpally &amp; Gadwal · who lives where, who votes where</p>
           </div>
         </div>
         <div className="top-actions">
@@ -119,11 +127,11 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           <button className="ghost" onClick={onLogout}>
             Log out
           </button>
-          {view !== 'kukatpally' && (
-            <button className="primary" onClick={() => go('kukatpally')}>
-              Fly to Kukatpally ✈
+          {AC_VIEWS.filter((v) => v !== view).map((v) => (
+            <button key={v} className="primary" onClick={() => go(v)}>
+              {VIEWS[v].title} ✈
             </button>
-          )}
+          ))}
           <button
             className="ghost icon-btn"
             aria-label="Toggle colour theme"
@@ -165,7 +173,19 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
         {booth && (
           <span className="crumb-wrap">
             <span className="sep">›</span>
-            <span className="crumb is-current">PS {booth.no}</span>
+            {voterBooth ? (
+              <button className="crumb" onClick={() => setVoterBooth(undefined)}>
+                PS {booth.no}
+              </button>
+            ) : (
+              <span className="crumb is-current">PS {booth.no}</span>
+            )}
+          </span>
+        )}
+        {voterBooth && (
+          <span className="crumb-wrap">
+            <span className="sep">›</span>
+            <span className="crumb is-current">Voters</span>
           </span>
         )}
       </nav>
@@ -180,20 +200,24 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
               setSelected(r)
             }}
             onDrill={(v) => go(v)}
-            sites={showBooths ? sites : booth ? [siteOf.get(booth.no)!] : []}
-            selectedBoothNo={booth?.no}
+            sites={ac && showBooths ? sitesOfAc(ac.no) : booth ? [siteOf.get(booth.id)!] : []}
+            selectedBoothId={booth?.id}
             onBoothClick={setBooth}
             onBoothClose={clearBooth}
+            onOpenVoters={(b) => {
+              setBooth(b)
+              setVoterBooth(b)
+            }}
             focus={focusSite ? { x: focusSite.x, y: focusSite.y } : undefined}
             focusBounds={focusWard ? pathGen.bounds(focusWard.feature) : undefined}
-            focusWardNo={focusWard?.wardNo}
+            focusUnitId={focusWard?.unitId}
             colorScale={colorScale}
           />
 
           <div className="map-top">
             {(zoomToBooth && booth) || focusWard ? (
               <button className="back ghost" onClick={zoomedOut}>
-                ← All of Kukatpally
+                ← All of {VIEWS[view].title}
               </button>
             ) : (
               VIEWS[view].parent && (
@@ -205,8 +229,10 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             <MapSearch onFind={findBooth} />
           </div>
 
+          {voterBooth && <VoterList booth={voterBooth} onClose={() => setVoterBooth(undefined)} />}
+
           <div className="map-legend">
-            {view === 'kukatpally' && showBooths && measures.length > 0 && (
+            {ac && showBooths && measures.length > 0 && (
               <label>
                 <span className="legend-title">Colour stations by</span>
                 <select className="legend-select" value={colorBy} onChange={(e) => chooseColorBy(e.target.value)}>
@@ -236,10 +262,12 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                   ))}
                 </ul>
                 <div className="legend-hint">
-                  Kukatpally average {colorScale.measure.format(colorScale.average)}
-                  {boothMeta.synthetic ? ' · sample data' : ''}
+                  {ac?.name} average {colorScale.measure.format(colorScale.average)}
+                  {ac && acMeta(ac.no).synthetic ? ' · sample data' : ''}
                 </div>
-                {!focusWard && !focusSite && <div className="legend-hint">Click a ward to zoom in</div>}
+                {!focusWard && !focusSite && ac && (
+                  <div className="legend-hint">Click a {ac.unitLabel.toLowerCase()} to zoom in</div>
+                )}
               </>
             ) : (
               <>
@@ -254,15 +282,15 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                   <span>{fmtInt(scale.thresholds[Math.floor(scale.thresholds.length / 2)])}</span>
                   <span>{fmtInt(scale.thresholds[scale.thresholds.length - 1])}+</span>
                 </div>
-                {view !== 'kukatpally' && (
+                {!ac && (
                   <div className="legend-hint">
                     <span className="hl-swatch" /> Glowing outline = click to zoom in
                   </div>
                 )}
-                {view === 'kukatpally' && showBooths && booths.length > 0 && (
+                {ac && showBooths && acBooths.length > 0 && (
                   <div className="legend-hint">
-                    <span className="pin-swatch" /> Polling station{boothMeta.synthetic ? ' (sample)' : ''}
-                    {!focusWard && !focusSite && ' · click a ward to zoom in'}
+                    <span className="pin-swatch" /> Polling station{acMeta(ac.no).synthetic ? ' (sample)' : ''}
+                    {!focusWard && !focusSite && ` · click a ${ac.unitLabel.toLowerCase()} to zoom in`}
                   </div>
                 )}
               </>
@@ -278,6 +306,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           booth={booth}
           onPickBooth={setBooth}
           onClearBooth={clearBooth}
+          onOpenVoters={(b) => setVoterBooth(b)}
           showBooths={showBooths}
           onToggleBooths={setShowBooths}
           colorScale={colorScale}
@@ -286,7 +315,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
 
       <footer className="foot">
         Boundaries: Census-based district maps (udit-001/india-maps-data), GHMC wards from OpenStreetMap via
-        DataMeet. State & district figures: Census of India 2011. Ward-level figures{boothMeta.synthetic ? ' and polling stations' : ''} are illustrative samples.
+        DataMeet. State & district figures: Census of India 2011. Ward and mandal figures{boothMeta.synthetic ? ', polling stations and voters' : ''} are illustrative samples. Gadwal mandal boundaries: gggodhwani/telangana_boundaries.
       </footer>
     </div>
   )

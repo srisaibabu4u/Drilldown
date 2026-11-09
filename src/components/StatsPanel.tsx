@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { Stats } from '../data/stats'
-import { kukatpallyWards, VIEWS, type Region, type ViewId } from '../geo'
+import { viewForAc, VIEWS, type AcDef, type Region, type ViewId } from '../geo'
 import { fmtArea, fmtDensity, fmtInt, fmtPct, fmtShort } from '../format'
-import { boothMeta, booths, boothsInWard, searchBooths, siteOf, summarize, type Booth } from '../booths'
+import { acMeta, acName, boothsInUnit, boothsOfAc, searchBooths, siteOf, summarize, type Booth } from '../booths'
 import ElectorStats from './ElectorStats'
 import type { MeasureScale } from '../measures'
 
@@ -17,10 +17,19 @@ interface Props {
   showBooths: boolean
   onToggleBooths: (v: boolean) => void
   colorScale?: MeasureScale | null
+  onOpenVoters: (b: Booth) => void
 }
 
 export default function StatsPanel(props: Props) {
-  if (props.booth) return <BoothDetail booth={props.booth} onBack={props.onClearBooth} onPick={props.onPickBooth} />
+  if (props.booth)
+    return (
+      <BoothDetail
+        booth={props.booth}
+        onBack={props.onClearBooth}
+        onPick={props.onPickBooth}
+        onOpenVoters={props.onOpenVoters}
+      />
+    )
   return <AreaPanel {...props} />
 }
 
@@ -56,15 +65,17 @@ function AreaPanel({
         {stats && <SourceBadge source={stats.source} />}
       </div>
 
-      {view === 'kukatpally' && booths.length > 0 && (
+      {v.ac && boothsOfAc(v.ac.no).length > 0 && (
         <>
           <ElectorStats
-            list={selected?.wardNo !== undefined ? boothsInWard(selected.wardNo) : booths}
-            title={selected ? 'Voters in this ward' : `Voters · AC ${boothMeta.ac} ${boothMeta.acName}`}
+            ac={v.ac.no}
+            list={selected?.unitId ? boothsInUnit(selected.unitId) : boothsOfAc(v.ac.no)}
+            title={selected ? `Voters in this ${v.ac.unitLabel.toLowerCase()}` : `Voters · AC ${v.ac.no} ${v.ac.name}`}
             onPick={onPickBooth}
           />
           <BoothsCard
-            wardNo={selected?.wardNo}
+            ac={v.ac}
+            unitId={selected?.unitId}
             onPick={onPickBooth}
             show={showBooths}
             onToggle={onToggleBooths}
@@ -85,8 +96,8 @@ function AreaPanel({
         <p className="muted">No statistics available for this area yet.</p>
       )}
 
-      {view === 'kukatpally' && booths.length === 0 && (
-        <BoothsCard wardNo={selected?.wardNo} onPick={onPickBooth} show={showBooths} onToggle={onToggleBooths} />
+      {v.ac && boothsOfAc(v.ac.no).length === 0 && (
+        <BoothsCard ac={v.ac} unitId={selected?.unitId} onPick={onPickBooth} show={showBooths} onToggle={onToggleBooths} />
       )}
 
       {!selected && <Ranking view={view} onPick={onPick} />}
@@ -170,12 +181,12 @@ function Ranking({ view, onPick }: { view: ViewId; onPick: (r: Region) => void }
       if (view !== 'ghmc' && !!b.drillTo !== !!a.drillTo) return b.drillTo ? 1 : -1
       return b.stats!.population - a.stats!.population
     })
-    .slice(0, view === 'kukatpally' ? 20 : 10)
+    .slice(0, v.ac ? 20 : 10)
   const max = Math.max(...ranked.map((r) => r.stats!.population))
   return (
     <section className="card">
       <h3>
-        {v.childLabel} {view === 'kukatpally' ? 'by population' : '— explore'}
+        {v.childLabel} {v.ac ? 'by population' : '— explore'}
       </h3>
       <ol className="rank">
         {ranked.map((r) => (
@@ -202,23 +213,42 @@ function Ranking({ view, onPick }: { view: ViewId; onPick: (r: Region) => void }
   )
 }
 
-function BoothDetail({ booth, onBack, onPick }: { booth: Booth; onBack: () => void; onPick: (b: Booth) => void }) {
-  const siblings = siteOf.get(booth.no)?.booths.filter((b) => b.no !== booth.no) ?? []
+function BoothDetail({
+  booth,
+  onBack,
+  onPick,
+  onOpenVoters,
+}: {
+  booth: Booth
+  onBack: () => void
+  onPick: (b: Booth) => void
+  onOpenVoters: (b: Booth) => void
+}) {
+  const siblings = siteOf.get(booth.id)?.booths.filter((b) => b.id !== booth.id) ?? []
+  const meta = acMeta(booth.ac)
+  const unitLabel = VIEWS[viewForAc(booth.ac)].ac!.unitLabel
   return (
     <aside className="panel" aria-live="polite">
       <div className="panel-head">
-        <div className="kicker">Polling station · AC {boothMeta.ac} {boothMeta.acName}</div>
+        <div className="kicker">
+          Polling station · AC {booth.ac} {acName(booth.ac)}
+        </div>
         <h2>PS {booth.no}</h2>
         <div className="sub booth-name">{booth.name}</div>
         <button className="link-btn" onClick={onBack}>
           ← Back
         </button>
-        {boothMeta.synthetic && <SampleBoothBadge />}
+        {meta.synthetic && <SampleBoothBadge />}
+        {booth.electors && (
+          <button className="primary voters-btn" onClick={() => onOpenVoters(booth)}>
+            View voter list ({fmtInt(booth.voters ?? 0)}) →
+          </button>
+        )}
       </div>
       <section className="card">
         <h3>Address</h3>
         <p className="booth-addr">{booth.address || '—'}</p>
-        {!boothMeta.synthetic && (
+        {!meta.synthetic && (
           <a
             className="link-btn"
             href={`https://www.google.com/maps/search/?api=1&query=${booth.lat},${booth.lng}`}
@@ -230,7 +260,7 @@ function BoothDetail({ booth, onBack, onPick }: { booth: Booth; onBack: () => vo
         )}
       </section>
       {booth.electors ? (
-        <ElectorStats list={[booth]} title="Voters at this station" />
+        <ElectorStats ac={booth.ac} list={[booth]} title="Voters at this station" />
       ) : (
         booth.voters !== undefined && (
           <div className="kpis">
@@ -242,11 +272,11 @@ function BoothDetail({ booth, onBack, onPick }: { booth: Booth; onBack: () => vo
         )
       )}
       <section className="card">
-        <h3>Ward</h3>
+        <h3>{unitLabel}</h3>
         <p className="small">
-          {booth.wardNo !== undefined
-            ? `Ward ${booth.wardNo} · ${kukatpallyWards.find((w) => w.wardNo === booth.wardNo)?.name ?? ''}`
-            : 'Outside the mapped Kukatpally wards'}
+          {booth.unitName
+            ? `${booth.wardNo !== undefined ? `Ward ${booth.wardNo} · ` : ''}${booth.unitName}`
+            : `Outside the mapped ${unitLabel.toLowerCase()}s`}
         </p>
       </section>
       {siblings.length > 0 && (
@@ -254,7 +284,7 @@ function BoothDetail({ booth, onBack, onPick }: { booth: Booth; onBack: () => vo
           <h3>Other stations in this building</h3>
           <ol className="booth-list">
             {siblings.map((b) => (
-              <li key={b.no}>
+              <li key={b.id}>
                 <button onClick={() => onPick(b)}>
                   <span className="booth-no">{b.no}</span>
                   <span className="booth-text">{b.name}</span>
@@ -268,16 +298,16 @@ function BoothDetail({ booth, onBack, onPick }: { booth: Booth; onBack: () => vo
       <section className="card">
         <h3>Location accuracy</h3>
         <p className="muted small">
-          {boothMeta.synthetic && 'Made-up position for demonstration. This is not a real polling station.'}
-          {!boothMeta.synthetic && booth.precision === 'manual' && 'Coordinates entered by hand.'}
+          {meta.synthetic && 'Made-up position for demonstration. This is not a real polling station.'}
+          {!meta.synthetic && booth.precision === 'manual' && 'Coordinates entered by hand.'}
           {booth.precision === 'geocoded' && 'Placed by matching the building name and address on OpenStreetMap.'}
           {booth.precision === 'approx' &&
             'Approximate: only the locality could be matched, so the pin may be a few hundred metres off.'}
         </p>
-        {boothMeta.source && (
+        {meta.source && (
           <p className="muted small">
-            Source: {boothMeta.source}
-            {boothMeta.updated && ` · imported ${boothMeta.updated}`}
+            Source: {meta.source}
+            {meta.updated && ` · imported ${meta.updated}`}
           </p>
         )}
       </section>
@@ -286,40 +316,43 @@ function BoothDetail({ booth, onBack, onPick }: { booth: Booth; onBack: () => vo
 }
 
 function BoothsCard({
-  wardNo,
+  ac,
+  unitId,
   onPick,
   show,
   onToggle,
   colorScale,
 }: {
-  wardNo?: number
+  ac: AcDef
+  unitId?: string
   onPick: (b: Booth) => void
   show: boolean
   onToggle: (v: boolean) => void
   colorScale?: MeasureScale | null
 }) {
   const [q, setQ] = useState('')
-  if (booths.length === 0) {
+  const all = boothsOfAc(ac.no)
+  if (all.length === 0) {
     return (
       <section className="card">
         <h3>Polling stations</h3>
-        <p className="muted small">Polling station locations for AC {boothMeta.ac} {boothMeta.acName} will appear here once the data is loaded.</p>
+        <p className="muted small">Polling station locations for AC {ac.no} {ac.name} will appear here once the data is loaded.</p>
       </section>
     )
   }
-  const scope = wardNo !== undefined ? boothsInWard(wardNo) : booths
+  const scope = unitId ? boothsInUnit(unitId) : all
   const list = searchBooths(scope, q)
   const electors = scope.reduce((a, b) => a + (b.voters ?? 0), 0)
   return (
     <section className="card">
       <div className="card-row">
-        <h3>Polling stations {wardNo !== undefined ? 'in this ward' : `· AC ${boothMeta.ac}`}</h3>
+        <h3>Polling stations {unitId ? `in this ${ac.unitLabel.toLowerCase()}` : `· AC ${ac.no}`}</h3>
         <label className="switch">
           <input type="checkbox" checked={show} onChange={(e) => onToggle(e.target.checked)} />
           <span>Show on map</span>
         </label>
       </div>
-      {boothMeta.synthetic && <SampleBoothBadge />}
+      {acMeta(ac.no).synthetic && <SampleBoothBadge />}
       <div className="booth-summary">
         <b>{fmtInt(scope.length)}</b> stations
         {electors > 0 && (
@@ -339,7 +372,7 @@ function BoothsCard({
       />
       <ol className="booth-list">
         {list.slice(0, 200).map((b) => (
-          <li key={b.no}>
+          <li key={b.id}>
             <button onClick={() => onPick(b)}>
               <span className="booth-no">{b.no}</span>
               <span className="booth-text">

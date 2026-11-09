@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AGE_BANDS, boothMeta, SOCIAL_GROUPS, summarize, type Booth } from '../booths'
+import { acMeta, AGE_BANDS, boothsOfAc, SOCIAL_GROUPS, summarize, type Booth } from '../booths'
 import { fmtInt, fmtPct, fmtShort } from '../format'
 
 const GENDER = [
@@ -17,10 +17,12 @@ const SOCIAL_COLORS = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 
  */
 export default function ElectorStats({
   list,
+  ac,
   title,
   onPick,
 }: {
   list: Booth[]
+  ac: number
   title: string
   onPick?: (b: Booth) => void
 }) {
@@ -31,6 +33,10 @@ export default function ElectorStats({
   const maxAge = Math.max(...s.ages)
   const firstTime = s.ages[0]
   const seniors = s.ages[AGE_BANDS.length - 1]
+  // Compare with the whole constituency when showing a part of it (ward / station).
+  const acBooths = boothsOfAc(ac)
+  const acSocial = list.length < acBooths.length ? summarize(acBooths) : null
+  const maxShare = s.social ? Math.max(...s.social.map((n) => (n / s.electors) * 100)) : 1
 
   const kpis: { label: string; value: string; hint?: string }[] = [
     { label: 'Electors', value: single ? fmtInt(s.electors) : fmtShort(s.electors), hint: single ? undefined : fmtInt(s.electors) },
@@ -57,7 +63,7 @@ export default function ElectorStats({
     <>
       <div className="section-title">
         <h3>{title}</h3>
-        {boothMeta.synthetic && <span className="badge badge-sample">Sample data</span>}
+        {acMeta(ac).synthetic && <span className="badge badge-sample">Sample data</span>}
       </div>
       <div className="kpis">
         {kpis.map((k) => (
@@ -97,34 +103,39 @@ export default function ElectorStats({
       </section>
 
       {s.social && (
-        <section className="card">
-          <h3>Electors by social category</h3>
-          <div
-            className="stack"
-            role="img"
-            aria-label={SOCIAL_GROUPS.map((g, i) => `${g.name} ${fmtInt(s.social![i])}`).join(', ')}
-          >
-            {SOCIAL_GROUPS.map((g, i) => (
-              <span
-                key={g.key}
-                className="stack-seg"
-                style={{ flexGrow: s.social![i], background: SOCIAL_COLORS[i] }}
-                title={`${g.name} (${g.label}): ${fmtInt(s.social![i])} (${fmtPct(s.social![i] / s.electors)})`}
-              />
-            ))}
+        <section className="card caste-card">
+          <div className="card-row">
+            <h3>Caste share (social category)</h3>
+            {acSocial && <span className="muted small">vs AC {ac} average</span>}
           </div>
-          <ul className="legend">
-            {SOCIAL_GROUPS.map((g, i) => (
-              <li key={g.key} title={g.name}>
-                <span className="swatch" style={{ background: SOCIAL_COLORS[i] }} />
-                {g.label} <b>{fmtPct(s.social![i] / s.electors, 0)}</b>
-                <span className="muted"> · {single ? fmtInt(s.social![i]) : fmtShort(s.social![i])}</span>
-              </li>
-            ))}
+          <ul className="caste-rows">
+            {SOCIAL_GROUPS.map((g, i) => {
+              const share = (s.social![i] / s.electors) * 100
+              const avg = acSocial ? (acSocial.social![i] / acSocial.electors) * 100 : undefined
+              const diff = avg === undefined ? undefined : share - avg
+              return (
+                <li key={g.key} title={`${g.name}: ${fmtInt(s.social![i])} electors (${share.toFixed(1)}%)`}>
+                  <span className="caste-label">
+                    <b>{g.label}</b>
+                    <span className="muted">{g.name}</span>
+                  </span>
+                  <span className="caste-bar">
+                    <span style={{ width: `${(share / maxShare) * 100}%`, background: SOCIAL_COLORS[i] }} />
+                  </span>
+                  <span className="caste-pct">{share.toFixed(1)}%</span>
+                  <span className="caste-count muted">{single ? fmtInt(s.social![i]) : fmtShort(s.social![i])}</span>
+                  {diff !== undefined && (
+                    <span className="caste-diff muted" aria-label={`${Math.abs(diff).toFixed(1)} points ${diff >= 0 ? 'above' : 'below'} average`}>
+                      {Math.abs(diff) < 0.05 ? '±0.0' : `${diff > 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}`}
+                    </span>
+                  )}
+                </li>
+              )
+            })}
           </ul>
           <p className="muted small note">
-            SC Scheduled Castes · ST Scheduled Tribes · BC Backward Classes · OC Other Castes. Electoral rolls
-            don’t record caste; real figures would come from a survey.
+            Shares of electors. Differences are in percentage points. Electoral rolls don’t record caste; real
+            figures would come from a survey and are never shown per person.
           </p>
         </section>
       )}

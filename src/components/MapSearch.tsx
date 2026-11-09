@@ -1,5 +1,5 @@
 import { useId, useMemo, useRef, useState } from 'react'
-import { booths, buildingName, searchBooths, type Booth } from '../booths'
+import { acName, booths, buildingName, searchBooths, type Booth } from '../booths'
 
 /** Search box over the map: find a polling station by number, building or street. */
 export default function MapSearch({ onFind }: { onFind: (b: Booth) => void }) {
@@ -15,7 +15,7 @@ export default function MapSearch({ onFind }: { onFind: (b: Booth) => void }) {
 
   const choose = (b: Booth) => {
     onFind(b)
-    setQ(`PS ${b.no} · ${buildingName(b)}`)
+    setQ(`${acName(b.ac)} PS ${b.no} · ${buildingName(b)}`)
     setOpen(false)
     inputRef.current?.blur()
   }
@@ -65,7 +65,7 @@ export default function MapSearch({ onFind }: { onFind: (b: Booth) => void }) {
         <ul className="map-search-results" id={listId} role="listbox">
           {results.map((b, i) => (
             <li
-              key={b.no}
+              key={b.id}
               role="option"
               aria-selected={i === active}
               className={i === active ? 'is-active' : ''}
@@ -78,7 +78,9 @@ export default function MapSearch({ onFind }: { onFind: (b: Booth) => void }) {
               <span className="booth-no">{b.no}</span>
               <span className="msr-text">
                 <span className="msr-name">{b.name}</span>
-                <span className="msr-addr">{b.address}</span>
+                <span className="msr-addr">
+                  AC {b.ac} {acName(b.ac)} · {b.address}
+                </span>
               </span>
             </li>
           ))}

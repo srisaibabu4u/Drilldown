@@ -5,17 +5,17 @@ import {
   boundsOf,
   centroid,
   districts,
+  gadwalMandals,
   kukatpallyWards,
   pathGen,
   states,
-  VIEW_ORDER,
   VIEWS,
   wards,
   type Region,
   type ViewId,
 } from '../geo'
 import { densityColor, densityScale, fmtInt, fmtDensity } from '../format'
-import { boothMeta, buildingName, summarize, type Booth, type Site } from '../booths'
+import { acMeta, buildingName, summarize, type Booth, type Site } from '../booths'
 import { CLASS_LABELS, type MeasureScale } from '../measures'
 
 interface Props {
@@ -23,17 +23,18 @@ interface Props {
   selectedId?: string
   onSelect: (r: Region) => void
   onDrill: (v: ViewId, from: Region) => void
-  /** Polling booths to draw (Kukatpally level only); empty to hide. */
+  /** Polling stations to draw (constituency views only); empty to hide. */
   sites: Site[]
-  selectedBoothNo?: number
+  selectedBoothId?: string
   onBoothClick: (b: Booth) => void
   onBoothClose: () => void
+  onOpenVoters: (b: Booth) => void
   /** When set, the camera zooms in on this point (virtual units) instead of the whole view. */
   focus?: { x: number; y: number }
   /** When set (and no `focus`), the camera fits these bounds, e.g. a selected ward. */
   focusBounds?: [[number, number], [number, number]]
-  /** Ward the user zoomed into: stations elsewhere are faded. */
-  focusWardNo?: number
+  /** Ward / mandal the user zoomed into: stations elsewhere are faded. */
+  focusUnitId?: string
   /** Colour station pins by this measure (and show Kukatpally wards in neutral grey). */
   colorScale?: MeasureScale | null
 }
@@ -80,7 +81,7 @@ function d(r: Region) {
   return p
 }
 
-export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothNo, onBoothClick, onBoothClose, focus, focusBounds, focusWardNo, colorScale }: Props) {
+export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothId, onBoothClick, onBoothClose, onOpenVoters, focus, focusBounds, focusUnitId, colorScale }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const [size, setSize] = useState<Size>({ w: 800, h: 700 })
@@ -122,7 +123,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
   useEffect(() => {
     const svg = svgRef.current!
     const target: ZoomView = focus
-      ? [focus.x, focus.y, cameraFor('kukatpally', size)[2] / 4]
+      ? [focus.x, focus.y, Math.min(cameraFor('kukatpally', size)[2], cameraFor(view, size)[2]) / 4]
       : focusBounds
         ? fitBounds(focusBounds, size, 1.25)
         : cameraFor(view, size)
@@ -155,14 +156,15 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
     return () => cancelAnimationFrame(raf)
   }, [view, size, focus?.x, focus?.y, focusKey])
 
-  const level = VIEW_ORDER.indexOf(view)
+  const isAc = !!VIEWS[view].ac
   const active = VIEWS[view].regions
   const scale = useMemo(() => densityScale(active), [active])
 
   // px -> user units at the settled camera (for label sizes / stroke tweaks)
   const unit = settled ? settled[2] / size.w : 1
   // Zoomed in past the whole-Kukatpally view (a ward or a single station): show pin icons.
-  const zoomedIn = settled !== null && settled[2] < cameraFor('kukatpally', size)[2] * 0.6
+  // Zoomed into a ward / mandal / station: draw pin icons instead of tiny dots.
+  const zoomedIn = isAc && settled !== null && (!!focus || !!focusBounds)
 
   const pointer = (e: React.PointerEvent) => {
     const box = wrapRef.current!.getBoundingClientRect()
@@ -182,7 +184,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
     const h = w * (size.h / size.w)
     return { x: (x - (cx - w / 2)) / k, y: (y - (cy - h / 2)) / k }
   }
-  const selectedSite = selectedBoothNo !== undefined ? sites.find((s) => s.booths.some((b) => b.no === selectedBoothNo)) : undefined
+  const selectedSite = selectedBoothId !== undefined ? sites.find((s) => s.booths.some((b) => b.id === selectedBoothId)) : undefined
 
   const interactiveProps = (r: Region) => ({
     onPointerMove: handleMove(r),
@@ -206,7 +208,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
         const isSel = r.id === selectedId
         const fill = !isActive
           ? undefined
-          : colorScale && view === 'kukatpally'
+          : colorScale && isAc
             ? 'var(--land-muted)'
             : densityColor(scale, r)
         return (
@@ -272,10 +274,11 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
             </feMerge>
           </filter>
         </defs>
-        {renderLayer(states, level === 0, 'states')}
-        {level >= 1 && renderLayer(districts, level === 1, 'districts')}
-        {level >= 2 && renderLayer(wards, level === 2, 'wards')}
-        {level >= 3 && renderLayer(kukatpallyWards, true, 'kukatpally')}
+        {renderLayer(states, view === 'india', 'states')}
+        {view !== 'india' && renderLayer(districts, view === 'telangana', 'districts')}
+        {(view === 'ghmc' || view === 'kukatpally') && renderLayer(wards, view === 'ghmc', 'wards')}
+        {view === 'kukatpally' && renderLayer(kukatpallyWards, true, 'kukatpally')}
+        {view === 'gadwal' && renderLayer(gadwalMandals, true, 'gadwal')}
 
         {/* Pulsing call-out for the drillable regions */}
         {!animating &&
@@ -283,18 +286,18 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
             <path key={`hl-${r.id}`} d={d(r)} className="drill-outline" filter="url(#glow)" />
           ))}
 
-        {view === 'kukatpally' && !animating && sites.length > 0 && (
+        {isAc && !animating && sites.length > 0 && (
           <g className="booths">
             {sites.map((site) => {
               const first = site.booths[0]
               const n = site.booths.length
-              const sel = site.booths.some((b) => b.no === selectedBoothNo)
+              const sel = site.booths.some((b) => b.id === selectedBoothId)
               const open = () => {
                 cancelHide()
                 setHover(null)
                 onBoothClick(first)
               }
-              const faded = focusWardNo !== undefined && first.wardNo !== focusWardNo && !sel
+              const faded = focusUnitId !== undefined && first.unitId !== focusUnitId && !sel
               const cls = colorScale ? colorScale.classOf(colorScale.siteValue(site)) : undefined
               const fillStyle = cls !== undefined ? { fill: CLASS_FILL[cls] } : undefined
               return (
@@ -430,8 +433,10 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
                     </>
                   ) : null
                 })()}
-              {boothMeta.synthetic && <div className="tt-note">Sample data · not a real station</div>}
-              {!boothMeta.synthetic && hover.s.booths[0].precision === 'approx' && (
+              {acMeta(hover.s.booths[0].ac).synthetic && (
+                <div className="tt-note">Sample data · not a real station</div>
+              )}
+              {!acMeta(hover.s.booths[0].ac).synthetic && hover.s.booths[0].precision === 'approx' && (
                 <div className="tt-note">Approximate location</div>
               )}
             </>
@@ -459,10 +464,10 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
           )}
         </div>
       )}
-      {selectedSite && !animating && view === 'kukatpally' && (() => {
+      {selectedSite && !animating && isAc && (() => {
         const p = toScreen(selectedSite.x, selectedSite.y)
         if (p.x < 0 || p.y < 0 || p.x > size.w || p.y > size.h) return null
-        const sel = selectedSite.booths.find((b) => b.no === selectedBoothNo)!
+        const sel = selectedSite.booths.find((b) => b.id === selectedBoothId)!
         const below = p.y < 190
         return (
           <div
@@ -478,12 +483,17 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
             </button>
             <div className="tt-title">PS {sel.no}</div>
             <div className="tt-addr">{buildingName(sel)}</div>
+            {sel.electors && (
+              <button className="pin-voters" onClick={() => onOpenVoters(sel)}>
+                Voter list ({fmtInt(sel.voters ?? 0)}) →
+              </button>
+            )}
             {selectedSite.booths.length > 1 && (
               <div className="pin-others">
                 {selectedSite.booths.map((b) => (
                   <button
-                    key={b.no}
-                    className={b.no === sel.no ? 'is-current' : ''}
+                    key={b.id}
+                    className={b.id === sel.id ? 'is-current' : ''}
                     onClick={() => onBoothClick(b)}
                   >
                     {b.no}
