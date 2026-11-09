@@ -12,6 +12,7 @@ India → Telangana → Gadwal (4 mandals)                        → polling st
 - The side panel shows population figures, voter statistics (gender, age, turnout, households) and a caste-share dashboard (SC, ST, BC, OC, with the difference from the constituency average) for the constituency, a ward or mandal, and each station.
 - Click a ward or mandal to zoom in on it. Click a station for its details. **View voter list** opens that station's voters, with search, gender and age filters, pages, and a card per voter showing their household.
 - **Find voter** (header button): type a name and see which polling station each matching voter is at, across both constituencies. Spelling variants match (Santhosh / Santosh / Santhos, Lakshmi / Laxmi, Sreenivas / Srinivas), and an initial can stand for a full word ("R. Santosh" finds "Santhosh Rote"). Narrow it down by father's or husband's name, age (±2), gender or constituency, or paste a sample voter ID. Click a match to fly to the station and open its voter list at that person.
+- **Duplicates** (header button): scans every voter in both constituencies for records that are probably the same person written differently. That covers spelling variants, an initial vs a full family name ("R. Santosh" / "Rote Santhosh"), words in a different order, age off by a year or two, and a relative's name spelled differently. Each pair shows a confidence level (High / Medium / Possible), where the two records are (same station, different stations, different constituencies), and the reasons. You can open either record in its station list, or export the pairs as a CSV file for a Form 7 submission. Nothing is ever removed automatically.
 - The search box finds a station in either constituency by number, building, street, ward or mandal (for example "gadwal 12" or "ghattu school").
 - Each level has its own URL (`#india`, `#telangana`, `#ghmc`, `#kukatpally`, `#gadwal`).
 - Includes light and dark themes, a mobile layout and keyboard support.
@@ -41,9 +42,13 @@ For now, `src/data/booths.json` holds **synthetic stations** made by `npm run sa
 
 Each station is assigned to a ward automatically by its position. Stations outside the 11 mapped wards still appear, with the ward shown as "—".
 
+**How the duplicate scan works.** Comparing every voter with every other would take about 2×10¹¹ comparisons, so the scan only compares voters who could plausibly be the same person. They must share the same gender, a name word and a relative-name word with the same phonetic key (in any order), and an age within 2 years. That comes to about 19 lakh comparisons, roughly 6 seconds in a background thread, and the results are kept for the session. Each pair is scored on name (50%), relative's name (35%) and age (15%), using stricter matching rules than search: spelling variants match by sound, but extra typos are only forgiven in long words, and an initial standing in for a whole word counts for less.
+
+The sample data includes about 1,500 deliberately planted duplicate pairs (15% in the same station, 10% across the two constituencies). The scan finds 99% of them. All planted pairs land in High or Medium, and the remaining High/Medium pairs are coincidental look-alike records, the kind a real check should flag anyway.
+
 **Voter lists.** Each station's voter list is generated in the browser from that station's own totals, so the list always matches the dashboard (same counts by gender and age band, grouped into its households). Each voter has a serial number, a name, a relative, age, gender, house number and a **sample** voter ID (`SMP` + 7 digits, never a real ID number). The list is labelled "made-up people".
 
-> Caste is deliberately **not** attached to individual voters. Electoral rolls don't record it, and pairing caste with named people would make the tool usable for caste-based targeting, which India's election law treats as a corrupt practice. Caste appears only as percentages for a station, ward or mandal, or a whole constituency. Names use initials rather than surnames for the same reason.
+> Caste is deliberately **not** attached to individual voters. Electoral rolls don't record it, and pairing caste with named people would make the tool usable for caste-based targeting, which India's election law treats as a corrupt practice. Caste appears only as percentages for a station, ward or mandal, or a whole constituency. Family names in the sample are made up from syllables (and checked against a blocklist), so no real, caste-linked surname appears.
 
 **Importing real stations for one constituency** (the other one is left untouched):
 
@@ -118,6 +123,7 @@ src/
   components/VoterList.tsx    a station's voter list, filters and voter card
   voters.ts              synthetic voter generator (matches each station's totals)
   nameMatch.ts           fuzzy matching for Indian name spellings (voter search, duplicates)
+  components/DuplicateReview.tsx  duplicate pairs: tiers, filters, reasons, CSV export
   voterSearch.worker.ts  background index + search over every voter
   components/VoterFinder.tsx  the Find voter panel
   App.tsx                header, breadcrumb, legend, routing

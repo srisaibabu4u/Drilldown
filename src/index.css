@@ -1464,3 +1464,163 @@ li.msr-empty {
     padding: 8px 11px;
   }
 }
+
+/* Voter tools tabs + duplicate review */
+.voter-sheet.finder {
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+}
+.vs-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+.vs-tabs button {
+  border: 0;
+  background: none;
+  padding: 8px 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.vs-tabs button.is-on {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+.dup-summary {
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 8px;
+}
+.dup-stat {
+  font-size: 14px;
+}
+.dup-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.dup-filters .legend-select {
+  width: auto;
+  margin: 0;
+}
+.chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--surface);
+}
+.chip-toggle input {
+  margin: 0;
+}
+.chip-toggle.is-on {
+  background: var(--surface-2);
+}
+.tier-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 650;
+  border: 1px solid var(--border);
+}
+.tier-badge.tier-high {
+  background: var(--text-primary);
+  color: var(--surface);
+  border-color: var(--text-primary);
+}
+.tier-badge.tier-medium {
+  border-color: var(--text-primary);
+}
+.dup-list {
+  padding: 12px 18px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.dup-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: var(--surface);
+}
+.dup-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.dup-sides {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.dup-side {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  font-size: 13px;
+  display: grid;
+  gap: 2px;
+}
+.dup-name {
+  font-weight: 650;
+  font-size: 14px;
+}
+.dup-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+.dup-reasons {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  display: grid;
+  gap: 1px;
+}
+@media (max-width: 900px) {
+  .dup-sides {
+    grid-template-columns: 1fr;
+  }
+  .find-voter-btn {
+    font-size: 13px;
+  }
+}
+
+/* Phone header: brand on one row, actions wrap onto the next (no sideways scroll) */
+@media (max-width: 900px) {
+  .top {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .top-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+  .top-actions .ghost {
+    padding: 7px 11px;
+  }
+  .top-actions .icon-btn {
+    margin-left: auto;
+  }
+  .dup-filters .legend-select {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+  .dup-stat .muted {
+    display: block;
+  }
+}

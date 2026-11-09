@@ -23,8 +23,18 @@ export function words(name: string): string[] {
     .filter((w) => w && !HONORIFICS.has(w))
 }
 
-/** Phonetic key for one word (see rules above). */
+const phoneticCache = new Map<string, string>()
+
+/** Phonetic key for one word (see rules above). Cached: names reuse a small vocabulary of words. */
 export function phonetic(word: string): string {
+  const hit = phoneticCache.get(word)
+  if (hit !== undefined) return hit
+  const key = computePhonetic(word)
+  if (phoneticCache.size < 500_000) phoneticCache.set(word, key)
+  return key
+}
+
+function computePhonetic(word: string): string {
   let s = word.toLowerCase().replace(/[^a-z]/g, '')
   if (s.length <= 1) return s
   s = s
@@ -80,11 +90,23 @@ export function editDistance(a: string, b: string, max = 3): number {
   return prev[b.length]
 }
 
+export interface MatchOptions {
+  /** Search-as-you-type: the last typed word may be a prefix. */
+  typing?: boolean
+  /**
+   * Stricter rules for duplicate detection: spelling variants still match via the
+   * phonetic key, but extra typos are only forgiven in long words (7+ letters),
+   * and an initial standing in for a whole word counts for less.
+   */
+  strict?: boolean
+}
+
 /** How well one typed word matches one name word (0 = no match). */
-function wordScore(q: string, c: string, typing: boolean): number {
+function wordScore(q: string, c: string, typing: boolean, strict: boolean): number {
   if (q === c) return 1
   if (typing && q.length >= 2 && c.startsWith(q)) return 0.9
-  const allowed = Math.min(q.length, c.length) >= 6 ? 2 : Math.min(q.length, c.length) >= 4 ? 1 : 0
+  const min = Math.min(q.length, c.length)
+  const allowed = strict ? (min >= 7 ? 1 : 0) : min >= 6 ? 2 : min >= 4 ? 1 : 0
   if (allowed > 0) {
     const d = editDistance(q, c, allowed)
     if (d <= allowed) return 1 - 0.12 * d
@@ -94,9 +116,12 @@ function wordScore(q: string, c: string, typing: boolean): number {
 
 /**
  * Score 0..1 for how well `query` matches `cand`. 0 means "not a match".
- * `typing` treats the last typed word as a prefix (search-as-you-type).
+ * Pass `true` (or { typing: true }) to treat the last typed word as a prefix.
  */
-export function scoreName(query: NameKey, cand: NameKey, typing = false): number {
+export function scoreName(query: NameKey, cand: NameKey, opts: boolean | MatchOptions = false): number {
+  const { typing = false, strict = false } = typeof opts === 'boolean' ? { typing: opts } : opts
+  const initialForWord = strict ? 0.6 : 0.75
+  const wordForInitial = strict ? 0.6 : 0.85
   if (query.keys.length === 0 && query.bare.length === 0) return 0
   const usedKeys = new Set<number>()
   const usedBare = new Set<number>()
@@ -109,7 +134,7 @@ export function scoreName(query: NameKey, cand: NameKey, typing = false): number
     let bestIdx = -1
     cand.keys.forEach((c, ci) => {
       if (usedKeys.has(ci)) return
-      const s = wordScore(q, c, isLast)
+      const s = wordScore(q, c, isLast, strict)
       if (s > best) {
         best = s
         bestIdx = ci
@@ -125,7 +150,7 @@ export function scoreName(query: NameKey, cand: NameKey, typing = false): number
     const bi = cand.bare.findIndex((b, i) => !usedBare.has(i) && b === q[0])
     if (bi >= 0) {
       usedBare.add(bi)
-      scores.push(0.75)
+      scores.push(initialForWord)
       return
     }
     scores.push(0)
@@ -146,7 +171,7 @@ export function scoreName(query: NameKey, cand: NameKey, typing = false): number
     const ki = cand.keys.findIndex((k, i) => !usedKeys.has(i) && k[0] === phonetic(letter)[0])
     if (ki >= 0) {
       usedKeys.add(ki)
-      scores.push(0.85)
+      scores.push(wordForInitial)
       continue
     }
     scores.push(0.3) // initial doesn't fit: keep as a weak match rather than dropping it

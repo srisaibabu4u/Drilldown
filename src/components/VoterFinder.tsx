@@ -4,6 +4,9 @@ import { AC_VIEWS, VIEWS } from '../geo'
 import { fmtInt } from '../format'
 import { votersOf, type Gender, type Voter } from '../voters'
 import { onStatus, searchVoters, warmUp, type IndexStatus, type SearchQuery } from '../voterSearch'
+import DuplicateReview from './DuplicateReview'
+
+export type VoterTab = 'find' | 'dups'
 
 interface Row {
   booth: Booth
@@ -13,9 +16,13 @@ interface Row {
 
 /** "Find voter": fuzzy name search across every voter list, showing each match's polling station. */
 export default function VoterFinder({
+  tab,
+  onTab,
   onClose,
   onPick,
 }: {
+  tab: VoterTab
+  onTab: (t: VoterTab) => void
   onClose: () => void
   onPick: (booth: Booth, serial: number) => void
 }) {
@@ -79,11 +86,11 @@ export default function VoterFinder({
   const anySample = booths.some((b) => acMeta(b.ac).synthetic)
 
   return (
-    <div className="voter-sheet finder" role="dialog" aria-modal="false" aria-label="Find a voter">
+    <div className="voter-sheet finder" role="dialog" aria-modal="false" aria-label={tab === 'find' ? 'Find a voter' : 'Duplicate voters'}>
       <div className="vs-head">
         <div>
-          <div className="kicker">Find a voter · Kukatpally &amp; Gadwal</div>
-          <h2>Which polling station is this voter at?</h2>
+          <div className="kicker">Voters · Kukatpally &amp; Gadwal</div>
+          <h2>{tab === 'find' ? 'Which polling station is this voter at?' : 'Possible duplicate voters'}</h2>
           <div className="vs-chips">
             {status.state === 'ready' ? (
               <span>
@@ -100,10 +107,24 @@ export default function VoterFinder({
             {anySample && <span className="badge badge-sample">⚠ Sample data · made-up people</span>}
           </div>
         </div>
-        <button className="ghost vs-close" onClick={onClose} aria-label="Close voter search">
+        <button className="ghost vs-close" onClick={onClose} aria-label="Close voter tools">
           ✕
         </button>
       </div>
+
+      <div className="vs-tabs" role="tablist">
+        <button role="tab" aria-selected={tab === 'find'} className={tab === 'find' ? 'is-on' : ''} onClick={() => onTab('find')}>
+          Find voter
+        </button>
+        <button role="tab" aria-selected={tab === 'dups'} className={tab === 'dups' ? 'is-on' : ''} onClick={() => onTab('dups')}>
+          Duplicates
+        </button>
+      </div>
+
+      {tab === 'dups' ? (
+        <DuplicateReview onPick={onPick} />
+      ) : (
+        <>
 
       <div className="vs-controls finder-controls">
         <input
@@ -226,6 +247,8 @@ export default function VoterFinder({
               : `${fmtInt(total)} match${total === 1 ? '' : 'es'} (${ms} ms)`}
         </span>
       </div>
+        </>
+      )}
     </div>
   )
 }

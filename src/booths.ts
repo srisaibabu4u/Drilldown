@@ -2,6 +2,7 @@ import { geoContains } from 'd3-geo'
 import raw from './data/booths.json'
 import { AC_VIEWS, projection, unitsOf, VIEWS } from './geo'
 import { AGE_BANDS, SOCIAL_GROUPS } from './constants'
+import { installDuplicatePlan } from './voters'
 
 export { AGE_BANDS, SOCIAL_GROUPS }
 
@@ -94,6 +95,9 @@ export const booths: Booth[] = file.booths
     return { ...b, ac, id: `${ac}-${b.no}`, x, y, unitId: unit?.unitId, unitName: unit?.name, wardNo: unit?.wardNo }
   })
   .sort((a, b) => a.ac - b.ac || a.no - b.no)
+
+// Sample data: decide which voters are planted duplicates (see voters.ts).
+installDuplicatePlan(booths)
 
 export const boothById = new Map(booths.map((b) => [b.id, b]))
 export const boothsOfAc = (ac: number) => booths.filter((b) => b.ac === ac)

@@ -3,7 +3,7 @@ import MapView from './components/MapView'
 import StatsPanel from './components/StatsPanel'
 import MapSearch from './components/MapSearch'
 import VoterList from './components/VoterList'
-import VoterFinder from './components/VoterFinder'
+import VoterFinder, { type VoterTab } from './components/VoterFinder'
 import { availableMeasures, CLASS_LABELS, MEASURES, scaleFor } from './measures'
 import { AC_VIEWS, pathGen, VIEW_IDS, viewForAc, viewPath, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
@@ -23,7 +23,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   // Station whose voter list is open (drill-down below a station).
   const [voterBooth, setVoterBooth] = useState<Booth | undefined>()
   const [voterSerial, setVoterSerial] = useState<number | undefined>()
-  const [finderOpen, setFinderOpen] = useState(false)
+  const [voterTool, setVoterTool] = useState<VoterTab | null>(null)
   // Zoom the camera onto the selected station (set by the map search).
   const [zoomToBooth, setZoomToBooth] = useState(false)
   const viewRef = useRef(view)
@@ -86,7 +86,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
 
   // From Find voter: fly to the station and open its list at that voter.
   const showVoter = (b: Booth, serial: number) => {
-    setFinderOpen(false)
+    setVoterTool(null)
     findBooth(b)
     setVoterSerial(serial)
     setVoterBooth(b)
@@ -132,13 +132,20 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           </div>
         </div>
         <div className="top-actions">
-          <button className="ghost find-voter-btn" onClick={() => setFinderOpen(true)}>
+          <button className="ghost find-voter-btn" onClick={() => setVoterTool('find')}>
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="10" cy="8" r="4" fill="none" stroke="currentColor" strokeWidth="2" />
               <path d="M3 20c0-3.5 3-6 7-6M16 16l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
               <circle cx="15" cy="15" r="3" fill="none" stroke="currentColor" strokeWidth="2" />
             </svg>
             Find voter
+          </button>
+          <button className="ghost find-voter-btn" onClick={() => setVoterTool('dups')}>
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="5" width="11" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
+              <rect x="10" y="3" width="11" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
+            </svg>
+            Duplicates
           </button>
           <span className="user-chip" title={`Signed in as ${user.username}`}>
             {user.name}
@@ -260,7 +267,9 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
               }}
             />
           )}
-          {finderOpen && <VoterFinder onClose={() => setFinderOpen(false)} onPick={showVoter} />}
+          {voterTool && (
+            <VoterFinder tab={voterTool} onTab={setVoterTool} onClose={() => setVoterTool(null)} onPick={showVoter} />
+          )}
 
           <div className="map-legend">
             {ac && showBooths && measures.length > 0 && (

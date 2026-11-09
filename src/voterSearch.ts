@@ -1,9 +1,9 @@
 // Main-thread side of the voter search worker. The index is built the first time
 // someone opens "Find voter", then reused.
 import { booths } from './booths'
-import type { SearchHit, SearchQuery, WorkerIn, WorkerOut } from './voterSearch.worker'
+import type { DupPair, SearchHit, SearchQuery, VoterRef, WorkerIn, WorkerOut } from './voterSearch.worker'
 
-export type { SearchHit, SearchQuery }
+export type { DupPair, SearchHit, SearchQuery, VoterRef }
 
 export interface IndexStatus {
   state: 'idle' | 'building' | 'ready'
@@ -14,7 +14,8 @@ export interface IndexStatus {
 let worker: Worker | null = null
 let status: IndexStatus = { state: 'idle', progress: 0 }
 const listeners = new Set<(s: IndexStatus) => void>()
-const pending = new Map<number, (r: { hits: SearchHit[]; total: number; ms: number }) => void>()
+type Answer = Extract<WorkerOut, { reqId: number }>
+const pending = new Map<number, (r: Answer) => void>()
 let nextId = 1
 
 function setStatus(s: IndexStatus) {
@@ -29,7 +30,7 @@ function ensureWorker() {
     const m = e.data
     if (m.type === 'progress') setStatus({ state: 'building', progress: m.done / m.total })
     else if (m.type === 'ready') setStatus({ state: 'ready', progress: 1, voters: m.voters })
-    else if (m.type === 'results') {
+    else if (m.type === 'results' || m.type === 'duplicates') {
       pending.get(m.reqId)?.(m)
       pending.delete(m.reqId)
     }
@@ -62,7 +63,7 @@ export function searchVoters(query: SearchQuery): Promise<{ hits: SearchHit[]; t
   const reqId = nextId++
   return new Promise((resolve) => {
     const send = () => w.postMessage({ type: 'search', reqId, query } satisfies WorkerIn)
-    pending.set(reqId, resolve)
+    pending.set(reqId, (m) => m.type === 'results' && resolve(m))
     if (status.state === 'ready') send()
     else {
       const off = onStatus((s) => {
@@ -72,5 +73,27 @@ export function searchVoters(query: SearchQuery): Promise<{ hits: SearchHit[]; t
         }
       })
     }
+  })
+}
+
+function whenReady(send: () => void) {
+  if (status.state === 'ready') send()
+  else {
+    const off = onStatus((s) => {
+      if (s.state === 'ready') {
+        off()
+        send()
+      }
+    })
+  }
+}
+
+/** Scans every voter for likely duplicates (computed once, then cached in the worker). */
+export function findDuplicates(): Promise<{ pairs: DupPair[]; compared: number; ms: number }> {
+  const w = ensureWorker()
+  const reqId = nextId++
+  return new Promise((resolve) => {
+    pending.set(reqId, (m) => m.type === 'duplicates' && resolve(m))
+    whenReady(() => w.postMessage({ type: 'duplicates', reqId } satisfies WorkerIn))
   })
 }
