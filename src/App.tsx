@@ -4,7 +4,10 @@ import StatsPanel from './components/StatsPanel'
 import MapSearch from './components/MapSearch'
 import VoterList from './components/VoterList'
 import VoterFinder, { type VoterTab } from './components/VoterFinder'
-import { availableMeasures, CLASS_LABELS, MEASURES, scaleFor } from './measures'
+import HelpPanel, { type HelpTab } from './components/HelpPanel'
+import { loadTeam, type Team } from './team'
+import { ROLE_LABEL } from './session'
+import { availableMeasures, CLASS_LABELS, MEASURES, scaleFor, type MeasureScale } from './measures'
 import { AC_VIEWS, pathGen, VIEW_IDS, viewForAc, viewPath, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
 import type { Session } from './session'
@@ -24,6 +27,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const [voterBooth, setVoterBooth] = useState<Booth | undefined>()
   const [voterSerial, setVoterSerial] = useState<number | undefined>()
   const [voterTool, setVoterTool] = useState<VoterTab | null>(null)
+  const [helpTab, setHelpTab] = useState<HelpTab | null>(null)
   // Zoom the camera onto the selected station (set by the map search).
   const [zoomToBooth, setZoomToBooth] = useState(false)
   const viewRef = useRef(view)
@@ -87,6 +91,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   // From Find voter: fly to the station and open its list at that voter.
   const showVoter = (b: Booth, serial: number) => {
     setVoterTool(null)
+    setHelpTab(null)
     findBooth(b)
     setVoterSerial(serial)
     setVoterBooth(b)
@@ -113,11 +118,38 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const acBooths = ac ? boothsOfAc(ac.no) : []
   const measures = useMemo(() => (ac ? availableMeasures(ac.no) : []), [ac])
 
+  // Team coverage (leads and admins only): which stations have a booth lead.
+  const [team, setTeam] = useState<Team | null>(null)
+  useEffect(() => {
+    if (user.team) loadTeam().then(setTeam).catch(() => {})
+  }, [user.team])
+  const coverageScale = useMemo<MeasureScale | null>(() => {
+    if (!team || !ac) return null
+    const hasLead = new Map(team.booths.map((b) => [b.id, !!b.lead]))
+    const known = team.booths.filter((b) => b.ac === ac.no)
+    if (known.length === 0) return null
+    const share = known.filter((b) => b.lead).length / known.length
+    const pct = (v: number) => `${Math.round(v * 100)}%`
+    return {
+      measure: { id: 'coverage', label: 'Booth lead', value: () => undefined, format: pct },
+      average: share,
+      low: 0,
+      high: 1,
+      labels: ['No booth lead', 'Some booths covered', 'Has a booth lead'],
+      siteValue: (site) => {
+        const ks = site.booths.filter((b) => hasLead.has(b.id))
+        return ks.length ? ks.filter((b) => hasLead.get(b.id)).length / ks.length : undefined
+      },
+      classOf: (v) => (v === undefined ? undefined : v >= 1 ? 2 : v <= 0 ? 0 : 1),
+    }
+  }, [team, ac])
+
   const scale = useMemo(() => densityScale(VIEWS[view].regions), [view])
   const colorScale = useMemo(() => {
+    if (colorBy === 'coverage') return showBooths ? coverageScale : null
     const m = MEASURES.find((x) => x.id === colorBy)
     return ac && showBooths && m ? scaleFor(m, ac.no) : null
-  }, [ac, showBooths, colorBy])
+  }, [ac, showBooths, colorBy, coverageScale])
 
   return (
     <div className="app">
@@ -147,8 +179,18 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             </svg>
             Duplicates
           </button>
+          {user.team && (
+            <button className="ghost find-voter-btn" onClick={() => setHelpTab('requests')}>
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5h16v11H8l-4 4z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                <path d="M8 9h8M8 12h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              Help requests
+            </button>
+          )}
           <span className="user-chip" title={`Signed in as ${user.username}`}>
             {user.name}
+            {user.team && user.role && <span className="muted"> · {ROLE_LABEL[user.role]}</span>}
           </span>
           <button className="ghost" onClick={onLogout}>
             Log out
@@ -261,6 +303,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
               key={`${voterBooth.id}-${voterSerial ?? ''}`}
               booth={voterBooth}
               focusSerial={voterSerial}
+              user={user}
               onClose={() => {
                 setVoterBooth(undefined)
                 setVoterSerial(undefined)
@@ -270,6 +313,25 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           {voterTool && (
             <VoterFinder tab={voterTool} onTab={setVoterTool} onClose={() => setVoterTool(null)} onPick={showVoter} />
           )}
+          {helpTab && (
+            <HelpPanel
+              user={user}
+              tab={helpTab}
+              onTab={setHelpTab}
+              onClose={() => setHelpTab(null)}
+              onOpenVoter={showVoter}
+              onShowCoverage={(acNo) => {
+                setHelpTab(null)
+                chooseColorBy('coverage')
+                const v = viewForAc(acNo)
+                go(v)
+                // A ward / mandal lead with one area: zoom straight into it.
+                const own = user.role === 'unit_lead' && user.units?.length === 1 ? user.units[0].id : undefined
+                const region = own ? VIEWS[v].regions.find((r) => r.unitId === own) : undefined
+                if (region) setSelected(region)
+              }}
+            />
+          )}
 
           <div className="map-legend">
             {ac && showBooths && measures.length > 0 && (
@@ -277,6 +339,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                 <span className="legend-title">Colour stations by</span>
                 <select className="legend-select" value={colorBy} onChange={(e) => chooseColorBy(e.target.value)}>
                   <option value="none">Nothing (show ward density)</option>
+                  {coverageScale && <option value="coverage">Booth lead coverage (team)</option>}
                   {measures.map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.label}
@@ -288,21 +351,25 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             {colorScale ? (
               <>
                 <ul className="legend-classes">
-                  {CLASS_LABELS.map((label, i) => (
+                  {(colorScale.labels ?? CLASS_LABELS).map((label, i) => (
                     <li key={label}>
                       <span className="class-swatch" style={{ background: `var(--div-${['low', 'mid', 'high'][i]})` }} />
                       {label}
-                      <b>
-                        {i === 0 && `< ${colorScale.measure.format(colorScale.low)}`}
-                        {i === 1 &&
-                          `${colorScale.measure.format(colorScale.low)}–${colorScale.measure.format(colorScale.high)}`}
-                        {i === 2 && `> ${colorScale.measure.format(colorScale.high)}`}
-                      </b>
+                      {!colorScale.labels && (
+                        <b>
+                          {i === 0 && `< ${colorScale.measure.format(colorScale.low)}`}
+                          {i === 1 &&
+                            `${colorScale.measure.format(colorScale.low)}–${colorScale.measure.format(colorScale.high)}`}
+                          {i === 2 && `> ${colorScale.measure.format(colorScale.high)}`}
+                        </b>
+                      )}
                     </li>
                   ))}
                 </ul>
                 <div className="legend-hint">
-                  {ac?.name} average {colorScale.measure.format(colorScale.average)}
+                  {colorScale.labels
+                    ? `${colorScale.measure.format(colorScale.average)} of polling stations have a booth lead`
+                    : `${ac?.name} average ${colorScale.measure.format(colorScale.average)}`}
                   {ac && acMeta(ac.no).synthetic ? ' · sample data' : ''}
                 </div>
                 {!focusWard && !focusSite && ac && (

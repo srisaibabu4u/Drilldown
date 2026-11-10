@@ -428,7 +428,9 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
                       </div>
                       <div className="tt-class">
                         <span className="class-swatch" style={{ background: CLASS_FILL[c] }} />
-                        {CLASS_LABELS[c]} (avg {colorScale.measure.format(colorScale.average)})
+                        {colorScale.labels
+                          ? colorScale.labels[c]
+                          : `${CLASS_LABELS[c]} (avg ${colorScale.measure.format(colorScale.average)})`}
                       </div>
                     </>
                   ) : null

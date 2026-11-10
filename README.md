@@ -57,6 +57,15 @@ npm run import:booths -- kukatpally.csv --ac 46 --source "CEO Telangana PS list,
 npm run import:booths -- gadwal.csv --ac 79 --name Gadwal --source "CEO Telangana PS list, 2025"
 ```
 
+## Team features (Supabase)
+
+With a database connected, the app gains roles and team work:
+- **Roles:** Admin, Ward / mandal lead and Booth lead. Each sees only their own area, enforced by the server on every query.
+- **Scheme help requests:** on a voter's card, a lead covering that booth can record **"Needs help with a scheme"**: the scheme, what help is needed, an optional mobile number, and **required consent**. No amounts are recorded. The **Help requests** panel lists requests by status (New → Documents pending → Applied → Resolved / Not eligible / Closed), with notes, an owner and a full history.
+- **Team & coverage:** who leads each ward, mandal and booth, which booths have no booth lead, and open requests. The map can colour stations by **Booth lead coverage**.
+
+Setup is in [`supabase/README.md`](supabase/README.md): create the tables, load the synthetic demo team, then set `DATABASE_URL` in Netlify.
+
 ## Sign-in
 
 Sign-in is checked on the server, so signed-out visitors never receive the app or its data.
@@ -124,13 +133,20 @@ src/
   voters.ts              synthetic voter generator (matches each station's totals)
   nameMatch.ts           fuzzy matching for Indian name spellings (voter search, duplicates)
   components/DuplicateReview.tsx  duplicate pairs: tiers, filters, reasons, CSV export
+  components/HelpPanel.tsx        help requests + team & coverage (leads, admins)
+  components/VoterHelp.tsx        "Needs help with a scheme" on a voter's card
+  team.ts / session.ts            team API client; roles and area checks
   voterSearch.worker.ts  background index + search over every voter
   components/VoterFinder.tsx  the Find voter panel
   App.tsx                header, breadcrumb, legend, routing
 public/login.html        stand-alone sign-in page (the only page signed-out visitors get)
 netlify/
   edge-functions/guard.ts  blocks every request without a valid session
-  functions/*.mts          /api/login, /api/logout, /api/me
+  functions/*.mts          /api/login, /api/logout, /api/me, /api/requests, /api/request-events, /api/team
+  lib/db.ts                Postgres (Supabase) connection and per-role area rules
+supabase/
+  migrations/*.sql         tables, row-level security lock-down, scheme list
+  seed.sql                 synthetic demo team + help requests (made by scripts/make-seed.ts)
   lib/session.ts           password hashing, signed cookies, settings
 ```
 

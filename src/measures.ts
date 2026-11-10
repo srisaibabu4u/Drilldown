@@ -38,6 +38,8 @@ export interface MeasureScale {
   classOf: (v: number | undefined) => MeasureClass | undefined
   /** Value for one map pin (a building). */
   siteValue: (site: Site) => number | undefined
+  /** Custom class names (e.g. coverage); default: below / around / above average. */
+  labels?: string[]
 }
 
 export const CLASS_LABELS = ['Below average', 'Around average', 'Above average']

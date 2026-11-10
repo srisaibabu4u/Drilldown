@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { acMeta, acName, buildingName, type Booth } from '../booths'
 import { AGE_BANDS, GENDER_LABEL, votersOf, type Gender, type Voter } from '../voters'
 import { fmtInt } from '../format'
+import { canActOnBooth, type Session } from '../session'
+import VoterHelp from './VoterHelp'
 
 const PAGE = 50
 
@@ -10,11 +12,14 @@ export default function VoterList({
   booth,
   onClose,
   focusSerial,
+  user,
 }: {
   booth: Booth
   onClose: () => void
   /** Open the list at this voter (e.g. from Find voter). */
   focusSerial?: number
+  /** Signed-in user: leads covering this station can record scheme-help requests. */
+  user?: Session
 }) {
   const all = useMemo(() => votersOf(booth), [booth])
   const [q, setQ] = useState('')
@@ -228,6 +233,7 @@ export default function VoterList({
                 </ul>
               </>
             )}
+            {user && canActOnBooth(user, booth) && <VoterHelp booth={booth} voter={open} />}
           </aside>
         )}
       </div>

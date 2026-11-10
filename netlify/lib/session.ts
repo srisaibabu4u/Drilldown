@@ -3,7 +3,10 @@
 //
 // Configuration (Netlify → Site configuration → Environment variables):
 //   SESSION_SECRET  long random string used to sign session cookies
-//   AUTH_USERS      JSON array: [{"username":"admin","name":"Admin","hash":"pbkdf2-sha256$…"}]
+//   DATABASE_URL    (optional) Supabase Postgres connection string — users, roles and
+//                   team data then come from the database (see supabase/README.md)
+//   AUTH_USERS      fallback when there is no database: JSON array
+//                   [{"username":"admin","name":"Admin","hash":"pbkdf2-sha256$…"}]
 //                   Create entries with:  npm run add-user -- <username> "<Display name>"
 
 export const COOKIE = 'kd_session'
@@ -19,6 +22,9 @@ export interface Session {
   username: string
   name: string
   exp: number // unix seconds
+  /** app_users.id when the user comes from the database (team features). */
+  uid?: number
+  role?: string
 }
 
 declare const Netlify: { env: { get(name: string): string | undefined } } | undefined
