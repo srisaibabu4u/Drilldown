@@ -22,6 +22,16 @@ export function db(): postgres.Sql | null {
   return client
 }
 
+/**
+ * Turns a database failure into a clear 503: "not set up yet" when the tables
+ * don't exist (run /setup.html), otherwise "unreachable" (check DATABASE_URL).
+ */
+export function dbErrorResponse(e: unknown): Response {
+  const code = (e as { code?: string }).code
+  console.error('database error', code, (e as Error).message)
+  return json({ error: code === '42P01' ? 'database_not_ready' : 'database_unreachable' }, 503)
+}
+
 export type Role = 'admin' | 'unit_lead' | 'booth_lead'
 
 export interface Actor {
@@ -40,9 +50,13 @@ export async function actorFrom(req: Request): Promise<{ sql: postgres.Sql; acto
   if (!sql) return json({ error: 'database_not_configured' }, 503)
   const s: Session | null = await sessionFrom(req)
   if (!s?.uid) return json({ error: 'unauthenticated' }, 401)
-  const [u] = await sql<Actor[]>`select id::int, username, name, role from app_users where id = ${s.uid} and active`
-  if (!u) return json({ error: 'unauthenticated' }, 401)
-  return { sql, actor: u }
+  try {
+    const [u] = await sql<Actor[]>`select id::int, username, name, role from app_users where id = ${s.uid} and active`
+    if (!u) return json({ error: 'unauthenticated' }, 401)
+    return { sql, actor: u }
+  } catch (e) {
+    return dbErrorResponse(e)
+  }
 }
 
 /**

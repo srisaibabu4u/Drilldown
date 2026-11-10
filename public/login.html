@@ -185,8 +185,16 @@
           })
           if (res.ok) return location.replace('/')
           if (res.status === 401) fail('Incorrect username or password.')
-          else if (res.status === 503)
-            fail('Sign-in isn’t set up on the server yet. An administrator needs to add SESSION_SECRET and AUTH_USERS in Netlify.')
+          else if (res.status === 503) {
+            const r = await res.json().catch(() => ({}))
+            fail(
+              r.error === 'database_not_ready'
+                ? 'The team database is connected but not set up yet. An administrator needs to run the one-time setup at /setup.html.'
+                : r.error === 'database_unreachable'
+                  ? 'Can’t reach the team database. An administrator should check DATABASE_URL in Netlify.'
+                  : 'Sign-in isn’t set up on the server yet. An administrator needs to add SESSION_SECRET (and DATABASE_URL or AUTH_USERS) in Netlify.',
+            )
+          }
           else fail('Sign-in failed (' + res.status + '). Please try again.')
         } catch {
           fail('Couldn’t reach the sign-in service. Check your connection and try again.')

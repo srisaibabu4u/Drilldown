@@ -11,7 +11,8 @@
     "import:booths": "node scripts/import-booths.mjs",
     "sample:booths": "node scripts/generate-sample-booths.mjs",
     "add-user": "node scripts/add-user.mjs",
-    "typecheck:netlify": "tsc -p netlify/tsconfig.json"
+    "typecheck:netlify": "tsc -p netlify/tsconfig.json",
+    "db:seed": "tsx scripts/make-seed.ts && node scripts/make-setup-sql.mjs"
   },
   "dependencies": {
     "d3-ease": "^3.0.2",

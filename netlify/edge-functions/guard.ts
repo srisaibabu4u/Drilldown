@@ -18,5 +18,6 @@ export default async (req: Request, context: Context) => {
 
 export const config = {
   path: '/*',
-  excludedPath: ['/login.html', '/favicon.svg', '/api/login', '/api/logout', '/api/me'],
+  // /setup.html + /api/setup: one-time database setup, protected by SETUP_KEY (off unless set)
+  excludedPath: ['/login.html', '/favicon.svg', '/api/login', '/api/logout', '/api/me', '/setup.html', '/api/setup'],
 }

@@ -1,7 +1,7 @@
 // POST /api/login  { username, password }  → sets the signed session cookie.
 // Users come from the database (app_users) when DATABASE_URL is set; otherwise
 // from the AUTH_USERS environment variable (single-admin setup).
-import { db } from '../lib/db.ts'
+import { db, dbErrorResponse } from '../lib/db.ts'
 import { env, json, sessionCookie, SESSION_HOURS, signSession, users, verifyPassword } from '../lib/session.ts'
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -37,9 +37,13 @@ export default async (req: Request) => {
 
   let user: Candidate | undefined
   if (sql) {
-    const [u] = await sql<{ id: number; username: string; name: string; role: string; password_hash: string }[]>`
-      select id::int, username, name, role, password_hash from app_users where username = ${username} and active`
-    if (u) user = { id: u.id, username: u.username, name: u.name, role: u.role, hash: u.password_hash }
+    try {
+      const [u] = await sql<{ id: number; username: string; name: string; role: string; password_hash: string }[]>`
+        select id::int, username, name, role, password_hash from app_users where username = ${username} and active`
+      if (u) user = { id: u.id, username: u.username, name: u.name, role: u.role, hash: u.password_hash }
+    } catch (e) {
+      return dbErrorResponse(e)
+    }
   } else {
     const u = envUsers.find((x) => x.username.toLowerCase() === username)
     if (u) user = { username: u.username, name: u.name || u.username, role: 'admin', hash: u.hash }
