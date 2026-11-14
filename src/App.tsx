@@ -169,6 +169,11 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   }, [ac, locked, scope])
   const acBooths = ac ? boothsOfAc(ac.no) : []
   const measures = useMemo(() => (ac ? availableMeasures(ac.no) : []), [ac])
+  // Voter tools stay inside the constituency on screen (and the user's own area).
+  const finderBoothIds = useMemo(() => {
+    if (!ac) return scope.boothIds
+    return new Set(boothsOfAc(ac.no).filter((b) => !scope.boothIds || scope.boothIds.has(b.id)).map((b) => b.id))
+  }, [ac, scope.boothIds])
 
   // Team coverage (leads and admins only): which stations have a booth lead.
   const [team, setTeam] = useState<Team | null>(null)
@@ -393,7 +398,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                 setVoterTool(null)
                 findBooth(b)
               }}
-              boothIds={scope.boothIds}
+              boothIds={finderBoothIds}
+              acNo={ac?.no}
               canReviewDuplicates={scope.canReviewDuplicates}
             />
           )}

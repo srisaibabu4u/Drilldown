@@ -22,6 +22,7 @@ export default function VoterFinder({
   onPick,
   onFindStation,
   boothIds,
+  acNo,
   canReviewDuplicates = true,
 }: {
   tab: VoterTab
@@ -32,13 +33,16 @@ export default function VoterFinder({
   onFindStation?: (booth: Booth) => void
   /** Limit to these stations (a lead's area); null / undefined = all. */
   boothIds?: Set<string> | null
+  /** Constituency on screen: search only there (no "both constituencies" choice). */
+  acNo?: number
   canReviewDuplicates?: boolean
 }) {
   const [status, setStatus] = useState<IndexStatus>({ state: 'idle', progress: 0 })
   const [name, setName] = useState('')
   const [age, setAge] = useState('')
   const [gender, setGender] = useState<'' | Gender>('')
-  const [ac, setAc] = useState('')
+  const [acPick, setAc] = useState('')
+  const ac = acNo ? String(acNo) : acPick
   const [rows, setRows] = useState<Row[]>([])
   const [total, setTotal] = useState<number | null>(null)
   const [ms, setMs] = useState(0)
@@ -101,17 +105,24 @@ export default function VoterFinder({
   }, [name, boothIds, onFindStation])
 
   const anySample = booths.some((b) => acMeta(b.ac).synthetic)
+  // Voters in reach (this constituency / the user's area), shown instead of the grand total.
+  const inReach = useMemo(() => {
+    if (!boothIds) return null
+    let n = 0
+    for (const b of booths) if (boothIds.has(b.id) && b.electors) n += b.electors.male + b.electors.female + b.electors.thirdGender
+    return n
+  }, [boothIds])
 
   return (
     <div className="voter-sheet finder" role="dialog" aria-modal="false" aria-label={tab === 'find' ? 'Find a voter' : 'Duplicate voters'}>
       <div className="vs-head">
         <div>
-          <div className="kicker">Voters · Kukatpally &amp; Gadwal</div>
+          <div className="kicker">Voters · {acNo ? `AC ${acNo} ${acName(acNo)} only` : 'Kukatpally & Gadwal'}</div>
           <h2>{tab === 'find' ? 'Which polling station is this voter at?' : 'Possible duplicate voters'}</h2>
           <div className="vs-chips">
             {status.state === 'ready' ? (
               <span>
-                Searching <b>{fmtInt(status.voters ?? 0)}</b> voters
+                Searching <b>{fmtInt(inReach ?? status.voters ?? 0)}</b> voters
               </span>
             ) : (
               <span className="index-progress">
@@ -172,8 +183,15 @@ export default function VoterFinder({
           <option value="F">Women</option>
           <option value="TG">Third gender</option>
         </select>
-        <select className="legend-select" value={ac} onChange={(e) => setAc(e.target.value)} aria-label="Constituency">
-          <option value="">Both constituencies</option>
+        <select
+          className="legend-select"
+          value={ac}
+          onChange={(e) => setAc(e.target.value)}
+          disabled={!!acNo}
+          title={acNo ? 'Go back to India or Telangana to search both constituencies' : undefined}
+          aria-label="Constituency"
+        >
+          {!acNo && <option value="">Both constituencies</option>}
           {AC_VIEWS.map((v) => (
             <option key={v} value={VIEWS[v].ac!.no}>
               AC {VIEWS[v].ac!.no} {VIEWS[v].ac!.name}
@@ -254,7 +272,7 @@ export default function VoterFinder({
                 {rows.length === 0 && (
                   <tr>
                     <td colSpan={7} className="muted">
-                      No voter named <b>“{name.trim()}”</b>{age || gender || ac ? ' with these filters' : ''}. Check the spelling, try just the first name, or remove a filter.
+                      No voter named <b>“{name.trim()}”</b>{age || gender || acPick ? ' with these filters' : acNo ? ` in ${acName(acNo)}` : ''}. Check the spelling, try just the first name, or remove a filter.
                     </td>
                   </tr>
                 )}
