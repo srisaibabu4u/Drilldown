@@ -211,11 +211,11 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             ◉
           </span>
           <div>
-            <h1>Kukatpally Drilldown</h1>
+            <h1>Booth<span className="iq">IQ</span></h1>
             <p>
               {locked
                 ? `Your area: ${scope.homeRegion?.name ?? '—'}${scope.home ? `, ${VIEWS[scope.home].title}` : ''}`
-                : 'India → Telangana → Kukatpally & Gadwal · who lives where, who votes where'}
+                : 'Booth-level intelligence · Kukatpally & Gadwal'}
             </p>
           </div>
         </div>

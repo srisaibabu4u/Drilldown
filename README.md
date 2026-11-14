@@ -1,4 +1,6 @@
-# Kukatpally Drilldown
+# BoothIQ
+
+*Booth-level intelligence for every constituency* (formerly "Kukatpally Drilldown").
 
 An interactive map that starts with India and zooms step by step into two assembly constituencies, **Kukatpally (AC 46, Hyderabad)** and **Gadwal (AC 79, Jogulamba Gadwal)**. It then drills down to polling stations and each station's voter list.
 

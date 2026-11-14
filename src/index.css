@@ -2074,3 +2074,7 @@ button.chip-toggle {
     flex-direction: column;
   }
 }
+
+.brand h1 .iq {
+  color: #eb6834;
+}
