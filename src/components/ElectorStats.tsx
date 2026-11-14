@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { acMeta, AGE_BANDS, boothsOfAc, SOCIAL_GROUPS, summarize, type Booth } from '../booths'
 import { fmtInt, fmtPct, fmtShort } from '../format'
+import { t } from '../i18n'
 
 const GENDER = [
   { key: 'male', label: 'Men', color: 'var(--series-1)' },
@@ -42,15 +43,15 @@ export default function ElectorStats({
     { label: 'Electors', value: single ? fmtInt(s.electors) : fmtShort(s.electors), hint: single ? undefined : fmtInt(s.electors) },
   ]
   if (s.turnout !== undefined)
-    kpis.push({ label: 'Turnout (last AE)', value: `${s.turnout.toFixed(1)}%`, hint: `≈${fmtInt(s.votesPolled)} votes` })
-  kpis.push({ label: 'First-time voters', value: fmtInt(firstTime), hint: `aged 18–19 · ${fmtPct(firstTime / s.electors)}` })
+    kpis.push({ label: 'Turnout (last AE)', value: `${s.turnout.toFixed(1)}%`, hint: t('≈{n} votes', { n: fmtInt(s.votesPolled) }) })
+  kpis.push({ label: 'First-time voters', value: fmtInt(firstTime), hint: `${t('aged 18–19')} · ${fmtPct(firstTime / s.electors)}` })
   kpis.push({
     label: 'Gender ratio',
     value: String(Math.round((s.female / s.male) * 1000)),
-    hint: 'women per 1,000 men',
+    hint: t('women per 1,000 men'),
   })
-  if (s.households) kpis.push({ label: 'Households', value: fmtShort(s.households), hint: `${(s.electors / s.households).toFixed(1)} electors each` })
-  kpis.push({ label: 'Electors 80+', value: fmtInt(seniors), hint: 'eligible for home voting' })
+  if (s.households) kpis.push({ label: 'Households', value: fmtShort(s.households), hint: t('{n} electors each', { n: (s.electors / s.households).toFixed(1) }) })
+  kpis.push({ label: 'Electors 80+', value: fmtInt(seniors), hint: t('eligible for home voting') })
 
   const lowest = single
     ? []
@@ -63,12 +64,12 @@ export default function ElectorStats({
     <>
       <div className="section-title">
         <h3>{title}</h3>
-        {acMeta(ac).synthetic && <span className="badge badge-sample">Sample data</span>}
+        {acMeta(ac).synthetic && <span className="badge badge-sample">{t('Sample data')}</span>}
       </div>
       <div className="kpis">
         {kpis.map((k) => (
           <div className="kpi" key={k.label}>
-            <div className="kpi-label">{k.label}</div>
+            <div className="kpi-label">{t(k.label)}</div>
             <div className="kpi-value">{k.value}</div>
             {k.hint && <div className="kpi-hint">{k.hint}</div>}
           </div>
@@ -76,18 +77,18 @@ export default function ElectorStats({
       </div>
 
       <section className="card">
-        <h3>Electors by gender</h3>
+        <h3>{t('Electors by gender')}</h3>
         <div
           className="stack"
           role="img"
-          aria-label={GENDER.map((g) => `${g.label} ${fmtInt(s[g.key])}`).join(', ')}
+          aria-label={GENDER.map((g) => `${t(g.label)} ${fmtInt(s[g.key])}`).join(', ')}
         >
           {GENDER.filter((g) => s[g.key] > 0).map((g) => (
             <span
               key={g.key}
               className="stack-seg"
               style={{ flexGrow: s[g.key], background: g.color }}
-              title={`${g.label}: ${fmtInt(s[g.key])} (${fmtPct(s[g.key] / s.electors)})`}
+              title={`${t(g.label)}: ${fmtInt(s[g.key])} (${fmtPct(s[g.key] / s.electors)})`}
             />
           ))}
         </div>
@@ -95,7 +96,7 @@ export default function ElectorStats({
           {GENDER.map((g) => (
             <li key={g.key}>
               <span className="swatch" style={{ background: g.color }} />
-              {g.label} <b>{fmtInt(s[g.key])}</b>
+              {t(g.label)} <b>{fmtInt(s[g.key])}</b>
               {g.key !== 'thirdGender' && <span className="muted"> · {fmtPct(s[g.key] / s.electors, 0)}</span>}
             </li>
           ))}
@@ -105,8 +106,8 @@ export default function ElectorStats({
       {s.social && (
         <section className="card caste-card">
           <div className="card-row">
-            <h3>Caste share (social category)</h3>
-            {acSocial && <span className="muted small">vs AC {ac} average</span>}
+            <h3>{t('Caste share (social category)')}</h3>
+            {acSocial && <span className="muted small">{t('vs AC {ac} average', { ac })}</span>}
           </div>
           <ul className="caste-rows">
             {SOCIAL_GROUPS.map((g, i) => {
@@ -114,10 +115,10 @@ export default function ElectorStats({
               const avg = acSocial ? (acSocial.social![i] / acSocial.electors) * 100 : undefined
               const diff = avg === undefined ? undefined : share - avg
               return (
-                <li key={g.key} title={`${g.name}: ${fmtInt(s.social![i])} electors (${share.toFixed(1)}%)`}>
+                <li key={g.key} title={`${t(g.name)}: ${fmtInt(s.social![i])} ${t('electors')} (${share.toFixed(1)}%)`}>
                   <span className="caste-label">
                     <b>{g.label}</b>
-                    <span className="muted">{g.name}</span>
+                    <span className="muted">{t(g.name)}</span>
                   </span>
                   <span className="caste-bar">
                     <span style={{ width: `${(share / maxShare) * 100}%`, background: SOCIAL_COLORS[i] }} />
@@ -134,14 +135,13 @@ export default function ElectorStats({
             })}
           </ul>
           <p className="muted small note">
-            Shares of electors. Differences are in percentage points. Electoral rolls don’t record caste; real
-            figures would come from a survey and are never shown per person.
+            {t('Shares of electors. Differences are in percentage points. Electoral rolls don’t record caste; real figures would come from a survey and are never shown per person.')}
           </p>
         </section>
       )}
 
       <section className="card">
-        <h3>Electors by age</h3>
+        <h3>{t('Electors by age')}</h3>
         <div className="bars" role="list">
           {s.ages.map((n, i) => (
             <div
@@ -150,7 +150,7 @@ export default function ElectorStats({
               role="listitem"
               onPointerEnter={() => setHoverAge(i)}
               onPointerLeave={() => setHoverAge(null)}
-              title={`${AGE_BANDS[i]}: ${fmtInt(n)} electors (${fmtPct(n / s.electors)})`}
+              title={`${AGE_BANDS[i]}: ${fmtInt(n)} ${t('electors')} (${fmtPct(n / s.electors)})`}
             >
               <span className="bar-label">{AGE_BANDS[i]}</span>
               <span className="bar-track">
@@ -164,7 +164,7 @@ export default function ElectorStats({
 
       {lowest.length > 0 && (
         <section className="card">
-          <h3>Lowest turnout stations</h3>
+          <h3>{t('Lowest turnout stations')}</h3>
           <ol className="booth-list">
             {lowest.map((b) => (
               <li key={b.no}>

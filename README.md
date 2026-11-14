@@ -16,6 +16,8 @@ India → Telangana → Gadwal (4 mandals)                        → polling st
 - **Find voter** (header button): type a name and see which polling station each matching voter is at, across both constituencies. Spelling variants match (Santhosh / Santosh / Santhos, Lakshmi / Laxmi, Sreenivas / Srinivas), and an initial can stand for a full word ("R. Santosh" finds "Santhosh Rote"). Narrow it down by father's or husband's name, age (±2), gender or constituency, or paste a sample voter ID. Click a match to fly to the station and open its voter list at that person.
 - **Duplicates** (header button): scans every voter in both constituencies for records that are probably the same person written differently. That covers spelling variants, an initial vs a full family name ("R. Santosh" / "Rote Santhosh"), words in a different order, age off by a year or two, and a relative's name spelled differently. Each pair shows a confidence level (High / Medium / Possible), where the two records are (same station, different stations, different constituencies), and the reasons. You can open either record in its station list, or export the pairs as a CSV file for a Form 7 submission. Nothing is ever removed automatically.
 - The search box finds a station in either constituency by number, building, street, ward or mandal (for example "gadwal 12" or "ghattu school").
+- **Command centre** (admins and ward / mandal leads, shown first after sign-in, reopened from the header): headline numbers for the person's area (voters, polling stations, booth-lead coverage, open and overdue help requests), a **Needs attention today** list (overdue requests, the area with the most overdue, stations without a booth lead, vacant ward / mandal leads, people waiting on documents) where each item jumps to the right screen, a per-ward / mandal table, and open requests by scheme. Counts only, no amounts.
+- **తెలుగు / English** switch in the header and on the sign-in page, remembered per browser. All screens are translated, along with state, district, ward, mandal and scheme names. WhatsApp drafts are written in the chosen language. Voter names, building names and the "need" text people typed stay as entered.
 - Each level has its own URL (`#india`, `#telangana`, `#ghmc`, `#kukatpally`, `#gadwal`).
 - Includes light and dark themes, a mobile layout and keyboard support.
 
@@ -146,6 +148,8 @@ src/
   team.ts / session.ts            team API client; roles and area checks
   voterSearch.worker.ts  background index + search over every voter
   components/VoterFinder.tsx  the Find voter panel
+  components/CommandCentre.tsx  the command centre (first screen for admins and ward / mandal leads)
+  i18n.ts / i18n.te.ts   English / Telugu switch: t('English text') looks up the Telugu in i18n.te.ts
   App.tsx                header, breadcrumb, legend, routing
 public/login.html        stand-alone sign-in page (the only page signed-out visitors get)
 netlify/
@@ -157,6 +161,10 @@ supabase/
   seed.sql                 synthetic demo team + help requests (made by scripts/make-seed.ts)
   lib/session.ts           password hashing, signed cookies, settings
 ```
+
+### Translating new text
+
+Wrap any new user-facing English string in `t()` (from `src/i18n.ts`) and add its Telugu to `src/i18n.te.ts`, keyed by the same English text. Use `{placeholders}` for numbers and names: `t('{n} voters', { n })`. A string with no Telugu entry shows in English, and `npm run dev` logs it in the console as `[i18n] no Telugu for: …`.
 
 ### Adding a level or feature
 

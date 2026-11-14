@@ -5,7 +5,9 @@ import MapSearch from './components/MapSearch'
 import VoterList from './components/VoterList'
 import VoterFinder, { type VoterTab } from './components/VoterFinder'
 import HelpPanel, { type HelpTab } from './components/HelpPanel'
-import { loadTeam, overdueCount, type Team } from './team'
+import CommandCentre, { type CentreAction } from './components/CommandCentre'
+import { setLang, t, useLang } from './i18n'
+import { loadTeam, overdueCount, type ReqStatus, type Team } from './team'
 import { ROLE_LABEL } from './session'
 import { availableMeasures, CLASS_LABELS, MEASURES, scaleFor, type MeasureScale } from './measures'
 import { AC_VIEWS, pathGen, VIEW_IDS, viewForAc, viewPath, VIEWS, type Region, type ViewId } from './geo'
@@ -32,6 +34,20 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const [voterSerial, setVoterSerial] = useState<number | undefined>()
   const [voterTool, setVoterTool] = useState<VoterTab | null>(null)
   const [helpTab, setHelpTab] = useState<HelpTab | null>(null)
+  const [helpStatus, setHelpStatus] = useState<'open' | 'overdue' | ReqStatus>('open')
+  // Command centre: first screen for admins and ward / mandal leads (once per sign-in).
+  const hasCentre = !!user.team && (user.role === 'admin' || user.role === 'unit_lead')
+  const [centre, setCentre] = useState(() => {
+    if (!hasCentre) return false
+    try {
+      if (sessionStorage.getItem('biq-centre-seen')) return false
+      sessionStorage.setItem('biq-centre-seen', '1')
+    } catch {
+      /* show it anyway */
+    }
+    return true
+  })
+  const lang = useLang()
   // Zoom the camera onto the selected station (set by the map search).
   const [zoomToBooth, setZoomToBooth] = useState(false)
   const viewRef = useRef(view)
@@ -116,14 +132,23 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   }
 
   // Only one of the big panels at a time (Find voter / Duplicates vs Help requests).
-  const openVoterTool = (t: VoterTab) => {
+  const openVoterTool = (tab: VoterTab) => {
     setHelpTab(null)
-    setVoterTool(t)
+    setCentre(false)
+    setVoterTool(tab)
   }
-  const openHelp = (t: HelpTab) => {
+  const openHelp = (tab: HelpTab, status: 'open' | 'overdue' | ReqStatus = 'open') => {
     setVoterTool(null)
     setVoterBooth(undefined)
-    setHelpTab(t)
+    setCentre(false)
+    setHelpStatus(status)
+    setHelpTab(tab)
+  }
+  const openCentre = () => {
+    setVoterTool(null)
+    setVoterBooth(undefined)
+    setHelpTab(null)
+    setCentre(true)
   }
 
   // Requests past their time limit, for the header badge (refreshed when the panel closes).
@@ -131,6 +156,29 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   useEffect(() => {
     if (user.team && helpTab === null) overdueCount().then(setOverdue).catch(() => {})
   }, [user.team, helpTab])
+
+  // Coverage map for a constituency (zooming into a lead's own ward / mandal).
+  const showCoverage = (acNo: number) => {
+    setHelpTab(null)
+    setCentre(false)
+    chooseColorBy('coverage')
+    const v = viewForAc(acNo)
+    go(v)
+    const own = user.role === 'unit_lead' && user.units?.length === 1 ? user.units[0].id : undefined
+    const region = own ? VIEWS[v].regions.find((r) => r.unitId === own) : undefined
+    if (region) setSelected(region)
+  }
+
+  const onCentre = (a: CentreAction) => {
+    if (a.kind === 'requests') return openHelp('requests', a.status)
+    if (a.kind === 'team') return openHelp('team')
+    if (a.kind === 'coverage') return showCoverage(a.ac)
+    setCentre(false)
+    const v = viewForAc(a.ac)
+    go(v)
+    const region = VIEWS[v].regions.find((r) => r.unitId === a.unitId)
+    if (region && regionAllowed(region)) setSelected(region)
+  }
 
   const clearBooth = () => {
     setBooth(undefined)
@@ -219,19 +267,30 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             <h1>Booth<span className="iq">IQ</span></h1>
             <p>
               {locked
-                ? `Your area: ${scope.homeRegion?.name ?? '—'}${scope.home ? `, ${VIEWS[scope.home].title}` : ''}`
-                : 'Booth-level intelligence · Kukatpally & Gadwal'}
+                ? t('Your area: {area}', { area: `${scope.homeRegion ? t(scope.homeRegion.name) : '—'}${scope.home ? `, ${t(VIEWS[scope.home].title)}` : ''}` })
+                : t('Booth-level intelligence · Kukatpally & Gadwal')}
             </p>
           </div>
         </div>
         <div className="top-actions">
+          {hasCentre && (
+            <button className={`ghost find-voter-btn ${centre ? 'is-active' : ''}`} onClick={openCentre}>
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="9" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                <rect x="14" y="3" width="7" height="5" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                <rect x="14" y="12" width="7" height="9" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                <rect x="3" y="16" width="7" height="5" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" />
+              </svg>
+              {t('Command centre')}
+            </button>
+          )}
           <button className="ghost find-voter-btn" onClick={() => openVoterTool('find')}>
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="10" cy="8" r="4" fill="none" stroke="currentColor" strokeWidth="2" />
               <path d="M3 20c0-3.5 3-6 7-6M16 16l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
               <circle cx="15" cy="15" r="3" fill="none" stroke="currentColor" strokeWidth="2" />
             </svg>
-            Find voter
+            {t('Find voter')}
           </button>
           {scope.canReviewDuplicates && (
           <button className="ghost find-voter-btn" onClick={() => openVoterTool('dups')}>
@@ -239,7 +298,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
               <rect x="3" y="5" width="11" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
               <rect x="10" y="3" width="11" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
             </svg>
-            Duplicates
+            {t('Duplicates')}
           </button>
           )}
           {user.team && (
@@ -248,31 +307,39 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                 <path d="M4 5h16v11H8l-4 4z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
                 <path d="M8 9h8M8 12h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              Help requests
+              {t('Help requests')}
               {overdue > 0 && (
-                <span className="alert-badge" title={`${overdue} request${overdue === 1 ? '' : 's'} past the time limit`}>
+                <span className="alert-badge" title={t('{n} past the time limit', { n: overdue })}>
                   {overdue}
                 </span>
               )}
             </button>
           )}
-          <span className="user-chip" title={`Signed in as ${user.username}`}>
-            <span className="muted">Signed in: </span>
+          <span className="user-chip" title={user.username}>
+            <span className="muted">{t('Signed in:')} </span>
             {user.name}
-            {user.team && user.role && <span className="muted"> · {ROLE_LABEL[user.role]}</span>}
+            {user.team && user.role && <span className="muted"> · {t(ROLE_LABEL[user.role])}</span>}
           </span>
+          <button
+            className="ghost lang-btn"
+            onClick={() => setLang(lang === 'te' ? 'en' : 'te')}
+            title={lang === 'te' ? 'Switch to English' : 'తెలుగులోకి మార్చండి'}
+            lang={lang === 'te' ? 'en' : 'te'}
+          >
+            {lang === 'te' ? 'English' : 'తెలుగు'}
+          </button>
           <button className="ghost" onClick={onLogout}>
-            Log out
+            {t('Log out')}
           </button>
           {!locked && AC_VIEWS.filter((v) => v !== view).map((v) => (
             <button key={v} className="primary" onClick={() => go(v)}>
-              {VIEWS[v].title} ✈
+              {t(VIEWS[v].title)} ✈
             </button>
           ))}
           <button
             className="ghost icon-btn"
-            aria-label="Toggle colour theme"
-            title="Toggle light / dark"
+            aria-label={t('Toggle light / dark')}
+            title={t('Toggle light / dark')}
             onClick={() => {
               const dark =
                 theme === 'dark' ||
@@ -288,7 +355,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
         </div>
       </header>
 
-      <nav className="crumbs" aria-label="Breadcrumb">
+      <nav className="crumbs" aria-label={t('Breadcrumb')}>
         {crumbs.map((c, i) => (
           <span key={c} className="crumb-wrap">
             {i > 0 && <span className="sep">›</span>}
@@ -297,14 +364,14 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
               aria-current={c === view ? 'page' : undefined}
               onClick={() => go(c)}
             >
-              {VIEWS[c].title}
+              {t(VIEWS[c].title)}
             </button>
           </span>
         ))}
         {current && (
           <span className="crumb-wrap">
             <span className="sep">›</span>
-            <span className="crumb is-current">{current.name}</span>
+            <span className="crumb is-current">{t(current.name)}</span>
           </span>
         )}
         {booth && (
@@ -322,12 +389,12 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
         {voterBooth && (
           <span className="crumb-wrap">
             <span className="sep">›</span>
-            <span className="crumb is-current">Voters</span>
+            <span className="crumb is-current">{t('Voters')}</span>
           </span>
         )}
       </nav>
 
-      <main className={`main ${helpTab ? 'is-wide' : ''}`}>
+      <main className={`main ${helpTab || centre ? 'is-wide' : ''}`}>
         <section className="map-area">
           <MapView
             view={view}
@@ -359,17 +426,17 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
               zoomToBooth &&
               booth && (
                 <button className="back ghost" onClick={zoomedOut}>
-                  ← My area
+                  ← {t('My area')}
                 </button>
               )
             ) : (zoomToBooth && booth) || focusWard ? (
               <button className="back ghost" onClick={zoomedOut}>
-                ← All of {VIEWS[view].title}
+                ← {t('All of {area}', { area: t(VIEWS[view].title) })}
               </button>
             ) : (
               VIEWS[view].parent && (
                 <button className="back ghost" onClick={() => go(VIEWS[view].parent!)}>
-                  ← {VIEWS[VIEWS[view].parent!].title}
+                  ← {t(VIEWS[VIEWS[view].parent!].title)}
                 </button>
               )
             )}
@@ -403,36 +470,32 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
               canReviewDuplicates={scope.canReviewDuplicates}
             />
           )}
+          {centre && (
+            <CommandCentre user={user} scope={scope} team={team} onAction={onCentre} onClose={() => setCentre(false)} />
+          )}
           {helpTab && (
             <HelpPanel
+              key={helpStatus}
               user={user}
               tab={helpTab}
               onTab={setHelpTab}
               onClose={() => setHelpTab(null)}
               onOpenVoter={showVoter}
-              onShowCoverage={(acNo) => {
-                setHelpTab(null)
-                chooseColorBy('coverage')
-                const v = viewForAc(acNo)
-                go(v)
-                // A ward / mandal lead with one area: zoom straight into it.
-                const own = user.role === 'unit_lead' && user.units?.length === 1 ? user.units[0].id : undefined
-                const region = own ? VIEWS[v].regions.find((r) => r.unitId === own) : undefined
-                if (region) setSelected(region)
-              }}
+              onShowCoverage={showCoverage}
+              initialStatus={helpStatus}
             />
           )}
 
           <div className="map-legend">
             {ac && showBooths && measures.length > 0 && (
               <label>
-                <span className="legend-title">Colour stations by</span>
+                <span className="legend-title">{t('Colour stations by')}</span>
                 <select className="legend-select" value={colorBy} onChange={(e) => chooseColorBy(e.target.value)}>
-                  <option value="none">Nothing (show ward density)</option>
-                  {coverageScale && <option value="coverage">Booth lead coverage (team)</option>}
+                  <option value="none">{t('Nothing (show ward density)')}</option>
+                  {coverageScale && <option value="coverage">{t('Booth lead coverage (team)')}</option>}
                   {measures.map((m) => (
                     <option key={m.id} value={m.id}>
-                      {m.label}
+                      {t(m.label)}
                     </option>
                   ))}
                 </select>
@@ -444,7 +507,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                   {(colorScale.labels ?? CLASS_LABELS).map((label, i) => (
                     <li key={label}>
                       <span className="class-swatch" style={{ background: `var(--div-${['low', 'mid', 'high'][i]})` }} />
-                      {label}
+                      {t(label)}
                       {!colorScale.labels && (
                         <b>
                           {i === 0 && `< ${colorScale.measure.format(colorScale.low)}`}
@@ -458,17 +521,17 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                 </ul>
                 <div className="legend-hint">
                   {colorScale.labels
-                    ? `${colorScale.measure.format(colorScale.average)} of polling stations have a booth lead`
-                    : `${ac?.name} average ${colorScale.measure.format(colorScale.average)}`}
-                  {ac && acMeta(ac.no).synthetic ? ' · sample data' : ''}
+                    ? t('{pct} of polling stations have a booth lead', { pct: colorScale.measure.format(colorScale.average) })
+                    : t('{area} average {value}', { area: t(ac?.name ?? ''), value: colorScale.measure.format(colorScale.average) })}
+                  {ac && acMeta(ac.no).synthetic ? ` · ${t('sample data')}` : ''}
                 </div>
                 {!focusWard && !focusSite && ac && (
-                  <div className="legend-hint">Click a {ac.unitLabel.toLowerCase()} to zoom in</div>
+                  <div className="legend-hint">{t(`Click a ${ac.unitLabel.toLowerCase()} to zoom in`)}</div>
                 )}
               </>
             ) : (
               <>
-                <div className="legend-title">Population density (people / km²)</div>
+                <div className="legend-title">{t('Population density (people / km²)')}</div>
                 <div className="legend-ramp">
                   {RAMP.map((c) => (
                     <span key={c} style={{ background: c }} />
@@ -481,13 +544,13 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                 </div>
                 {!ac && (
                   <div className="legend-hint">
-                    <span className="hl-swatch" /> Glowing outline = click to zoom in
+                    <span className="hl-swatch" /> {t('Glowing outline = click to zoom in')}
                   </div>
                 )}
                 {ac && showBooths && acBooths.length > 0 && (
                   <div className="legend-hint">
-                    <span className="pin-swatch" /> Polling station{acMeta(ac.no).synthetic ? ' (sample)' : ''}
-                    {!focusWard && !focusSite && ` · click a ${ac.unitLabel.toLowerCase()} to zoom in`}
+                    <span className="pin-swatch" /> {t('Polling station')}{acMeta(ac.no).synthetic ? ` (${t('sample')})` : ''}
+                    {!focusWard && !focusSite && ` · ${t(`click a ${ac.unitLabel.toLowerCase()} to zoom in`)}`}
                   </div>
                 )}
               </>
@@ -521,8 +584,9 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
       </main>
 
       <footer className="foot">
-        Boundaries: Census-based district maps (udit-001/india-maps-data), GHMC wards from OpenStreetMap via
-        DataMeet. State & district figures: Census of India 2011. Ward and mandal figures{boothMeta.synthetic ? ', polling stations and voters' : ''} are illustrative samples. Gadwal mandal boundaries: gggodhwani/telangana_boundaries.
+        {t('Boundaries: Census-based district maps (udit-001/india-maps-data), GHMC wards from OpenStreetMap via DataMeet. State & district figures: Census of India 2011.')}{' '}
+        {boothMeta.synthetic ? t('Ward and mandal figures, polling stations and voters are illustrative samples.') : t('Ward and mandal figures are illustrative samples.')}{' '}
+        {t('Gadwal mandal boundaries: gggodhwani/telangana_boundaries.')}
       </footer>
     </div>
   )

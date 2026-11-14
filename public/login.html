@@ -6,6 +6,9 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="robots" content="noindex" />
     <title>Sign in · BoothIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <!-- Self-contained on purpose: this is the only page served to signed-out visitors. -->
     <style>
       :root {
@@ -107,25 +110,33 @@
         border: 1px solid color-mix(in srgb, #d03b3b 40%, transparent);
       }
       .error.show { display: block; }
+      .lang {
+        position: fixed; top: 16px; right: 16px; font: inherit; font-size: 14px; font-weight: 600;
+        padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface);
+        color: var(--text-primary); cursor: pointer;
+      }
+      .lang:hover { border-color: var(--focus); }
+      html:lang(te) body { font-family: system-ui, 'Noto Sans Telugu', 'Nirmala UI', 'Gautami', sans-serif; }
     </style>
   </head>
   <body>
+    <button type="button" class="lang" id="lang">తెలుగు</button>
     <form id="login" novalidate>
       <div class="brand">
         <span class="logo" aria-hidden="true">◉</span>
         <div>
           <h1>Booth<span class="iq">IQ</span></h1>
-          <p>Booth-level intelligence for every constituency</p>
+          <p data-i18n="tagline">Booth-level intelligence for every constituency</p>
         </div>
       </div>
 
       <label class="field">
-        <span>Username</span>
+        <span data-i18n="username">Username</span>
         <input id="username" name="username" autocomplete="username" autofocus required />
       </label>
 
       <div class="field">
-        <label for="password">Password</label>
+        <label for="password" data-i18n="password">Password</label>
         <div class="pw">
           <input id="password" name="password" type="password" autocomplete="current-password" required />
           <button type="button" class="eye" id="eye" aria-label="Show password" aria-pressed="false" title="Show password">
@@ -141,7 +152,7 @@
 
       <div class="error" id="error" role="alert"></div>
 
-      <button type="submit" id="submit" disabled>Sign in</button>
+      <button type="submit" id="submit" disabled data-i18n="signIn">Sign in</button>
     </form>
 
     <script>
@@ -151,6 +162,54 @@
       const eye = document.getElementById('eye')
       const submit = document.getElementById('submit')
       const error = document.getElementById('error')
+      const langBtn = document.getElementById('lang')
+
+      // English / Telugu (same choice as inside the app: localStorage 'biq-lang').
+      const TEXT = {
+        en: {
+          tagline: 'Booth-level intelligence for every constituency', username: 'Username', password: 'Password',
+          signIn: 'Sign in', signingIn: 'Signing in…', show: 'Show password', hide: 'Hide password',
+          wrong: 'Incorrect username or password.',
+          notReady: 'The team database is connected but not set up yet. An administrator needs to run the one-time setup at /setup.html.',
+          unreachable: 'Can’t reach the team database. An administrator should check DATABASE_URL in Netlify.',
+          notSetUp: 'Sign-in isn’t set up on the server yet. An administrator needs to add SESSION_SECRET (and DATABASE_URL or AUTH_USERS) in Netlify.',
+          failed: 'Sign-in failed ({code}). Please try again.',
+          offline: 'Couldn’t reach the sign-in service. Check your connection and try again.',
+          title: 'Sign in · BoothIQ',
+        },
+        te: {
+          tagline: 'ప్రతి నియోజకవర్గానికి బూత్ స్థాయి సమాచారం', username: 'యూజర్‌నేమ్', password: 'పాస్‌వర్డ్',
+          signIn: 'లాగిన్', signingIn: 'లాగిన్ అవుతోంది…', show: 'పాస్‌వర్డ్ చూపించు', hide: 'పాస్‌వర్డ్ దాచు',
+          wrong: 'యూజర్‌నేమ్ లేదా పాస్‌వర్డ్ తప్పు.',
+          notReady: 'బృందం డేటాబేస్ కనెక్ట్ అయింది కానీ ఇంకా సెటప్ కాలేదు. అడ్మిన్ /setup.htmlలో ఒకసారి సెటప్ చేయాలి.',
+          unreachable: 'బృందం డేటాబేస్‌ను చేరుకోలేకపోయాం. అడ్మిన్ Netlifyలో DATABASE_URL సరిచూడాలి.',
+          notSetUp: 'సర్వర్‌లో లాగిన్ ఇంకా సెటప్ కాలేదు. అడ్మిన్ Netlifyలో SESSION_SECRET (మరియు DATABASE_URL లేదా AUTH_USERS) జోడించాలి.',
+          failed: 'లాగిన్ విఫలమైంది ({code}). మళ్ళీ ప్రయత్నించండి.',
+          offline: 'లాగిన్ సేవను చేరుకోలేకపోయాం. కనెక్షన్ సరిచూసి మళ్ళీ ప్రయత్నించండి.',
+          title: 'లాగిన్ · BoothIQ',
+        },
+      }
+      let lang = 'en'
+      try { lang = localStorage.getItem('biq-lang') === 'te' ? 'te' : 'en' } catch {}
+      const T = (k) => TEXT[lang][k]
+      const applyLang = () => {
+        document.documentElement.lang = lang
+        document.title = T('title')
+        document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = T(el.dataset.i18n) })
+        const shown = pass.type === 'text'
+        eye.setAttribute('aria-label', T(shown ? 'hide' : 'show'))
+        eye.title = T(shown ? 'hide' : 'show')
+        langBtn.textContent = lang === 'te' ? 'English' : 'తెలుగు'
+        if (error.classList.contains('show') && error.dataset.key) error.textContent = T(error.dataset.key).replace('{code}', error.dataset.code || '')
+      }
+      langBtn.addEventListener('click', () => {
+        lang = lang === 'te' ? 'en' : 'te'
+        try { localStorage.setItem('biq-lang', lang) } catch {}
+        applyLang()
+      })
+      applyLang()
+      // A fresh sign-in opens on the command centre again.
+      try { sessionStorage.removeItem('biq-centre-seen') } catch {}
 
       // Already signed in? Go straight to the map.
       fetch('/api/me', { credentials: 'same-origin' })
@@ -165,17 +224,22 @@
         const show = pass.type === 'password'
         pass.type = show ? 'text' : 'password'
         eye.setAttribute('aria-pressed', String(show))
-        eye.setAttribute('aria-label', show ? 'Hide password' : 'Show password')
-        eye.title = show ? 'Hide password' : 'Show password'
+        eye.setAttribute('aria-label', T(show ? 'hide' : 'show'))
+        eye.title = T(show ? 'hide' : 'show')
       })
 
-      const fail = (msg) => { error.textContent = msg; error.classList.add('show') }
+      const fail = (key, code) => {
+        error.dataset.key = key
+        error.dataset.code = code || ''
+        error.textContent = T(key).replace('{code}', code || '')
+        error.classList.add('show')
+      }
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault()
         if (!user.value || !pass.value) return
         submit.disabled = true
-        submit.textContent = 'Signing in…'
+        submit.textContent = T('signingIn')
         error.classList.remove('show')
         try {
           const res = await fetch('/api/login', {
@@ -185,22 +249,16 @@
             body: JSON.stringify({ username: user.value, password: pass.value }),
           })
           if (res.ok) return location.replace('/')
-          if (res.status === 401) fail('Incorrect username or password.')
+          if (res.status === 401) fail('wrong')
           else if (res.status === 503) {
             const r = await res.json().catch(() => ({}))
-            fail(
-              r.error === 'database_not_ready'
-                ? 'The team database is connected but not set up yet. An administrator needs to run the one-time setup at /setup.html.'
-                : r.error === 'database_unreachable'
-                  ? 'Can’t reach the team database. An administrator should check DATABASE_URL in Netlify.'
-                  : 'Sign-in isn’t set up on the server yet. An administrator needs to add SESSION_SECRET (and DATABASE_URL or AUTH_USERS) in Netlify.',
-            )
+            fail(r.error === 'database_not_ready' ? 'notReady' : r.error === 'database_unreachable' ? 'unreachable' : 'notSetUp')
           }
-          else fail('Sign-in failed (' + res.status + '). Please try again.')
+          else fail('failed', String(res.status))
         } catch {
-          fail('Couldn’t reach the sign-in service. Check your connection and try again.')
+          fail('offline')
         }
-        submit.textContent = 'Sign in'
+        submit.textContent = T('signIn')
         update()
       })
     </script>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { t } from '../i18n'
 import { acMeta, acName, boothById, booths, buildingName, type Booth } from '../booths'
 import { fmtInt } from '../format'
 import { nameKey, phonetic, words } from '../nameMatch'
@@ -58,21 +59,26 @@ const hasInitial = (n: string) => nameKey(n).bare.length > 0
 function reasons(a: Voter, b: Voter): string[] {
   const out: string[] = []
   const nameWhy = (x: string, y: string, what: string) => {
-    if (x === y) return `Same ${what}`
-    if (hasInitial(x) !== hasInitial(y)) return `${what[0].toUpperCase() + what.slice(1)}: initial vs full (${x} ≈ ${y})`
-    const What = what[0].toUpperCase() + what.slice(1)
-    if (sound(x) === sound(y)) return `${What}: spelling variant (${x} ≈ ${y})`
+    const pair = `(${x} ≈ ${y})`
+    if (x === y) return t(`Same ${what}`)
+    const What = t(what[0].toUpperCase() + what.slice(1))
+    if (hasInitial(x) !== hasInitial(y)) return `${What}: ${t('initial vs full')} ${pair}`
+    if (sound(x) === sound(y)) return `${What}: ${t('spelling variant')} ${pair}`
     const sorted = (n: string) => words(n).map(phonetic).sort().join(' ')
     if (sorted(x) === sorted(y)) {
       const sameSpelling = [...words(x)].sort().join(' ') === [...words(y)].sort().join(' ')
-      return `${What}: words in a different order${sameSpelling ? '' : ' + spelling variant'} (${x} ≈ ${y})`
+      return `${What}: ${t('words in a different order')}${sameSpelling ? '' : ` + ${t('spelling variant')}`} ${pair}`
     }
-    return `Similar ${what} (${x} ≈ ${y})`
+    return `${t(`Similar ${what}`)} ${pair}`
   }
   out.push(nameWhy(a.name, b.name, 'name'))
   out.push(nameWhy(a.relative, b.relative, a.relation === 'W/o' || b.relation === 'W/o' ? 'husband / father name' : 'father name'))
-  out.push(a.age === b.age ? `Same age (${a.age})` : `Age differs by ${Math.abs(a.age - b.age)} (${a.age} / ${b.age})`)
-  out.push(a.gender === b.gender ? `Same gender` : `Gender differs`)
+  out.push(
+    a.age === b.age
+      ? t('Same age ({age})', { age: a.age })
+      : t('Age differs by {n} ({a} / {b})', { n: Math.abs(a.age - b.age), a: a.age, b: b.age }),
+  )
+  out.push(a.gender === b.gender ? t('Same gender') : t('Gender differs'))
   return out
 }
 
@@ -162,15 +168,13 @@ export default function DuplicateReview({
       <div className="vs-body">
         <div className="finder-help muted">
           <p className="index-progress">
-            {status.state === 'ready' ? 'Comparing voters…' : `Preparing voter index… ${Math.round(status.progress * 100)}%`}
+            {status.state === 'ready' ? t('Comparing voters…') : `${t('Preparing voter index…')} ${Math.round(status.progress * 100)}%`}
             <span className="bar-track">
               <span className="bar-fill" style={{ width: `${status.state === 'ready' ? 100 : status.progress * 100}%` }} />
             </span>
           </p>
           <p>
-            Looking for records that are probably the same person written differently: spelling variants, initials
-            vs full names, names in a different order, age off by a year or two. This takes about 10 seconds the first
-            time.
+            {t('Looking for records that are probably the same person written differently: spelling variants, initials vs full names, names in a different order, age off by a year or two. This takes about 10 seconds the first time.')}
           </p>
         </div>
       </div>
@@ -181,21 +185,21 @@ export default function DuplicateReview({
     <>
       <div className="dup-summary">
         <div className="dup-stat">
-          <b>{fmtInt(rows.length)}</b> possible duplicate pairs
-          <span className="muted"> · {fmtInt(result.compared)} comparisons in {(result.ms / 1000).toFixed(1)} s</span>
+          <b>{fmtInt(rows.length)}</b> {t('possible duplicate pairs')}
+          <span className="muted"> · {t('{n} comparisons in {s} s', { n: fmtInt(result.compared), s: (result.ms / 1000).toFixed(1) })}</span>
         </div>
         <div className="dup-filters">
-          {(['high', 'medium', 'low'] as Tier[]).map((t) => (
-            <label key={t} className={`chip-toggle tier-${t} ${tiers[t] ? 'is-on' : ''}`}>
+          {(['high', 'medium', 'low'] as Tier[]).map((tier) => (
+            <label key={tier} className={`chip-toggle tier-${tier} ${tiers[tier] ? 'is-on' : ''}`}>
               <input
                 type="checkbox"
-                checked={tiers[t]}
+                checked={tiers[tier]}
                 onChange={(e) => {
-                  setTiers({ ...tiers, [t]: e.target.checked })
+                  setTiers({ ...tiers, [tier]: e.target.checked })
                   setPage(0)
                 }}
               />
-              {TIER_LABEL[t]} <b>{fmtInt(count((r) => r.tier === t))}</b>
+              {t(TIER_LABEL[tier])} <b>{fmtInt(count((r) => r.tier === tier))}</b>
             </label>
           ))}
           <select
@@ -205,12 +209,12 @@ export default function DuplicateReview({
               setWhere(e.target.value as '' | Where)
               setPage(0)
             }}
-            aria-label="Where the two records are"
+            aria-label={t('Where the two records are')}
           >
-            <option value="">Anywhere</option>
+            <option value="">{t('Anywhere')}</option>
             {(Object.keys(WHERE_LABEL) as Where[]).map((w) => (
               <option key={w} value={w}>
-                {WHERE_LABEL[w]} ({fmtInt(count((r) => r.where === w))})
+                {t(WHERE_LABEL[w])} ({fmtInt(count((r) => r.where === w))})
               </option>
             ))}
           </select>
@@ -221,20 +225,19 @@ export default function DuplicateReview({
               setAc(e.target.value)
               setPage(0)
             }}
-            aria-label="Constituency"
+            aria-label={t('Constituency')}
           >
-            <option value="">Both constituencies</option>
-            <option value="46">AC 46 Kukatpally</option>
-            <option value="79">AC 79 Gadwal</option>
+            <option value="">{t('Both constituencies')}</option>
+            <option value="46">AC 46 {t('Kukatpally')}</option>
+            <option value="79">AC 79 {t('Gadwal')}</option>
           </select>
           <button className="ghost" onClick={() => downloadCsv(filtered)} disabled={filtered.length === 0}>
-            ⬇ Export CSV ({fmtInt(filtered.length)})
+            ⬇ {t('Export CSV')} ({fmtInt(filtered.length)})
           </button>
         </div>
         <p className="muted small">
-          Nothing is removed automatically. Check each pair on the ground; a confirmed duplicate is removed by filing
-          Form 7 with the Booth Level Officer.
-          {anySample && ' Sample data: these pairs include ones planted on purpose to test the scan.'}
+          {t('Nothing is removed automatically. Check each pair on the ground; a confirmed duplicate is removed by filing Form 7 with the Booth Level Officer.')}
+          {anySample && ` ${t('Sample data: these pairs include ones planted on purpose to test the scan.')}`}
         </p>
       </div>
 
@@ -244,10 +247,10 @@ export default function DuplicateReview({
             <article key={r.n} className="dup-card">
               <header>
                 <span className={`tier-badge tier-${r.tier}`}>
-                  {TIER_LABEL[r.tier]} · {Math.round(r.pair.score * 100)}%
+                  {t(TIER_LABEL[r.tier])} · {Math.round(r.pair.score * 100)}%
                 </span>
                 <span className="muted small">
-                  #{r.n} · {WHERE_LABEL[r.where]}
+                  #{r.n} · {t(WHERE_LABEL[r.where])}
                 </span>
               </header>
               <div className="dup-sides">
@@ -258,15 +261,15 @@ export default function DuplicateReview({
                       {s.voter.relation} {s.voter.relative}
                     </div>
                     <div>
-                      {s.voter.age} · {s.voter.gender} · House {s.voter.house}
+                      {s.voter.age} · {s.voter.gender} · {t('House')} {s.voter.house}
                     </div>
                     <div className="muted small">
-                      {acName(s.booth.ac)} · PS {s.booth.no}, {buildingName(s.booth)} · Sl. {s.voter.serial}
+                      {t(acName(s.booth.ac))} · PS {s.booth.no}, {buildingName(s.booth)} · {t('Sl.')} {s.voter.serial}
                     </div>
                     <div className="dup-foot">
                       <span className="mono">{s.voter.id}</span>
                       <button className="link-btn" onClick={() => onPick(s.booth, s.voter.serial)}>
-                        Open in list →
+                        {t('Open in list')} →
                       </button>
                     </div>
                   </div>
@@ -279,25 +282,25 @@ export default function DuplicateReview({
               </ul>
             </article>
           ))}
-          {shown.length === 0 && <p className="finder-help muted">No pairs match these filters.</p>}
+          {shown.length === 0 && <p className="finder-help muted">{t('No pairs match these filters.')}</p>}
         </div>
       </div>
 
       <div className="vs-foot">
         <span className="muted">
           {filtered.length === 0
-            ? '0 pairs'
-            : `${fmtInt(cur * PAGE + 1)}–${fmtInt(cur * PAGE + shown.length)} of ${fmtInt(filtered.length)} pairs`}
+            ? t('0 pairs')
+            : t('{a}–{b} of {n} pairs', { a: fmtInt(cur * PAGE + 1), b: fmtInt(cur * PAGE + shown.length), n: fmtInt(filtered.length) })}
         </span>
         <div className="vs-pager">
           <button className="ghost" disabled={cur === 0} onClick={() => setPage(cur - 1)}>
-            ← Prev
+            ← {t('Prev')}
           </button>
           <span className="muted">
-            Page {cur + 1} / {pages}
+            {t('Page')} {cur + 1} / {pages}
           </span>
           <button className="ghost" disabled={cur >= pages - 1} onClick={() => setPage(cur + 1)}>
-            Next →
+            {t('Next')} →
           </button>
         </div>
       </div>

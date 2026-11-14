@@ -4,6 +4,7 @@ import { viewForAc, VIEWS, type AcDef, type Region, type ViewId } from '../geo'
 import { fmtArea, fmtDensity, fmtInt, fmtPct, fmtShort } from '../format'
 import { acMeta, acName, boothsInUnit, boothsOfAc, searchBooths, siteOf, summarize, type Booth } from '../booths'
 import ElectorStats from './ElectorStats'
+import { t } from '../i18n'
 import type { MeasureScale } from '../measures'
 
 interface Props {
@@ -46,12 +47,12 @@ function MyStations({ stations, onPick }: { stations: Booth[]; onPick: (b: Booth
     <aside className="panel" aria-live="polite">
       <div className="panel-head">
         <div className="kicker">
-          My polling stations{unit ? ` · ${unit}` : ''}
+          {t('My polling stations')}{unit ? ` · ${t(unit)}` : ''}
         </div>
         <h2>
-          {stations.length} polling station{stations.length === 1 ? '' : 's'}
+          {t(stations.length === 1 ? '{n} polling station' : '{n} polling stations', { n: stations.length })}
         </h2>
-        <div className="sub">Choose one to see its voters and record help requests.</div>
+        <div className="sub">{t('Choose one to see its voters and record help requests.')}</div>
         {ac !== undefined && acMeta(ac).synthetic && <SampleBoothBadge />}
       </div>
       <section className="card my-stations">
@@ -65,11 +66,11 @@ function MyStations({ stations, onPick }: { stations: Booth[]; onPick: (b: Booth
               </button>
             </li>
           ))}
-          {stations.length === 0 && <li className="muted small">No polling stations are assigned to you yet. Ask your ward / mandal lead.</li>}
+          {stations.length === 0 && <li className="muted small">{t('No polling stations are assigned to you yet. Ask your ward / mandal lead.')}</li>}
         </ol>
       </section>
       {ac !== undefined && stations.length > 0 && (
-        <ElectorStats ac={ac} list={stations} title="Voters in your polling stations" onPick={onPick} />
+        <ElectorStats ac={ac} list={stations} title={t('Voters in your polling stations')} onPick={onPick} />
       )}
     </aside>
   )
@@ -94,20 +95,20 @@ function AreaPanel({
   const onlyMine = locked && selected?.unitId && areaBooths.length < wholeUnit
   const stats: Stats | undefined = selected ? selected.stats : v.total
   const area = selected ? selected.areaKm2 : v.areaKm2
-  const title = selected ? selected.name : v.title
+  const title = selected ? t(selected.name) : t(v.title)
   const kicker = selected
-    ? `${selected.wardNo ? `Ward ${selected.wardNo} · ` : ''}${v.childLabel.replace(/s$/, '')} in ${v.title}`
-    : v.levelLabel
+    ? `${selected.wardNo ? `${t('Ward')} ${selected.wardNo} · ` : ''}${t(`${v.childLabel.replace(/s$/, '')} in {area}`, { area: t(v.title) })}`
+    : t(v.levelLabel)
 
   return (
     <aside className="panel" aria-live="polite">
       <div className="panel-head">
         <div className="kicker">{kicker}</div>
         <h2>{title}</h2>
-        {!selected && <div className="sub">{v.subtitle}</div>}
+        {!selected && <div className="sub">{subtitle(v.subtitle)}</div>}
         {selected && !locked && (
           <button className="link-btn" onClick={onClearSelection}>
-            ← {v.title} overview
+            ← {t('{area} overview', { area: t(v.title) })}
           </button>
         )}
         {stats && <SourceBadge source={stats.source} />}
@@ -120,10 +121,10 @@ function AreaPanel({
             list={areaBooths}
             title={
               onlyMine
-                ? `Voters in your ${areaBooths.length} polling station${areaBooths.length === 1 ? '' : 's'}`
+                ? t('Voters in your {n} polling stations', { n: areaBooths.length })
                 : selected
-                  ? `Voters in this ${v.ac.unitLabel.toLowerCase()}`
-                  : `Voters · AC ${v.ac.no} ${v.ac.name}`
+                  ? t(`Voters in this ${v.ac.unitLabel.toLowerCase()}`)
+                  : `${t('Voters')} · AC ${v.ac.no} ${t(v.ac.name)}`
             }
             onPick={onPickBooth}
           />
@@ -137,7 +138,7 @@ function AreaPanel({
             colorScale={colorScale}
           />
           <div className="section-title">
-            <h3>Residents</h3>
+            <h3>{t('Residents')}</h3>
           </div>
         </>
       )}
@@ -148,7 +149,7 @@ function AreaPanel({
           {stats.ageGroups && <AgeChart stats={stats} />}
         </>
       ) : (
-        <p className="muted">No statistics available for this area yet.</p>
+        <p className="muted">{t('No statistics available for this area yet.')}</p>
       )}
 
       {v.ac && boothsOfAc(v.ac.no).length === 0 && (
@@ -162,11 +163,11 @@ function AreaPanel({
 
 function SourceBadge({ source }: { source: Stats['source'] }) {
   return source === 'sample' ? (
-    <div className="badge badge-sample" title="Illustrative numbers – replace with official ward data">
-      ⚠ Sample data · illustrative only
+    <div className="badge badge-sample" title={t('Illustrative numbers – replace with official ward data')}>
+      ⚠ {t('Sample data · illustrative only')}
     </div>
   ) : (
-    <div className="badge">Census of India 2011</div>
+    <div className="badge">{t('Census of India 2011')}</div>
   )
 }
 
@@ -186,11 +187,11 @@ function Kpis({ stats, area }: { stats: Stats; area: number }) {
   return (
     <div className="kpis">
       {items.map((k) => (
-        <div className="kpi" key={k.label} title={k.hint}>
-          <div className="kpi-label">{k.label}</div>
+        <div className="kpi" key={k.label} title={k.hint && t(k.hint)}>
+          <div className="kpi-label">{t(k.label)}</div>
           <div className="kpi-value">{k.value}</div>
           {k.hint && k.label !== 'Sex ratio' && k.label !== 'Workforce' && <div className="kpi-hint">{k.hint}</div>}
-          {k.label === 'Sex ratio' && <div className="kpi-hint">F per 1,000 M</div>}
+          {k.label === 'Sex ratio' && <div className="kpi-hint">{t('F per 1,000 M')}</div>}
         </div>
       ))}
     </div>
@@ -203,7 +204,7 @@ function AgeChart({ stats }: { stats: Stats }) {
   const [hover, setHover] = useState<number | null>(null)
   return (
     <section className="card">
-      <h3>Age profile</h3>
+      <h3>{t('Age profile')}</h3>
       <div className="bars" role="list">
         {groups.map((g, i) => (
           <div
@@ -212,7 +213,7 @@ function AgeChart({ stats }: { stats: Stats }) {
             role="listitem"
             onPointerEnter={() => setHover(i)}
             onPointerLeave={() => setHover(null)}
-            title={`${g.label}: ${fmtPct(g.share)} · ≈${fmtInt(g.share * stats.population)} people`}
+            title={`${g.label}: ${fmtPct(g.share)} · ≈${fmtInt(g.share * stats.population)} ${t('people')}`}
           >
             <span className="bar-label">{g.label}</span>
             <span className="bar-track">
@@ -241,7 +242,7 @@ function Ranking({ view, onPick }: { view: ViewId; onPick: (r: Region) => void }
   return (
     <section className="card">
       <h3>
-        {v.childLabel} {v.ac ? 'by population' : '— explore'}
+        {t(v.childLabel)} {v.ac ? t('by population') : `— ${t('explore')}`}
       </h3>
       <ol className="rank">
         {ranked.map((r) => (
@@ -249,9 +250,9 @@ function Ranking({ view, onPick }: { view: ViewId; onPick: (r: Region) => void }
             <button onClick={() => onPick(r)} className={r.drillTo ? 'is-drillable' : ''}>
               <span className="rank-name">
                 {r.wardNo ? <span className="muted">{r.wardNo} · </span> : null}
-                {r.name}
+                {t(r.name)}
                 {r.drillTo && (
-                  <span className="chip" title="Click to zoom in">
+                  <span className="chip" title={t('Click to zoom in')}>
                     ↘
                   </span>
                 )}
@@ -286,22 +287,22 @@ function BoothDetail({
     <aside className="panel" aria-live="polite">
       <div className="panel-head">
         <div className="kicker">
-          Polling station · AC {booth.ac} {acName(booth.ac)}
+          {t('Polling station')} · AC {booth.ac} {t(acName(booth.ac))}
         </div>
         <h2>PS {booth.no}</h2>
         <div className="sub booth-name">{booth.name}</div>
         <button className="link-btn" onClick={onBack}>
-          ← Back
+          ← {t('Back')}
         </button>
         {meta.synthetic && <SampleBoothBadge />}
         {booth.electors && (
           <button className="primary voters-btn" onClick={() => onOpenVoters(booth)}>
-            View voter list ({fmtInt(booth.voters ?? 0)}) →
+            {t('View voter list')} ({fmtInt(booth.voters ?? 0)}) →
           </button>
         )}
       </div>
       <section className="card">
-        <h3>Address</h3>
+        <h3>{t('Address')}</h3>
         <p className="booth-addr">{booth.address || '—'}</p>
         {!meta.synthetic && (
           <a
@@ -310,33 +311,33 @@ function BoothDetail({
             target="_blank"
             rel="noreferrer"
           >
-            Open in Google Maps ↗
+            {t('Open in Google Maps')} ↗
           </a>
         )}
       </section>
       {booth.electors ? (
-        <ElectorStats ac={booth.ac} list={[booth]} title="Voters at this station" />
+        <ElectorStats ac={booth.ac} list={[booth]} title={t('Voters at this station')} />
       ) : (
         booth.voters !== undefined && (
           <div className="kpis">
             <div className="kpi">
-              <div className="kpi-label">Electors</div>
+              <div className="kpi-label">{t('Electors')}</div>
               <div className="kpi-value">{fmtInt(booth.voters)}</div>
             </div>
           </div>
         )
       )}
       <section className="card">
-        <h3>{unitLabel}</h3>
+        <h3>{t(unitLabel)}</h3>
         <p className="small">
           {booth.unitName
-            ? `${booth.wardNo !== undefined ? `Ward ${booth.wardNo} · ` : ''}${booth.unitName}`
-            : `Outside the mapped ${unitLabel.toLowerCase()}s`}
+            ? `${booth.wardNo !== undefined ? `${t('Ward')} ${booth.wardNo} · ` : ''}${t(booth.unitName)}`
+            : t(`Outside the mapped ${unitLabel.toLowerCase()}s`)}
         </p>
       </section>
       {siblings.length > 0 && (
         <section className="card">
-          <h3>Other stations in this building</h3>
+          <h3>{t('Other stations in this building')}</h3>
           <ol className="booth-list">
             {siblings.map((b) => (
               <li key={b.id}>
@@ -351,18 +352,18 @@ function BoothDetail({
         </section>
       )}
       <section className="card">
-        <h3>Location accuracy</h3>
+        <h3>{t('Location accuracy')}</h3>
         <p className="muted small">
-          {meta.synthetic && 'Made-up position for demonstration. This is not a real polling station.'}
-          {!meta.synthetic && booth.precision === 'manual' && 'Coordinates entered by hand.'}
-          {booth.precision === 'geocoded' && 'Placed by matching the building name and address on OpenStreetMap.'}
+          {meta.synthetic && t('Made-up position for demonstration. This is not a real polling station.')}
+          {!meta.synthetic && booth.precision === 'manual' && t('Coordinates entered by hand.')}
+          {booth.precision === 'geocoded' && t('Placed by matching the building name and address on OpenStreetMap.')}
           {booth.precision === 'approx' &&
-            'Approximate: only the locality could be matched, so the pin may be a few hundred metres off.'}
+            t('Approximate: only the locality could be matched, so the pin may be a few hundred metres off.')}
         </p>
         {meta.source && (
           <p className="muted small">
-            Source: {meta.source}
-            {meta.updated && ` · imported ${meta.updated}`}
+            {t('Source:')} {t(meta.source)}
+            {meta.updated && ` · ${t('imported')} ${meta.updated}`}
           </p>
         )}
       </section>
@@ -392,8 +393,8 @@ function BoothsCard({
   if (all.length === 0) {
     return (
       <section className="card">
-        <h3>Polling stations</h3>
-        <p className="muted small">Polling station locations for AC {ac.no} {ac.name} will appear here once the data is loaded.</p>
+        <h3>{t('Polling stations')}</h3>
+        <p className="muted small">{t('Polling station locations for AC {no} {name} will appear here once the data is loaded.', { no: ac.no, name: t(ac.name) })}</p>
       </section>
     )
   }
@@ -403,29 +404,29 @@ function BoothsCard({
   return (
     <section className="card">
       <div className="card-row">
-        <h3>Polling stations {unitId ? `in this ${ac.unitLabel.toLowerCase()}` : `· AC ${ac.no}`}</h3>
+        <h3>{t('Polling stations')} {unitId ? t(`in this ${ac.unitLabel.toLowerCase()}`) : `· AC ${ac.no}`}</h3>
         <label className="switch">
           <input type="checkbox" checked={show} onChange={(e) => onToggle(e.target.checked)} />
-          <span>Show on map</span>
+          <span>{t('Show on map')}</span>
         </label>
       </div>
       {acMeta(ac.no).synthetic && <SampleBoothBadge />}
       <div className="booth-summary">
-        <b>{fmtInt(scope.length)}</b> stations
+        <b>{fmtInt(scope.length)}</b> {t('stations')}
         {electors > 0 && (
           <>
             {' '}
-            · <b>{fmtInt(electors)}</b> electors
+            · <b>{fmtInt(electors)}</b> {t('electors')}
           </>
         )}
       </div>
       <input
         className="search"
         type="search"
-        placeholder="Search by number, school, street…"
+        placeholder={t('Search by number, school, street…')}
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        aria-label="Search polling stations"
+        aria-label={t('Search polling stations')}
       />
       <ol className="booth-list">
         {list.slice(0, 200).map((b) => (
@@ -434,7 +435,7 @@ function BoothsCard({
               <span className="booth-no">{b.no}</span>
               <span className="booth-text">
                 {b.name}
-                {b.precision === 'approx' && <span className="muted"> · approx.</span>}
+                {b.precision === 'approx' && <span className="muted"> · {t('approx.')}</span>}
               </span>
               {colorScale ? (
                 <MeasureCell scale={colorScale} booth={b} />
@@ -444,7 +445,7 @@ function BoothsCard({
             </button>
           </li>
         ))}
-        {list.length === 0 && <li className="muted small">No matches.</li>}
+        {list.length === 0 && <li className="muted small">{t('No matches.')}</li>}
       </ol>
     </section>
   )
@@ -452,8 +453,8 @@ function BoothsCard({
 
 function SampleBoothBadge() {
   return (
-    <div className="badge badge-sample" title="Synthetic stations for demo – replace with the official CEO Telangana list">
-      ⚠ Sample data · not real polling stations
+    <div className="badge badge-sample" title={t('Synthetic stations for demo – replace with the official CEO Telangana list')}>
+      ⚠ {t('Sample data · not real polling stations')}
     </div>
   )
 }
@@ -464,9 +465,16 @@ function MeasureCell({ scale, booth }: { scale: MeasureScale; booth: Booth }) {
   const c = scale.classOf(v)
   if (v === undefined || c === undefined) return <span className="rank-val">—</span>
   return (
-    <span className="rank-val measure-cell" title={`${scale.measure.label}: ${scale.measure.format(v)}`}>
+    <span className="rank-val measure-cell" title={`${t(scale.measure.label)}: ${scale.measure.format(v)}`}>
       <span className="class-swatch" style={{ background: `var(--div-${['low', 'mid', 'high'][c]})` }} />
       {scale.measure.format(v)}
     </span>
   )
+}
+
+/** View subtitles like "33 districts" / "GHMC · 11 wards mapped": translate the words, keep the numbers. */
+function subtitle(s: string) {
+  const m = s.match(/^(.*?)(\d+)(.*)$/)
+  if (!m) return t(s)
+  return t(`${m[1]}{n}${m[3]}`, { n: m[2] })
 }

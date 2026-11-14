@@ -1,5 +1,6 @@
 import { useId, useMemo, useRef, useState } from 'react'
 import { acName, booths, buildingName, searchBooths, type Booth } from '../booths'
+import { t } from '../i18n'
 
 /** Search box over the map: find a polling station by number, building or street. */
 export default function MapSearch({
@@ -38,8 +39,8 @@ export default function MapSearch({
         ref={inputRef}
         type="search"
         value={q}
-        placeholder="Find polling station (no., school, street)"
-        aria-label="Find polling station"
+        placeholder={t('Find polling station (no., school, street)')}
+        aria-label={t('Find polling station')}
         role="combobox"
         aria-expanded={open && results.length > 0}
         aria-controls={listId}
@@ -87,12 +88,12 @@ export default function MapSearch({
               <span className="msr-text">
                 <span className="msr-name">{b.name}</span>
                 <span className="msr-addr">
-                  AC {b.ac} {acName(b.ac)} · {b.address}
+                  AC {b.ac} {t(acName(b.ac))} · {b.address}
                 </span>
               </span>
             </li>
           ))}
-          {results.length === 0 && <li className="msr-empty">No polling station matches “{q.trim()}”</li>}
+          {results.length === 0 && <li className="msr-empty">{t('No polling station matches “{q}”', { q: q.trim() })}</li>}
         </ul>
       )}
     </div>

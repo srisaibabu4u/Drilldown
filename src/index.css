@@ -2087,3 +2087,255 @@ button.chip-toggle {
   background: color-mix(in srgb, #eb6834 12%, transparent);
   border: 1px solid color-mix(in srgb, #eb6834 35%, transparent);
 }
+
+/* ---------------------------------------------------------------------------
+   Command centre
+   --------------------------------------------------------------------------- */
+.voter-sheet.centre {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.centre-body {
+  display: block;
+  overflow: auto;
+}
+.centre-scroll {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px 20px;
+}
+.centre-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+.centre-kpis .kpi {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.centre-kpis .kpi-value {
+  font-size: 26px;
+}
+.kpi.is-link {
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.kpi.is-link:hover {
+  border-color: var(--accent, #2a78d6);
+  transform: translateY(-1px);
+}
+.kpi.is-red {
+  border-color: color-mix(in srgb, #d03b3b 55%, transparent);
+  background: color-mix(in srgb, #d03b3b 7%, var(--surface));
+}
+.kpi.is-red .kpi-value {
+  color: #d03b3b;
+}
+.kpi-meter {
+  display: block;
+  height: 6px;
+  margin: 6px 0 2px;
+}
+.centre-card {
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.centre-card h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+.centre-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.attention {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.attention li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.attention .dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.attention .tone-red .dot {
+  background: #d03b3b;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #d03b3b 18%, transparent);
+}
+.attention .tone-amber .dot {
+  background: #e3a008;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #e3a008 20%, transparent);
+}
+.attention .tone-blue .dot {
+  background: #2a78d6;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #2a78d6 18%, transparent);
+}
+.attention .att-text {
+  flex: 1;
+  font-weight: 550;
+}
+.attention button {
+  flex: none;
+  white-space: nowrap;
+}
+.all-clear {
+  margin: 0;
+  color: #1f8a4c;
+  font-weight: 600;
+}
+.centre-table tbody tr {
+  cursor: pointer;
+}
+.centre-table tbody tr:hover {
+  background: var(--surface);
+}
+.centre-table .coverage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 110px;
+}
+.centre-table .coverage .bar-track {
+  flex: 1;
+}
+.centre-table .gap {
+  color: #d03b3b;
+  font-style: italic;
+}
+.overdue-num {
+  color: #d03b3b;
+}
+.scheme-row {
+  grid-template-columns: minmax(0, 46%) 1fr 32px;
+}
+.scheme-row .bar-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.centre .vs-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.find-voter-btn.is-active {
+  border-color: var(--accent, #2a78d6);
+}
+.lang-btn {
+  font-weight: 600;
+  min-width: 72px;
+}
+@media (max-width: 1100px) {
+  .centre-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .centre-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .centre-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .attention li {
+    flex-wrap: wrap;
+  }
+  .attention .att-text {
+    flex: 1 1 calc(100% - 24px);
+  }
+  .attention button {
+    margin-left: 20px;
+  }
+  .centre .vs-foot .muted {
+    display: none;
+  }
+}
+
+/* Telugu: slightly more line height, and a font that has the script. */
+html:lang(te) body {
+  font-family: 'Inter', 'Noto Sans Telugu', 'Nirmala UI', 'Gautami', system-ui, sans-serif;
+  line-height: 1.55;
+}
+
+/* Header: keep one tidy row as buttons were added (command centre, language). */
+.brand {
+  flex: 1 1 auto;
+}
+.brand > div {
+  min-width: 0;
+}
+.brand p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.top-actions {
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+.top-actions > * {
+  white-space: nowrap;
+}
+@media (max-width: 1880px) {
+  .brand p {
+    display: none;
+  }
+  .user-chip .muted:first-child {
+    display: none;
+  }
+}
+@media (max-width: 1560px) {
+  .user-chip {
+    display: none;
+  }
+}
+@media (max-width: 1380px) {
+  .top-actions {
+    gap: 6px;
+  }
+  .top-actions .ghost,
+  .top-actions .primary {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+}
+.centre-table th {
+  white-space: normal;
+  vertical-align: bottom;
+}
+.centre-card .note {
+  margin: 10px 0 0;
+}
+@media (max-width: 1240px) {
+  .top .primary {
+    display: none;
+  }
+}
+@media (max-width: 1100px) and (min-width: 901px) {
+  .top-actions .find-voter-btn svg {
+    display: none;
+  }
+}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { t } from '../i18n'
 import { acMeta, acName, boothById, booths, buildingName, searchBooths, type Booth } from '../booths'
 import { AC_VIEWS, VIEWS } from '../geo'
 import { fmtInt } from '../format'
@@ -122,39 +123,39 @@ export default function VoterFinder({
   }, [boothIds])
 
   return (
-    <div className="voter-sheet finder" role="dialog" aria-modal="false" aria-label={tab === 'find' ? 'Find a voter' : 'Duplicate voters'}>
+    <div className="voter-sheet finder" role="dialog" aria-modal="false" aria-label={tab === 'find' ? t('Find voter') : t('Duplicates')}>
       <div className="vs-head">
         <div>
-          <div className="kicker">Voters · {fixedAc ? `AC ${fixedAc} ${acName(fixedAc)} only` : 'Kukatpally & Gadwal'}</div>
-          <h2>{tab === 'find' ? 'Which polling station is this voter at?' : 'Possible duplicate voters'}</h2>
+          <div className="kicker">{t('Voters')} · {fixedAc ? t('AC {no} {name} only', { no: fixedAc, name: t(acName(fixedAc)) }) : t('Kukatpally & Gadwal')}</div>
+          <h2>{tab === 'find' ? t('Which polling station is this voter at?') : t('Possible duplicate voters')}</h2>
           <div className="vs-chips">
             {status.state === 'ready' ? (
               <span>
-                Searching <b>{fmtInt(inReach ?? status.voters ?? 0)}</b> voters
+                {t('Searching')} <b>{fmtInt(inReach ?? status.voters ?? 0)}</b> {t('voters')}
               </span>
             ) : (
               <span className="index-progress">
-                Preparing voter index… <b>{Math.round(status.progress * 100)}%</b>
+                {t('Preparing voter index…')} <b>{Math.round(status.progress * 100)}%</b>
                 <span className="bar-track">
                   <span className="bar-fill" style={{ width: `${status.progress * 100}%` }} />
                 </span>
               </span>
             )}
-            {anySample && <span className="badge badge-sample">⚠ Sample data · made-up people</span>}
+            {anySample && <span className="badge badge-sample">⚠ {t('Sample data · made-up people')}</span>}
           </div>
         </div>
-        <button className="ghost vs-close" onClick={onClose} aria-label="Close voter tools">
+        <button className="ghost vs-close" onClick={onClose} aria-label={t('Close')}>
           ✕
         </button>
       </div>
 
       <div className="vs-tabs" role="tablist">
         <button role="tab" aria-selected={tab === 'find'} className={tab === 'find' ? 'is-on' : ''} onClick={() => onTab('find')}>
-          Find voter
+          {t('Find voter')}
         </button>
         {canReviewDuplicates && (
           <button role="tab" aria-selected={tab === 'dups'} className={tab === 'dups' ? 'is-on' : ''} onClick={() => onTab('dups')}>
-            Duplicates
+            {t('Duplicates')}
           </button>
         )}
       </div>
@@ -169,10 +170,10 @@ export default function VoterFinder({
           ref={nameRef}
           className="search"
           type="search"
-          placeholder="Voter name, e.g. Santhosh Rote or R. Santosh — or a voter ID (SMP…)"
+          placeholder={t('Voter name, e.g. Santhosh Rote or R. Santosh — or a voter ID (SMP…)')}
           value={name}
           onChange={(e) => setName(e.target.value)}
-          aria-label="Voter name or voter ID"
+          aria-label={t('Voter name or voter ID')}
         />
         <input
           className="search"
@@ -180,29 +181,29 @@ export default function VoterFinder({
           inputMode="numeric"
           min={18}
           max={110}
-          placeholder="Age ±2"
+          placeholder={t('Age ±2')}
           value={age}
           onChange={(e) => setAge(e.target.value)}
-          aria-label="Approximate age"
+          aria-label={t('Approximate age')}
         />
-        <select className="legend-select" value={gender} onChange={(e) => setGender(e.target.value as '' | Gender)} aria-label="Gender">
-          <option value="">Any gender</option>
-          <option value="M">Men</option>
-          <option value="F">Women</option>
-          <option value="TG">Third gender</option>
+        <select className="legend-select" value={gender} onChange={(e) => setGender(e.target.value as '' | Gender)} aria-label={t('Gender')}>
+          <option value="">{t('Any gender')}</option>
+          <option value="M">{t('Men')}</option>
+          <option value="F">{t('Women')}</option>
+          <option value="TG">{t('Third gender')}</option>
         </select>
         <select
           className="legend-select"
           value={ac}
           onChange={(e) => setAc(e.target.value)}
           disabled={!!fixedAc}
-          title={fixedAc && !acNo ? 'Your area is in this constituency' : fixedAc ? 'Go back to India or Telangana to search both constituencies' : undefined}
-          aria-label="Constituency"
+          title={fixedAc && !acNo ? t('Your area is in this constituency') : fixedAc ? t('Go back to India or Telangana to search both constituencies') : undefined}
+          aria-label={t('Constituency')}
         >
-          {!fixedAc && <option value="">{acChoices.length === 2 ? 'Both constituencies' : 'All my constituencies'}</option>}
+          {!fixedAc && <option value="">{acChoices.length === 2 ? t('Both constituencies') : t('All my constituencies')}</option>}
           {acChoices.map((n) => (
             <option key={n} value={n}>
-              AC {n} {acName(n)}
+              AC {n} {t(acName(n))}
             </option>
           ))}
         </select>
@@ -212,35 +213,35 @@ export default function VoterFinder({
         <div className="vs-table-wrap">
           {stationHits.length > 0 && (
             <div className="station-hits">
-              <span className="muted small">Looking for a polling station?</span>
+              <span className="muted small">{t('Looking for a polling station?')}</span>
               {stationHits.map((b) => (
                 <button key={b.id} className="ghost" onClick={() => onFindStation?.(b)}>
-                  Go to {acName(b.ac)} PS {b.no} · {buildingName(b)} →
+                  {t('Go to')} {t(acName(b.ac))} PS {b.no} · {buildingName(b)} →
                 </button>
               ))}
             </div>
           )}
           {total !== null && rows.length > 0 && rows[0].score < 0.95 && (
             <div className="finder-note">
-              No voter named exactly <b>“{name.trim()}”</b>{ac || boothIds ? ' here' : ''}. Showing the closest spellings — check before acting on them.
+              {t('No voter named exactly “{name}”. Showing the closest spellings — check before acting on them.', { name: name.trim() })}
             </div>
           )}
           {total === null ? (
             <div className="finder-help muted">
-              <p>Type at least 2 letters of a name. Spelling variants are matched, so <b>Santhosh</b>, <b>Santosh</b> and <b>Santhos</b> all find each other, and an initial like <b>R.</b> can stand for a full name like <b>Rote</b>.</p>
-              <p>Searches the voter’s own name only. Add an approximate age{fixedAc ? ' or gender' : ', gender or constituency'} to narrow it down, or paste a voter ID.</p>
+              <p>{t('Type at least 2 letters of a name. Spelling variants are matched, so Santhosh, Santosh and Santhos all find each other, and an initial like R. can stand for a full name like Rote.')}</p>
+              <p>{fixedAc ? t('Searches the voter’s own name only. Add an approximate age or gender to narrow it down, or paste a voter ID.') : t('Searches the voter’s own name only. Add an approximate age, gender or constituency to narrow it down, or paste a voter ID.')}</p>
             </div>
           ) : (
             <table className="vs-table">
               <thead>
                 <tr>
-                  <th>Match</th>
-                  <th>Name</th>
-                  <th className="hide-sm">Relative</th>
-                  <th>Age</th>
-                  <th className="hide-sm">Gender</th>
-                  <th>Polling station</th>
-                  <th className="hide-sm">Voter ID</th>
+                  <th>{t('Match')}</th>
+                  <th>{t('Name')}</th>
+                  <th className="hide-sm">{t('Relative')}</th>
+                  <th>{t('Age')}</th>
+                  <th className="hide-sm">{t('Gender')}</th>
+                  <th>{t('Polling station')}</th>
+                  <th className="hide-sm">{t('Voter ID')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -255,7 +256,7 @@ export default function VoterFinder({
                         onPick(booth, voter.serial)
                       }
                     }}
-                    title="Show on the map and open this station's voter list"
+                    title={t('Show on the map and open this station’s voter list')}
                   >
                     <td>
                       <span className={`match ${score >= 0.95 ? 'is-exact' : score >= 0.8 ? 'is-close' : ''}`}>
@@ -270,7 +271,7 @@ export default function VoterFinder({
                     <td className="hide-sm">{voter.gender}</td>
                     <td className="station-cell">
                       <b>
-                        {acName(booth.ac)} · PS {booth.no}
+                        {t(acName(booth.ac))} · PS {booth.no}
                       </b>
                       <span className="muted">{buildingName(booth)}</span>
                     </td>
@@ -280,7 +281,11 @@ export default function VoterFinder({
                 {rows.length === 0 && (
                   <tr>
                     <td colSpan={7} className="muted">
-                      No voter named <b>“{name.trim()}”</b>{age || gender || acPick ? ' with these filters' : fixedAc ? ` in ${boothIds && !acNo ? 'your area' : acName(fixedAc)}` : ''}. Check the spelling, try just the first name, or remove a filter.
+                      {age || gender || acPick
+                        ? t('No voter named “{name}” with these filters. Check the spelling, try just the first name, or remove a filter.', { name: name.trim() })
+                        : fixedAc
+                          ? t('No voter named “{name}” in {area}. Check the spelling or try just the first name.', { name: name.trim(), area: boothIds && !acNo ? t('your area') : t(acName(fixedAc)) })
+                          : t('No voter named “{name}”. Check the spelling or try just the first name.', { name: name.trim() })}
                     </td>
                   </tr>
                 )}
@@ -293,10 +298,10 @@ export default function VoterFinder({
       <div className="vs-foot">
         <span className="muted">
           {total === null
-            ? 'Matches show the voter’s polling station; click one to see it on the map.'
+            ? t('Matches show the voter’s polling station; click one to see it on the map.')
             : total > rows.length
-              ? `Best ${fmtInt(rows.length)} of ${fmtInt(total)} matches (${ms} ms). Add a filter to narrow down.`
-              : `${fmtInt(total)} match${total === 1 ? '' : 'es'} (${ms} ms)`}
+              ? t('Best {a} of {n} matches ({ms} ms). Add a filter to narrow down.', { a: fmtInt(rows.length), n: fmtInt(total), ms })
+              : t(total === 1 ? '{n} match ({ms} ms)' : '{n} matches ({ms} ms)', { n: fmtInt(total), ms })}
         </span>
       </div>
         </>

@@ -17,6 +17,7 @@ import {
 import { densityColor, densityScale, fmtInt, fmtDensity } from '../format'
 import { acMeta, buildingName, summarize, type Booth, type Site } from '../booths'
 import { CLASS_LABELS, type MeasureScale } from '../measures'
+import { t } from '../i18n'
 
 interface Props {
   view: ViewId
@@ -268,7 +269,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
         className="map"
         preserveAspectRatio="xMidYMid meet"
         role="img"
-        aria-label={`Map of ${VIEWS[view].title}`}
+        aria-label={t('Map of {area}', { area: t(VIEWS[view].title) })}
       >
         <defs>
           <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
@@ -372,7 +373,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
               className={`label ${r.drillTo ? 'label-drill' : ''}`}
               style={{ fontSize: (big ? 12 : 10.5) * unit, strokeWidth: 3 * unit }}
             >
-              {r.name}
+              {t(r.name)}
             </text>
           ))}
           {groupLabel && !animating && (
@@ -382,7 +383,7 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
               className="label group-label"
               style={{ fontSize: 14 * unit, strokeWidth: 4 * unit }}
             >
-              Kukatpally ↘
+              {t('Kukatpally')} ↘
             </text>
           )}
         </g>
@@ -403,21 +404,21 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
               <div className="tt-title">{buildingName(hover.s.booths[0])}</div>
               <div className="tt-addr">{hover.s.booths[0].address}</div>
               <div className="tt-row">
-                <span>{hover.s.booths.length > 1 ? 'Stations' : 'Station'}</span>
+                <span>{t(hover.s.booths.length > 1 ? 'Stations' : 'Station')}</span>
                 <b>PS {hover.s.booths.map((b) => b.no).join(', ')}</b>
               </div>
               {hover.s.booths.some((b) => b.voters !== undefined) && (
                 <div className="tt-row">
-                  <span>Electors</span>
+                  <span>{t('Electors')}</span>
                   <b>{fmtInt(hover.s.booths.reduce((a, b) => a + (b.voters ?? 0), 0))}</b>
                 </div>
               )}
               {(() => {
-                const t = summarize(hover.s.booths)?.turnout
-                return t !== undefined && colorScale?.measure.id !== 'turnout' ? (
+                const turnout = summarize(hover.s.booths)?.turnout
+                return turnout !== undefined && colorScale?.measure.id !== 'turnout' ? (
                   <div className="tt-row">
-                    <span>Turnout (last AE)</span>
-                    <b>{t.toFixed(1)}%</b>
+                    <span>{t('Turnout (last AE)')}</span>
+                    <b>{turnout.toFixed(1)}%</b>
                   </div>
                 ) : null
               })()}
@@ -428,45 +429,45 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
                   return v !== undefined && c !== undefined ? (
                     <>
                       <div className="tt-row">
-                        <span>{colorScale.measure.label}</span>
+                        <span>{t(colorScale.measure.label)}</span>
                         <b>{colorScale.measure.format(v)}</b>
                       </div>
                       <div className="tt-class">
                         <span className="class-swatch" style={{ background: CLASS_FILL[c] }} />
                         {colorScale.labels
-                          ? colorScale.labels[c]
-                          : `${CLASS_LABELS[c]} (avg ${colorScale.measure.format(colorScale.average)})`}
+                          ? t(colorScale.labels[c])
+                          : `${t(CLASS_LABELS[c])} (${t('avg')} ${colorScale.measure.format(colorScale.average)})`}
                       </div>
                     </>
                   ) : null
                 })()}
               {acMeta(hover.s.booths[0].ac).synthetic && (
-                <div className="tt-note">Sample data · not a real station</div>
+                <div className="tt-note">{t('Sample data · not a real station')}</div>
               )}
               {!acMeta(hover.s.booths[0].ac).synthetic && hover.s.booths[0].precision === 'approx' && (
-                <div className="tt-note">Approximate location</div>
+                <div className="tt-note">{t('Approximate location')}</div>
               )}
             </>
           ) : (
             <>
               <div className="tt-title">
-                {hover.r.wardNo ? `Ward ${hover.r.wardNo} · ` : ''}
-                {hover.r.name}
+                {hover.r.wardNo ? `${t('Ward')} ${hover.r.wardNo} · ` : ''}
+                {t(hover.r.name)}
               </div>
               {hover.r.stats && (
                 <div className="tt-row">
-                  <span>Population</span>
+                  <span>{t('Population')}</span>
                   <b>{fmtInt(hover.r.stats.population)}</b>
                 </div>
               )}
               {hover.r.stats && (
                 <div className="tt-row">
-                  <span>Density</span>
+                  <span>{t('Density')}</span>
                   <b>{fmtDensity(hover.r.stats.population / hover.r.areaKm2)}</b>
                 </div>
               )}
-              {hover.r.stats?.source === 'sample' && <div className="tt-note">Sample data</div>}
-              {hover.r.drillTo && <div className="tt-cta">Click to zoom in →</div>}
+              {hover.r.stats?.source === 'sample' && <div className="tt-note">{t('Sample data')}</div>}
+              {hover.r.drillTo && <div className="tt-cta">{t('Click to zoom in')} →</div>}
             </>
           )}
         </div>
@@ -485,14 +486,14 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
               top: below ? p.y + 10 : p.y - (zoomedIn ? 26 : 12),
             }}
           >
-            <button className="pin-close" aria-label="Close" onClick={onBoothClose}>
+            <button className="pin-close" aria-label={t('Close')} onClick={onBoothClose}>
               ×
             </button>
             <div className="tt-title">PS {sel.no}</div>
             <div className="tt-addr">{buildingName(sel)}</div>
             {sel.electors && (
               <button className="pin-voters" onClick={() => onOpenVoters(sel)}>
-                Voter list ({fmtInt(sel.voters ?? 0)}) →
+                {t('Voter list')} ({fmtInt(sel.voters ?? 0)}) →
               </button>
             )}
             {selectedSite.booths.length > 1 && (

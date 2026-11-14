@@ -1,5 +1,6 @@
 // Client for the team APIs (help requests, history, team / coverage).
 // All scoping happens on the server; these calls just return what the user may see.
+import { getLang, t } from './i18n'
 
 export type ReqStatus = 'new' | 'documents_pending' | 'applied' | 'resolved' | 'not_eligible' | 'closed'
 
@@ -145,7 +146,11 @@ export const ERROR_TEXT: Record<string, string> = {
   bad_role: 'Choose a role.',
 }
 export const errorText = (e: unknown) =>
-  e instanceof ApiError ? (ERROR_TEXT[e.code] ?? `Something went wrong (${e.code}).`) : 'Couldn’t reach the server.'
+  e instanceof ApiError
+    ? ERROR_TEXT[e.code]
+      ? t(ERROR_TEXT[e.code])
+      : t('Something went wrong ({code}).', { code: e.code })
+    : t('Couldn’t reach the server.')
 
 /** How many open requests in my area are past their time limit (for the header badge). */
 export const overdueCount = () => listRequests({ status: 'overdue', limit: 1 }).then((r) => r.total)
@@ -206,6 +211,18 @@ export function whatsappLink(mobile: string, r: { voter_name: string; scheme_nam
     not_eligible: 'As per the scheme rules this request is not eligible right now. We can explain the details if you call us.',
     closed: 'This request is now closed. Please reach out if you need help again.',
   }
-  const text = `Namaste ${first} garu, this is ${leadName} from your area team, about your ${r.scheme_name} request (${STATUS_LABEL[r.status]}). ${next[r.status]}`
+  const nextTe: Record<ReqStatus, string> = {
+    new: 'మీ అభ్యర్థనను నమోదు చేసుకున్నాం. తదుపరి చేయాల్సిన పనుల గురించి మీకు తెలియజేస్తాం.',
+    documents_pending:
+      'దయచేసి అవసరమైన పత్రాలు (ఆధార్, రేషన్ కార్డు, ఈ పథకానికి కావాల్సిన సర్టిఫికెట్లు) సిద్ధంగా ఉంచండి. దరఖాస్తు పూర్తి చేయడంలో మేము సహాయం చేస్తాం.',
+    applied: 'మీ దరఖాస్తు సమర్పించబడింది. శాఖతో ఫాలో అప్ చేస్తున్నాం, మీకు అప్‌డేట్ ఇస్తాం.',
+    resolved: 'మీ అభ్యర్థన పరిష్కారమైంది. ఇంకేమైనా అవసరమైతే మాకు తెలియజేయండి.',
+    not_eligible: 'పథకం నిబంధనల ప్రకారం ప్రస్తుతం ఈ అభ్యర్థనకు అర్హత లేదు. మీరు ఫోన్ చేస్తే వివరాలు చెబుతాం.',
+    closed: 'ఈ అభ్యర్థన ముగిసింది. మళ్ళీ సహాయం కావాలంటే సంప్రదించండి.',
+  }
+  const text =
+    getLang() === 'te'
+      ? `నమస్తే ${first} గారు, నేను మీ ప్రాంత బృందం నుండి ${leadName}. మీ ${t(r.scheme_name)} అభ్యర్థన (${t(STATUS_LABEL[r.status])}) గురించి. ${nextTe[r.status]}`
+      : `Namaste ${first} garu, this is ${leadName} from your area team, about your ${r.scheme_name} request (${STATUS_LABEL[r.status]}). ${next[r.status]}`
   return `https://wa.me/91${mobile}?text=${encodeURIComponent(text)}`
 }

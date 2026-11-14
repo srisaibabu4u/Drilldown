@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { t } from '../i18n'
 import type { Booth } from '../booths'
 import type { Voter } from '../voters'
 import { createRequest, errorText, listRequests, STATUS_LABEL, type HelpRequest } from '../team'
@@ -67,54 +68,54 @@ export default function VoterHelp({ booth, voter }: { booth: Booth; voter: Voter
 
   return (
     <section className="voter-help">
-      <h4>Scheme help</h4>
-      {rows === null && !error && <p className="muted small">Loading…</p>}
-      {rows && rows.length === 0 && !adding && <p className="muted small">No help requests for this person.</p>}
+      <h4>{t('Scheme help')}</h4>
+      {rows === null && !error && <p className="muted small">{t('Loading…')}</p>}
+      {rows && rows.length === 0 && !adding && <p className="muted small">{t('No help requests for this person.')}</p>}
       {rows && rows.length > 0 && (
         <ul className="help-mini">
           {rows.map((r) => (
             <li key={r.id}>
-              <span className={`status-pill st-${r.status}`}>{STATUS_LABEL[r.status]}</span>
+              <span className={`status-pill st-${r.status}`}>{t(STATUS_LABEL[r.status])}</span>
               <span>
-                <b>{r.scheme_name}</b> — {r.need}
+                <b>{t(r.scheme_name)}</b> — {r.need}
               </span>
             </li>
           ))}
         </ul>
       )}
-      {saved && !adding && <p className="ok-note small">Saved. Your ward / mandal lead can see it in Help requests.</p>}
+      {saved && !adding && <p className="ok-note small">{t('Saved. Your ward / mandal lead can see it in Help requests.')}</p>}
 
       {!adding ? (
         <button className="ghost help-add" onClick={() => setAdding(true)}>
-          + Needs help with a scheme
+          + {t('Needs help with a scheme')}
         </button>
       ) : (
         <form className="help-form" onSubmit={submit}>
           <label>
-            Scheme
+            {t('Scheme')}
             <select className="legend-select" value={scheme} onChange={(e) => setScheme(e.target.value)} required>
-              <option value="">Choose a scheme…</option>
+              <option value="">{t('Choose a scheme…')}</option>
               {schemes.map((s) => (
                 <option key={s.code} value={s.code}>
-                  {s.name}
+                  {t(s.name)}
                 </option>
               ))}
             </select>
           </label>
           <label>
-            What help is needed
+            {t('What help is needed')}
             <textarea
               className="search"
               rows={3}
               maxLength={500}
               value={need}
               onChange={(e) => setNeed(e.target.value)}
-              placeholder="e.g. Pension stopped, needs re-verification documents"
+              placeholder={t('e.g. Pension stopped, needs re-verification documents')}
               required
             />
           </label>
           <label>
-            Mobile (optional)
+            {t('Mobile (optional)')}
             <input
               className="search"
               inputMode="numeric"
@@ -122,13 +123,13 @@ export default function VoterHelp({ booth, voter }: { booth: Booth; voter: Voter
               maxLength={10}
               value={mobile}
               onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-              placeholder="10-digit mobile"
+              placeholder={t('10-digit mobile')}
             />
           </label>
           <label className="consent">
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
             <span>
-              The person agreed to share these details so we can help them apply. <span className="muted">(Recorded with today’s date.)</span>
+              {t('The person agreed to share these details so we can help them apply.')} <span className="muted">({t('Recorded with today’s date.')})</span>
             </span>
           </label>
           {error && (
@@ -138,10 +139,10 @@ export default function VoterHelp({ booth, voter }: { booth: Booth; voter: Voter
           )}
           <div className="help-actions">
             <button type="button" className="ghost" onClick={() => setAdding(false)}>
-              Cancel
+              {t('Cancel')}
             </button>
             <button className="primary" disabled={busy || !consent || !scheme || need.trim().length < 3}>
-              {busy ? 'Saving…' : 'Save request'}
+              {busy ? t('Saving…') : t('Save request')}
             </button>
           </div>
         </form>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { t } from '../i18n'
 import { acMeta, acName, buildingName, type Booth } from '../booths'
 import { AGE_BANDS, GENDER_LABEL, votersOf, type Gender, type Voter } from '../voters'
 import { fmtInt } from '../format'
@@ -64,34 +65,34 @@ export default function VoterList({
   const household = open ? all.filter((v) => v.household === open.household) : []
 
   return (
-    <div className="voter-sheet" role="dialog" aria-modal="false" aria-label={`Voter list for polling station ${booth.no}`}>
+    <div className="voter-sheet" role="dialog" aria-modal="false" aria-label={t('Voter list for polling station {no}', { no: booth.no })}>
       <div className="vs-head">
         <div>
           <div className="kicker">
-            Voter list · AC {booth.ac} {acName(booth.ac)} · PS {booth.no}
+            {t('Voter list')} · AC {booth.ac} {t(acName(booth.ac))} · PS {booth.no}
           </div>
           <h2>{buildingName(booth)}</h2>
           <div className="vs-chips">
             <span>
-              <b>{fmtInt(all.length)}</b> voters
+              <b>{fmtInt(all.length)}</b> {t('voters')}
             </span>
             <span>
-              Men <b>{fmtInt(counts.M)}</b>
+              {t('Men')} <b>{fmtInt(counts.M)}</b>
             </span>
             <span>
-              Women <b>{fmtInt(counts.F)}</b>
+              {t('Women')} <b>{fmtInt(counts.F)}</b>
             </span>
             {counts.TG > 0 && (
               <span>
-                Third gender <b>{counts.TG}</b>
+                {t('Third gender')} <b>{counts.TG}</b>
               </span>
             )}
             {acMeta(booth.ac).synthetic && (
-              <span className="badge badge-sample">⚠ Sample data · made-up people</span>
+              <span className="badge badge-sample">⚠ {t('Sample data · made-up people')}</span>
             )}
           </div>
         </div>
-        <button ref={closeRef} className="ghost vs-close" onClick={onClose} aria-label="Close voter list">
+        <button ref={closeRef} className="ghost vs-close" onClick={onClose} aria-label={t('Close voter list')}>
           ✕
         </button>
       </div>
@@ -100,13 +101,13 @@ export default function VoterList({
         <input
           className="search"
           type="search"
-          placeholder="Search voter name or voter ID"
+          placeholder={t('Search voter name or voter ID')}
           value={q}
           onChange={(e) => {
             setQ(e.target.value)
             setPage(0)
           }}
-          aria-label="Search voters"
+          aria-label={t('Search voters')}
         />
         <select
           className="legend-select"
@@ -115,12 +116,12 @@ export default function VoterList({
             setGender(e.target.value as '' | Gender)
             setPage(0)
           }}
-          aria-label="Filter by gender"
+          aria-label={t('Filter by gender')}
         >
-          <option value="">All genders</option>
-          <option value="M">Men</option>
-          <option value="F">Women</option>
-          <option value="TG">Third gender</option>
+          <option value="">{t('All genders')}</option>
+          <option value="M">{t('Men')}</option>
+          <option value="F">{t('Women')}</option>
+          <option value="TG">{t('Third gender')}</option>
         </select>
         <select
           className="legend-select"
@@ -129,12 +130,12 @@ export default function VoterList({
             setBand(e.target.value === '' ? '' : Number(e.target.value))
             setPage(0)
           }}
-          aria-label="Filter by age"
+          aria-label={t('Filter by age')}
         >
-          <option value="">All ages</option>
+          <option value="">{t('All ages')}</option>
           {AGE_BANDS.map((b, i) => (
             <option key={b} value={i}>
-              Age {b}
+              {t('Age')} {b}
             </option>
           ))}
         </select>
@@ -145,13 +146,13 @@ export default function VoterList({
           <table className="vs-table">
             <thead>
               <tr>
-                <th>Sl.</th>
-                <th>Name</th>
-                <th className="hide-sm">Relative</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th className="hide-sm">House no.</th>
-                <th className="hide-sm">Voter ID</th>
+                <th>{t('Sl.')}</th>
+                <th>{t('Name')}</th>
+                <th className="hide-sm">{t('Relative')}</th>
+                <th>{t('Age')}</th>
+                <th>{t('Gender')}</th>
+                <th className="hide-sm">{t('House no.')}</th>
+                <th className="hide-sm">{t('Voter ID')}</th>
               </tr>
             </thead>
             <tbody>
@@ -182,7 +183,7 @@ export default function VoterList({
               {rows.length === 0 && (
                 <tr>
                   <td colSpan={7} className="muted">
-                    No voters match these filters.
+                    {t('No voters match these filters.')}
                   </td>
                 </tr>
               )}
@@ -191,35 +192,35 @@ export default function VoterList({
         </div>
 
         {open && (
-          <aside className="voter-card" aria-label={`Details for ${open.name}`}>
-            <button className="pin-close" aria-label="Close details" onClick={() => setOpen(null)}>
+          <aside className="voter-card" aria-label={open.name}>
+            <button className="pin-close" aria-label={t('Close details')} onClick={() => setOpen(null)}>
               ×
             </button>
-            <div className="kicker">Voter · Sl. {open.serial}</div>
+            <div className="kicker">{t('Voter')} · {t('Sl.')} {open.serial}</div>
             <h3>{open.name}</h3>
             <dl>
-              <dt>Relation</dt>
+              <dt>{t('Relation')}</dt>
               <dd>
                 {open.relation} {open.relative}
               </dd>
-              <dt>Age</dt>
+              <dt>{t('Age')}</dt>
               <dd>
                 {open.age} ({AGE_BANDS[open.ageBand]})
               </dd>
-              <dt>Gender</dt>
-              <dd>{GENDER_LABEL[open.gender]}</dd>
-              <dt>House no.</dt>
+              <dt>{t('Gender')}</dt>
+              <dd>{t(GENDER_LABEL[open.gender])}</dd>
+              <dt>{t('House no.')}</dt>
               <dd>{open.house}</dd>
-              <dt>Voter ID</dt>
+              <dt>{t('Voter ID')}</dt>
               <dd className="mono">{open.id}</dd>
-              <dt>Polling station</dt>
+              <dt>{t('Polling station')}</dt>
               <dd>
                 PS {booth.no}, {buildingName(booth)}
               </dd>
             </dl>
             {household.length > 1 && (
               <>
-                <h4>Same household ({household.length})</h4>
+                <h4>{t('Same household')} ({household.length})</h4>
                 <ul className="household">
                   {household.map((h) => (
                     <li key={h.id}>
@@ -239,19 +240,19 @@ export default function VoterList({
       <div className="vs-foot">
         <span className="muted">
           {filtered.length === 0
-            ? '0 voters'
-            : `${fmtInt(cur * PAGE + 1)}–${fmtInt(cur * PAGE + rows.length)} of ${fmtInt(filtered.length)}`}
-          {filtered.length !== all.length && ` (filtered from ${fmtInt(all.length)})`}
+            ? t('0 voters')
+            : t('{a}–{b} of {n}', { a: fmtInt(cur * PAGE + 1), b: fmtInt(cur * PAGE + rows.length), n: fmtInt(filtered.length) })}
+          {filtered.length !== all.length && ` ${t('(filtered from {n})', { n: fmtInt(all.length) })}`}
         </span>
         <div className="vs-pager">
           <button className="ghost" disabled={cur === 0} onClick={() => setPage(cur - 1)}>
-            ← Prev
+            ← {t('Prev')}
           </button>
           <span className="muted">
-            Page {cur + 1} / {pages}
+            {t('Page')} {cur + 1} / {pages}
           </span>
           <button className="ghost" disabled={cur >= pages - 1} onClick={() => setPage(cur + 1)}>
-            Next →
+            {t('Next')} →
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
+import { t } from '../i18n'
 import { ROLE_LABEL, type Role, type Session } from '../session'
 import { addPerson, errorText, resetPassword, setActive, type AssignmentRow, type Person } from '../team'
 
@@ -33,7 +34,7 @@ export default function PeopleManager({
     const rows = assignments.filter((a) => a.user_id === id)
     const units = rows.filter((a) => a.unit_id).length
     const booths = rows.filter((a) => a.booth_id).length
-    return units ? `${units} ward / mandal${units === 1 ? '' : 's'}` : booths ? `${booths} booth${booths === 1 ? '' : 's'}` : 'no area yet'
+    return units ? t('{n} wards / mandals', { n: units }) : booths ? t('{n} booths', { n: booths }) : t('no area yet')
   }
   const list = useMemo(() => {
     const s = q.trim().toLowerCase()
@@ -63,33 +64,33 @@ export default function PeopleManager({
       setUsername('')
       setPhone('')
       setAdding(false)
-      return { text: `Added ${r.username}. Share this temporary password with them privately:`, secret: r.tempPassword }
+      return { text: t('Added {user}. Share this temporary password with them privately:', { user: r.username }), secret: r.tempPassword }
     })
   }
 
   return (
     <section className="people">
       <button className="ghost people-toggle" onClick={() => setOpen(!open)} aria-expanded={open}>
-        {open ? '▾' : '▸'} People ({people.length - 1})
+        {open ? '▾' : '▸'} {t('People')} ({people.length - 1})
       </button>
       {open && (
         <div className="people-body">
           {msg && (
             <div className={`people-msg ${msg.secret ? 'has-secret' : ''}`} role="status">
               {msg.text} {msg.secret && <b className="mono">{msg.secret}</b>}
-              {msg.secret && <div className="muted small">It isn’t shown again. They sign in with it and you can reset it any time.</div>}
+              {msg.secret && <div className="muted small">{t('It isn’t shown again. They sign in with it and you can reset it any time.')}</div>}
             </div>
           )}
           {!adding ? (
             <button className="ghost" onClick={() => setAdding(true)}>
-              + Add {isAdmin ? 'a person' : 'a booth lead'}
+              + {isAdmin ? t('Add a person') : t('Add a booth lead')}
             </button>
           ) : (
             <form className="person-form" onSubmit={submit}>
-              <input className="search" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} required minLength={2} />
+              <input className="search" placeholder={t('Full name')} value={name} onChange={(e) => setName(e.target.value)} required minLength={2} />
               <input
                 className="search"
-                placeholder="Username, e.g. bl.moosapet.09"
+                placeholder={t('Username, e.g. bl.moosapet.09')}
                 value={username}
                 onChange={(e) => setUsername(e.target.value.toLowerCase())}
                 required
@@ -97,14 +98,14 @@ export default function PeopleManager({
               />
               {isAdmin && (
                 <select className="legend-select" value={role} onChange={(e) => setRole(e.target.value as Role)}>
-                  <option value="booth_lead">Booth lead</option>
-                  <option value="unit_lead">Ward / mandal lead</option>
-                  <option value="admin">Admin</option>
+                  <option value="booth_lead">{t('Booth lead')}</option>
+                  <option value="unit_lead">{t('Ward / mandal lead')}</option>
+                  <option value="admin">{t('Admin')}</option>
                 </select>
               )}
               <input
                 className="search"
-                placeholder="Mobile (optional)"
+                placeholder={t('Mobile (optional)')}
                 inputMode="numeric"
                 maxLength={10}
                 value={phone}
@@ -112,22 +113,22 @@ export default function PeopleManager({
               />
               <div className="help-actions">
                 <button type="button" className="ghost" onClick={() => setAdding(false)}>
-                  Cancel
+                  {t('Cancel')}
                 </button>
                 <button className="primary" disabled={busy}>
-                  {busy ? 'Adding…' : 'Add'}
+                  {busy ? t('Adding…') : t('Add')}
                 </button>
               </div>
-              <p className="muted small">Then assign their booths (or ward) in the list below.</p>
+              <p className="muted small">{t('Then assign their booths (or ward) in the list below.')}</p>
             </form>
           )}
-          <input className="search" type="search" placeholder="Search people" value={q} onChange={(e) => setQ(e.target.value)} />
+          <input className="search" type="search" placeholder={t('Search people')} value={q} onChange={(e) => setQ(e.target.value)} />
           <ul className="people-list">
             {list.slice(0, 100).map((p) => (
               <li key={p.id} className={p.active ? '' : 'is-inactive'}>
                 <span>
-                  <b>{p.name}</b> <span className="muted">· {p.username} · {ROLE_LABEL[p.role]} · {covers(p.id)}</span>
-                  {!p.active && <span className="gap"> · deactivated</span>}
+                  <b>{p.name}</b> <span className="muted">· {p.username} · {t(ROLE_LABEL[p.role])} · {covers(p.id)}</span>
+                  {!p.active && <span className="gap"> · {t('deactivated')}</span>}
                 </span>
                 <span className="people-actions">
                   <button
@@ -136,11 +137,11 @@ export default function PeopleManager({
                     onClick={() =>
                       run(async () => {
                         const r = await resetPassword(p.id)
-                        return { text: `New temporary password for ${p.username}:`, secret: r.tempPassword }
+                        return { text: t('New temporary password for {user}:', { user: p.username }), secret: r.tempPassword }
                       })
                     }
                   >
-                    Reset password
+                    {t('Reset password')}
                   </button>
                   <button
                     className="link-btn"
@@ -148,16 +149,16 @@ export default function PeopleManager({
                     onClick={() =>
                       run(async () => {
                         await setActive(p.id, !p.active)
-                        return { text: `${p.username} ${p.active ? 'deactivated — they can no longer sign in' : 'reactivated'}.` }
+                        return { text: `${p.username}: ${p.active ? t('deactivated — they can no longer sign in.') : t('reactivated.')}` }
                       })
                     }
                   >
-                    {p.active ? 'Deactivate' : 'Reactivate'}
+                    {p.active ? t('Deactivate') : t('Reactivate')}
                   </button>
                 </span>
               </li>
             ))}
-            {list.length > 100 && <li className="muted small">Showing 100 of {list.length} — search to narrow down.</li>}
+            {list.length > 100 && <li className="muted small">{t('Showing 100 of {n} — search to narrow down.', { n: list.length })}</li>}
           </ul>
         </div>
       )}

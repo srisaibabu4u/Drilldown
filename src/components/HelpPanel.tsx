@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { dateLocale, t } from '../i18n'
 import { acName, boothById, type Booth } from '../booths'
 import { fmtInt } from '../format'
 import { ROLE_LABEL, type Session } from '../session'
@@ -31,7 +32,7 @@ export type HelpTab = 'requests' | 'team'
 const PAGE = 50
 
 const when = (iso: string) =>
-  new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  new Date(iso).toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short', year: 'numeric' })
 
 /** Help requests + team / coverage, for leads and admins. */
 export default function HelpPanel({
@@ -41,7 +42,9 @@ export default function HelpPanel({
   onClose,
   onOpenVoter,
   onShowCoverage,
+  initialStatus = 'open',
 }: {
+  initialStatus?: 'open' | 'overdue' | ReqStatus
   user: Session
   tab: HelpTab
   onTab: (t: HelpTab) => void
@@ -57,37 +60,37 @@ export default function HelpPanel({
 
   const area =
     user.role === 'admin'
-      ? 'All areas'
+      ? t('All areas')
       : user.role === 'unit_lead'
-        ? (user.units ?? []).map((u) => u.name).join(', ')
-        : `${user.booths?.length ?? 0} polling station${user.booths?.length === 1 ? '' : 's'}`
+        ? (user.units ?? []).map((u) => t(u.name)).join(', ')
+        : t(user.booths?.length === 1 ? '{n} polling station' : '{n} polling stations', { n: user.booths?.length ?? 0 })
 
   return (
-    <div className="voter-sheet finder help-sheet" role="dialog" aria-modal="false" aria-label="Help requests and team">
+    <div className="voter-sheet finder help-sheet" role="dialog" aria-modal="false" aria-label={t('Help requests')}>
       <div className="vs-head">
         <div>
           <div className="kicker">
-            {ROLE_LABEL[user.role ?? 'admin']} · {area}
+            {t(ROLE_LABEL[user.role ?? 'admin'])} · {area}
           </div>
-          <h2>{tab === 'requests' ? 'Scheme help requests' : 'Team & coverage'}</h2>
+          <h2>{tab === 'requests' ? t('Scheme help requests') : t('Team & coverage')}</h2>
           <div className="vs-chips">
-            <span className="badge badge-sample">⚠ Demo data · synthetic people</span>
+            <span className="badge badge-sample">⚠ {t('Demo data · synthetic people')}</span>
           </div>
         </div>
-        <button className="ghost vs-close" onClick={onClose} aria-label="Close">
+        <button className="ghost vs-close" onClick={onClose} aria-label={t('Close')}>
           ✕
         </button>
       </div>
       <div className="vs-tabs" role="tablist">
         <button role="tab" aria-selected={tab === 'requests'} className={tab === 'requests' ? 'is-on' : ''} onClick={() => onTab('requests')}>
-          Help requests
+          {t('Help requests')}
         </button>
         <button role="tab" aria-selected={tab === 'team'} className={tab === 'team' ? 'is-on' : ''} onClick={() => onTab('team')}>
-          Team &amp; coverage
+          {t('Team & coverage')}
         </button>
       </div>
       {tab === 'requests' ? (
-        <Requests user={user} onOpenVoter={onOpenVoter} />
+        <Requests user={user} onOpenVoter={onOpenVoter} initialStatus={initialStatus} />
       ) : (
         <TeamView user={user} onShowCoverage={onShowCoverage} />
       )}
@@ -99,8 +102,16 @@ export default function HelpPanel({
 // Help requests
 // ---------------------------------------------------------------------------
 
-function Requests({ user, onOpenVoter }: { user: Session; onOpenVoter: (b: Booth, serial: number) => void }) {
-  const [status, setStatus] = useState<'open' | 'overdue' | '' | ReqStatus>('open')
+function Requests({
+  user,
+  onOpenVoter,
+  initialStatus,
+}: {
+  user: Session
+  onOpenVoter: (b: Booth, serial: number) => void
+  initialStatus: 'open' | 'overdue' | ReqStatus
+}) {
+  const [status, setStatus] = useState<'open' | 'overdue' | '' | ReqStatus>(initialStatus)
   const [sort, setSort] = useState<'recent' | 'oldest'>('recent')
   const [scheme, setScheme] = useState('')
   const [q, setQ] = useState('')
@@ -144,10 +155,10 @@ function Requests({ user, onOpenVoter }: { user: Session; onOpenVoter: (b: Booth
     <>
       <div className="dup-summary">
         <div className="dup-filters">
-          {chip('overdue', '⚠ Overdue', counts.overdue ?? 0, 'chip-overdue')}
-          {chip('open', 'Open', openCount)}
-          {STATUS_ORDER.map((s) => chip(s, STATUS_LABEL[s], counts[s] ?? 0))}
-          {chip('', 'All', all)}
+          {chip('overdue', `⚠ ${t('Overdue')}`, counts.overdue ?? 0, 'chip-overdue')}
+          {chip('open', t('Open'), openCount)}
+          {STATUS_ORDER.map((s) => chip(s, t(STATUS_LABEL[s]), counts[s] ?? 0))}
+          {chip('', t('All'), all)}
         </div>
         <div className="dup-filters">
           <select
@@ -157,12 +168,12 @@ function Requests({ user, onOpenVoter }: { user: Session; onOpenVoter: (b: Booth
               setScheme(e.target.value)
               setPage(0)
             }}
-            aria-label="Scheme"
+            aria-label={t('Scheme')}
           >
-            <option value="">All schemes</option>
+            <option value="">{t('All schemes')}</option>
             {data?.schemes.map((s) => (
               <option key={s.code} value={s.code}>
-                {s.name}
+                {t(s.name)}
               </option>
             ))}
           </select>
@@ -173,26 +184,25 @@ function Requests({ user, onOpenVoter }: { user: Session; onOpenVoter: (b: Booth
               setSort(e.target.value as 'recent' | 'oldest')
               setPage(0)
             }}
-            aria-label="Sort"
+            aria-label={t('Sort')}
           >
-            <option value="recent">Recently updated</option>
-            <option value="oldest">Waiting longest</option>
+            <option value="recent">{t('Recently updated')}</option>
+            <option value="oldest">{t('Waiting longest')}</option>
           </select>
           <input
             className="search"
             type="search"
-            placeholder="Search name, voter ID or need"
+            placeholder={t('Search name, voter ID or need')}
             value={q}
             onChange={(e) => {
               setQ(e.target.value)
               setPage(0)
             }}
-            aria-label="Search requests"
+            aria-label={t('Search requests')}
           />
         </div>
         <p className="muted small">
-          To add a request, open the person from Find voter or a polling station’s voter list and choose “Needs help
-          with a scheme”. No amounts are recorded.
+          {t('To add a request, open the person from Find voter or a polling station’s voter list and choose “Needs help with a scheme”. No amounts are recorded.')}
         </p>
       </div>
 
@@ -210,22 +220,22 @@ function Requests({ user, onOpenVoter }: { user: Session; onOpenVoter: (b: Booth
               onOpenVoter={onOpenVoter}
             />
           ))}
-          {data && data.rows.length === 0 && <p className="finder-help muted">No requests match.</p>}
-          {!data && !error && <p className="finder-help muted">Loading…</p>}
+          {data && data.rows.length === 0 && <p className="finder-help muted">{t('No requests match.')}</p>}
+          {!data && !error && <p className="finder-help muted">{t('Loading…')}</p>}
         </div>
       </div>
 
       <div className="vs-foot">
-        <span className="muted">{data ? `${fmtInt(data.total)} request${data.total === 1 ? '' : 's'}` : ''}</span>
+        <span className="muted">{data ? t(data.total === 1 ? '{n} request' : '{n} requests', { n: fmtInt(data.total) }) : ''}</span>
         <div className="vs-pager">
           <button className="ghost" disabled={page === 0} onClick={() => setPage(page - 1)}>
-            ← Prev
+            ← {t('Prev')}
           </button>
           <span className="muted">
-            Page {page + 1} / {pages}
+            {t('Page')} {page + 1} / {pages}
           </span>
           <button className="ghost" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>
-            Next →
+            {t('Next')} →
           </button>
         </div>
       </div>
@@ -253,12 +263,12 @@ function RequestCard({
     <article className={`dup-card req-card ${open ? 'is-open' : ''}`}>
       <button className="req-summary" onClick={onToggle} aria-expanded={open}>
         <span className="req-status">
-          <span className={`status-pill st-${r.status}`}>{STATUS_LABEL[r.status]}</span>
+          <span className={`status-pill st-${r.status}`}>{t(STATUS_LABEL[r.status])}</span>
           {OPEN_STATUSES.includes(r.status) && (
-            <span className={`days ${r.overdue ? 'is-overdue' : ''}`} title={`Time limit: ${SLA_DAYS[r.status]} days in this status`}>
+            <span className={`days ${r.overdue ? 'is-overdue' : ''}`} title={t('Time limit: {n} days in this status', { n: SLA_DAYS[r.status] ?? '' })}>
               {r.overdue ? '⚠ ' : ''}
-              {daysSince(r.status_since)} day{daysSince(r.status_since) === 1 ? '' : 's'}
-              {r.overdue ? ' · overdue' : ''}
+              {t(daysSince(r.status_since) === 1 ? '{n} day' : '{n} days', { n: daysSince(r.status_since) })}
+              {r.overdue ? ` · ${t('overdue')}` : ''}
             </span>
           )}
         </span>
@@ -266,14 +276,14 @@ function RequestCard({
           <b>{r.voter_name}</b>
           <span className="muted">
             {' '}
-            · {acName(r.ac)} PS {r.ps_no}
-            {r.unit_name ? ` · ${r.unit_name}` : ''}
+            · {t(acName(r.ac))} PS {r.ps_no}
+            {r.unit_name ? ` · ${t(r.unit_name)}` : ''}
           </span>
           <span className="req-need">
-            <b>{r.scheme_name}:</b> {r.need}
+            <b>{t(r.scheme_name)}:</b> {r.need}
           </span>
         </span>
-        <span className="muted small req-date">Updated {when(r.updated_at)}</span>
+        <span className="muted small req-date">{t('Updated {date}', { date: when(r.updated_at) })}</span>
       </button>
       {open && <RequestDetail r={r} user={user} booth={booth} onChanged={onChanged} onOpenVoter={onOpenVoter} />}
     </article>
@@ -313,9 +323,9 @@ function RequestDetail({
     if (!team || !booth) return []
     const out: { id: number; label: string }[] = []
     const bl = team.booths.find((b) => b.id === r.booth_id)?.lead
-    if (bl) out.push({ id: bl.id, label: `${bl.name} (booth lead)` })
+    if (bl) out.push({ id: bl.id, label: `${bl.name} (${t('booth lead')})` })
     const ul = team.units.find((u) => u.unitId === booth.unitId)?.lead
-    if (ul) out.push({ id: ul.id, label: `${ul.name} (${booth.ac === 79 ? 'mandal' : 'ward'} lead)` })
+    if (ul) out.push({ id: ul.id, label: `${ul.name} (${t(booth.ac === 79 ? 'mandal lead' : 'ward lead')})` })
     return out
   }, [team, booth, r.booth_id])
 
@@ -330,7 +340,7 @@ function RequestDetail({
         assignedTo: canAssign && assignee && Number(assignee) !== r.assigned_to_id ? Number(assignee) : undefined,
       })
       setNote('')
-      setMsg('Saved.')
+      setMsg(t('Saved.'))
       onChanged()
       const d = await requestEvents(r.id)
       setEvents(d.events)
@@ -346,17 +356,17 @@ function RequestDetail({
   return (
     <div className="req-detail">
       <dl>
-        <dt>Voter</dt>
+        <dt>{t('Voter')}</dt>
         <dd>
-          {r.voter_name} · Sl. {r.voter_serial} · <span className="mono">{r.voter_ref}</span>
+          {r.voter_name} · {t('Sl.')} {r.voter_serial} · <span className="mono">{r.voter_ref}</span>
         </dd>
-        <dt>Station</dt>
+        <dt>{t('Station')}</dt>
         <dd>
-          {acName(r.ac)} PS {r.ps_no}, {r.booth_name}
+          {t(acName(r.ac))} PS {r.ps_no}, {r.booth_name}
         </dd>
         {r.contact_mobile && (
           <>
-            <dt>Mobile</dt>
+            <dt>{t('Mobile')}</dt>
             <dd>
               <span className="contact-actions">
                 <a
@@ -364,49 +374,49 @@ function RequestDetail({
                   href={whatsappLink(r.contact_mobile, r, user.name)}
                   target="_blank"
                   rel="noreferrer"
-                  title="Opens WhatsApp with a drafted message — review it before sending"
+                  title={t('Opens WhatsApp with a drafted message — review it before sending')}
                 >
                   WhatsApp {r.contact_mobile}
                 </a>
                 <a className="ghost call-btn" href={`tel:${r.contact_mobile}`}>
-                  Call
+                  {t('Call')}
                 </a>
               </span>
             </dd>
           </>
         )}
-        <dt>Added</dt>
+        <dt>{t('Added')}</dt>
         <dd>
-          {when(r.created_at)} by {r.created_by} · consent recorded
+          {t('{date} by {name} · consent recorded', { date: when(r.created_at), name: r.created_by })}
         </dd>
-        <dt>Owner</dt>
+        <dt>{t('Owner')}</dt>
         <dd>{r.assigned_to ?? '—'}</dd>
       </dl>
       {booth && (
         <button className="link-btn" onClick={() => onOpenVoter(booth, r.voter_serial)}>
-          Open this person in the voter list →
+          {t('Open this person in the voter list')} →
         </button>
       )}
 
       {!canAssign ? (
         <p className="read-only-note small">
-          🔒 Saved requests are updated by your ward / mandal lead or an admin. You can follow progress in the history below.
+          🔒 {t('Saved requests are updated by your ward / mandal lead or an admin. You can follow progress in the history below.')}
         </p>
       ) : (
       <div className="req-update">
         <label>
-          Status
+          {t('Status')}
           <select className="legend-select" value={status} onChange={(e) => setStatus(e.target.value as ReqStatus)}>
             {STATUS_ORDER.map((s) => (
               <option key={s} value={s}>
-                {STATUS_LABEL[s]}
+                {t(STATUS_LABEL[s])}
               </option>
             ))}
           </select>
         </label>
         {canAssign && (
           <label>
-            Owner
+            {t('Owner')}
             <select className="legend-select" value={assignee} onChange={(e) => setAssignee(e.target.value)}>
               <option value="">—</option>
               {assignees.map((a) => (
@@ -418,32 +428,32 @@ function RequestDetail({
           </label>
         )}
         <label className="wide">
-          Note (optional)
-          <input className="search" value={note} maxLength={1000} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Applied at MeeSeva, receipt no. noted" />
+          {t('Note (optional)')}
+          <input className="search" value={note} maxLength={1000} onChange={(e) => setNote(e.target.value)} placeholder={t('e.g. Applied at MeeSeva, receipt no. noted')} />
         </label>
         <button className="primary" onClick={save} disabled={busy || !changed}>
-          {busy ? 'Saving…' : 'Save'}
+          {busy ? t('Saving…') : t('Save')}
         </button>
         {msg && <span className="small muted">{msg}</span>}
       </div>
       )}
 
-      <h4>History</h4>
+      <h4>{t('History')}</h4>
       <ol className="history">
-        {events === null && <li className="muted">Loading…</li>}
+        {events === null && <li className="muted">{t('Loading…')}</li>}
         {events?.map((e, i) => (
           <li key={i}>
-            <span className="muted small">{new Date(e.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>{' '}
+            <span className="muted small">{new Date(e.at).toLocaleString(dateLocale(), { dateStyle: 'medium', timeStyle: 'short' })}</span>{' '}
             <b>{e.by}</b>{' '}
-            {e.action === 'created' && 'recorded the request'}
+            {e.action === 'created' && t('recorded the request')}
             {e.action === 'status' && (
               <>
-                changed status {e.from_status ? `${STATUS_LABEL[e.from_status]} → ` : ''}
-                <b>{e.to_status ? STATUS_LABEL[e.to_status] : ''}</b>
+                {t('changed status')} {e.from_status ? `${t(STATUS_LABEL[e.from_status])} → ` : ''}
+                <b>{e.to_status ? t(STATUS_LABEL[e.to_status]) : ''}</b>
               </>
             )}
-            {e.action === 'note' && 'added a note'}
-            {e.action === 'assigned' && (e.note ?? 'changed the owner')}
+            {e.action === 'note' && t('added a note')}
+            {e.action === 'assigned' && (e.note ? assignedNote(e.note) : t('changed the owner'))}
             {e.note && e.action !== 'assigned' && <div className="history-note">“{e.note}”</div>}
           </li>
         ))}
@@ -474,7 +484,7 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
   const boothLeads = (people?.people ?? []).filter((p) => p.role === 'booth_lead' && p.active)
   const unitLeads = (people?.people ?? []).filter((p) => p.role === 'unit_lead' && p.active)
   const change = async (f: () => Promise<unknown>, done: string) => {
-    setEditMsg('Saving…')
+    setEditMsg(t('Saving…'))
     try {
       await f()
       setEditMsg(done)
@@ -485,7 +495,7 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
   }
 
   if (error) return <p className="finder-help form-error">{error}</p>
-  if (!team) return <p className="finder-help muted">Loading…</p>
+  if (!team) return <p className="finder-help muted">{t('Loading…')}</p>
 
   const total = team.booths.length
   const covered = team.booths.filter((b) => b.lead).length
@@ -497,27 +507,27 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
       <div className="dup-summary">
         <div className="team-kpis">
           <div>
-            <b>{team.units.length}</b> {team.units.length === 1 ? 'area' : 'wards / mandals'}
+            <b>{team.units.length}</b> {t(team.units.length === 1 ? 'area' : 'wards / mandals')}
           </div>
           <div>
             <b>
               {fmtInt(covered)} / {fmtInt(total)}
             </b>{' '}
-            polling stations have a booth lead ({total ? Math.round((covered / total) * 100) : 0}%)
+            {t('polling stations have a booth lead')} ({total ? Math.round((covered / total) * 100) : 0}%)
           </div>
           <div>
-            <b>{fmtInt(open)}</b> open help requests
+            <b>{fmtInt(open)}</b> {t('open help requests')}
           </div>
         </div>
         {canEdit && people && (
           <PeopleManager user={user} people={people.people} assignments={people.assignments} onChanged={reload} />
         )}
-        {canEdit && <p className="muted small">Changes apply to that person the next time they sign in.{editMsg && <b> {editMsg}</b>}</p>}
+        {canEdit && <p className="muted small">{t('Changes apply to that person the next time they sign in.')}{editMsg && <b> {editMsg}</b>}</p>}
         {user.role !== 'booth_lead' && (
           <div className="dup-filters">
             {acs.map((ac) => (
               <button key={ac} className="ghost" onClick={() => onShowCoverage(ac)}>
-                Show {acName(ac)} coverage on the map →
+                {t('Show {area} coverage on the map', { area: t(acName(ac)) })} →
               </button>
             ))}
           </div>
@@ -532,13 +542,13 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
               <article key={u.unitId} className="dup-card">
                 <button className="req-summary" onClick={() => setOpenUnit(isOpen ? null : u.unitId)} aria-expanded={isOpen}>
                   <span className="req-main">
-                    <b>{u.unitName}</b> <span className="muted">· {acName(u.ac)}</span>
+                    <b>{t(u.unitName)}</b> <span className="muted">· {t(acName(u.ac))}</span>
                     <span className="req-need">
-                      Lead:{' '}
+                      {t('Lead')}:{' '}
                       {u.lead ? (
                         u.lead.name
                       ) : (
-                        <i>vacant</i>
+                        <i>{t('vacant')}</i>
                       )}
                       {u.lead?.phone && (
                         <>
@@ -553,21 +563,21 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
                       <span className="bar-fill" style={{ width: `${(u.covered / Math.max(1, u.booths)) * 100}%` }} />
                     </span>
                     <span className="small">
-                      {u.covered}/{u.booths} booths · {u.open} open
+                      {u.covered}/{u.booths} {t('booths')} · {u.open} {t('open')}
                     </span>
                   </span>
                 </button>
                 {isOpen && user.role === 'admin' && people && (
                   <label className="unit-lead-pick">
-                    Ward / mandal lead
+                    {t('Ward / mandal lead')}
                     <select
                       className="legend-select inline-select"
                       value={u.lead?.id ?? ''}
                       onChange={(e) =>
-                        change(() => setUnitLead(u.unitId, e.target.value ? Number(e.target.value) : null), `${u.unitName}: lead updated.`)
+                        change(() => setUnitLead(u.unitId, e.target.value ? Number(e.target.value) : null), `${t(u.unitName)}: ${t('lead updated.')}`)
                       }
                     >
-                      <option value="">— vacant —</option>
+                      <option value="">— {t('vacant')} —</option>
                       {unitLeads.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.name} ({p.username})
@@ -581,9 +591,9 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
                     <thead>
                       <tr>
                         <th>PS</th>
-                        <th>Booth lead</th>
-                        <th className="hide-sm">Phone</th>
-                        <th>Open</th>
+                        <th>{t('Booth lead')}</th>
+                        <th className="hide-sm">{t('Phone')}</th>
+                        <th>{t('Open')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -598,12 +608,12 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
                                 onChange={(e) =>
                                   change(
                                     () => setBoothLead(b.id, e.target.value ? Number(e.target.value) : null),
-                                    `PS ${b.psNo}: booth lead updated.`,
+                                    `PS ${b.psNo}: ${t('booth lead updated.')}`,
                                   )
                                 }
                                 aria-label={`Booth lead for PS ${b.psNo}`}
                               >
-                                <option value="">— No booth lead —</option>
+                                <option value="">— {t('No booth lead')} —</option>
                                 {boothLeads.map((p) => (
                                   <option key={p.id} value={p.id}>
                                     {p.name} ({p.username})
@@ -613,7 +623,7 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
                             ) : b.lead ? (
                               b.lead.name
                             ) : (
-                              <span className="gap">No booth lead</span>
+                              <span className="gap">{t('No booth lead')}</span>
                             )}
                           </td>
                           <td className="hide-sm">{b.lead?.phone ? <a href={`tel:${b.lead.phone}`}>{b.lead.phone}</a> : '—'}</td>
@@ -629,8 +639,14 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
         </div>
       </div>
       <div className="vs-foot">
-        <span className="muted small">Phone numbers are shown only to people above in the team.</span>
+        <span className="muted small">{t('Phone numbers are shown only to people above in the team.')}</span>
       </div>
     </>
   )
+}
+
+/** Server notes like "Assigned to Mederu Ravi" in the current language. */
+function assignedNote(note: string) {
+  const m = note.match(/^Assigned to (.+)$/)
+  return m ? t('Assigned to {name}', { name: m[1] }) : note
 }
