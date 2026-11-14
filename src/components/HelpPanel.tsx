@@ -268,6 +268,7 @@ function RequestDetail({
   const [team, setTeam] = useState<Team | null>(null)
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
+  // Ward / mandal leads and admins update requests; booth leads only record them.
   const canAssign = user.role === 'admin' || user.role === 'unit_lead'
 
   useEffect(() => {
@@ -342,6 +343,11 @@ function RequestDetail({
         </button>
       )}
 
+      {!canAssign ? (
+        <p className="read-only-note small">
+          🔒 Saved requests are updated by your ward / mandal lead or an admin. You can follow progress in the history below.
+        </p>
+      ) : (
       <div className="req-update">
         <label>
           Status
@@ -375,6 +381,7 @@ function RequestDetail({
         </button>
         {msg && <span className="small muted">{msg}</span>}
       </div>
+      )}
 
       <h4>History</h4>
       <ol className="history">

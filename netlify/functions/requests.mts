@@ -3,9 +3,10 @@
 //   GET   ?status=<status|open>&scheme=&booth=&voter=<boothId>:<serial>&q=&limit=&offset=
 //         → requests in the caller's area + counts by status
 //   POST  { boothId, voterSerial, voterRef, voterName, scheme, need, mobile?, consent }
-//   PATCH { id, status?, note?, assignedTo? }
+//   PATCH { id, status?, note?, assignedTo? }   — ward / mandal leads and admins only
 //
 // Every query is limited to the caller's area (see boothInScope). No amounts.
+// Booth leads record requests; once saved, only higher roles can change them.
 import { actorFrom, boothInScope, canSeeBooth, type Actor } from '../lib/db.ts'
 import { json } from '../lib/session.ts'
 
@@ -117,6 +118,8 @@ async function create(req: Request, sql: Sql, a: Actor) {
 }
 
 async function update(req: Request, sql: Sql, a: Actor) {
+  // Saved requests are read-only for booth leads; their ward / mandal lead or an admin updates them.
+  if (a.role === 'booth_lead') return json({ error: 'read_only_for_role' }, 403)
   let body: Record<string, unknown>
   try {
     body = await req.json()
@@ -137,7 +140,6 @@ async function update(req: Request, sql: Sql, a: Actor) {
   if (!r) return json({ error: 'not_found' }, 404) // also when outside the caller's area
 
   if (assignedTo !== undefined) {
-    if (a.role === 'booth_lead') return json({ error: 'not_allowed' }, 403)
     // Assignee must lead this booth or its ward / mandal.
     const [ok] = await sql`
       select 1 from assignments where user_id = ${assignedTo} and (booth_id = ${r.booth_id} or unit_id = ${r.unit_id})`

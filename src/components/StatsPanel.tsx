@@ -18,6 +18,9 @@ interface Props {
   onToggleBooths: (v: boolean) => void
   colorScale?: MeasureScale | null
   onOpenVoters: (b: Booth) => void
+  /** Lead view: no "overview" link, lists limited to stations they may see. */
+  locked?: boolean
+  canSeeBooth?: (b: Booth) => boolean
 }
 
 export default function StatsPanel(props: Props) {
@@ -42,8 +45,14 @@ function AreaPanel({
   showBooths,
   onToggleBooths,
   colorScale,
+  locked,
+  canSeeBooth,
 }: Props) {
   const v = VIEWS[view]
+  const visible = (list: Booth[]) => (canSeeBooth ? list.filter(canSeeBooth) : list)
+  const areaBooths = v.ac ? visible(selected?.unitId ? boothsInUnit(selected.unitId) : boothsOfAc(v.ac.no)) : []
+  const wholeUnit = selected?.unitId ? boothsInUnit(selected.unitId).length : 0
+  const onlyMine = locked && selected?.unitId && areaBooths.length < wholeUnit
   const stats: Stats | undefined = selected ? selected.stats : v.total
   const area = selected ? selected.areaKm2 : v.areaKm2
   const title = selected ? selected.name : v.title
@@ -57,7 +66,7 @@ function AreaPanel({
         <div className="kicker">{kicker}</div>
         <h2>{title}</h2>
         {!selected && <div className="sub">{v.subtitle}</div>}
-        {selected && (
+        {selected && !locked && (
           <button className="link-btn" onClick={onClearSelection}>
             ← {v.title} overview
           </button>
@@ -69,13 +78,20 @@ function AreaPanel({
         <>
           <ElectorStats
             ac={v.ac.no}
-            list={selected?.unitId ? boothsInUnit(selected.unitId) : boothsOfAc(v.ac.no)}
-            title={selected ? `Voters in this ${v.ac.unitLabel.toLowerCase()}` : `Voters · AC ${v.ac.no} ${v.ac.name}`}
+            list={areaBooths}
+            title={
+              onlyMine
+                ? `Voters in your ${areaBooths.length} polling station${areaBooths.length === 1 ? '' : 's'}`
+                : selected
+                  ? `Voters in this ${v.ac.unitLabel.toLowerCase()}`
+                  : `Voters · AC ${v.ac.no} ${v.ac.name}`
+            }
             onPick={onPickBooth}
           />
           <BoothsCard
             ac={v.ac}
             unitId={selected?.unitId}
+            canSee={canSeeBooth}
             onPick={onPickBooth}
             show={showBooths}
             onToggle={onToggleBooths}
@@ -322,6 +338,7 @@ function BoothsCard({
   show,
   onToggle,
   colorScale,
+  canSee,
 }: {
   ac: AcDef
   unitId?: string
@@ -329,6 +346,7 @@ function BoothsCard({
   show: boolean
   onToggle: (v: boolean) => void
   colorScale?: MeasureScale | null
+  canSee?: (b: Booth) => boolean
 }) {
   const [q, setQ] = useState('')
   const all = boothsOfAc(ac.no)
@@ -340,7 +358,7 @@ function BoothsCard({
       </section>
     )
   }
-  const scope = unitId ? boothsInUnit(unitId) : all
+  const scope = (unitId ? boothsInUnit(unitId) : all).filter((b) => !canSee || canSee(b))
   const list = searchBooths(scope, q)
   const electors = scope.reduce((a, b) => a + (b.voters ?? 0), 0)
   return (

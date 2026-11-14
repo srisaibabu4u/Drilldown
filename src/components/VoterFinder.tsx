@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { acMeta, acName, boothById, booths, buildingName, type Booth } from '../booths'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { acMeta, acName, boothById, booths, buildingName, searchBooths, type Booth } from '../booths'
 import { AC_VIEWS, VIEWS } from '../geo'
 import { fmtInt } from '../format'
 import { votersOf, type Gender, type Voter } from '../voters'
@@ -20,11 +20,19 @@ export default function VoterFinder({
   onTab,
   onClose,
   onPick,
+  onFindStation,
+  boothIds,
+  canReviewDuplicates = true,
 }: {
   tab: VoterTab
   onTab: (t: VoterTab) => void
   onClose: () => void
   onPick: (booth: Booth, serial: number) => void
+  /** "kukatpally 180" also offers to open that polling station. */
+  onFindStation?: (booth: Booth) => void
+  /** Limit to these stations (a lead's area); null / undefined = all. */
+  boothIds?: Set<string> | null
+  canReviewDuplicates?: boolean
 }) {
   const [status, setStatus] = useState<IndexStatus>({ state: 'idle', progress: 0 })
   const [name, setName] = useState('')
@@ -64,6 +72,7 @@ export default function VoterFinder({
       age: Number(age) >= 18 ? Number(age) : undefined,
       gender: gender || undefined,
       ac: ac ? Number(ac) : undefined,
+      booths: boothIds ? [...boothIds] : undefined,
       limit: 100,
     }
     const t = setTimeout(async () => {
@@ -81,7 +90,17 @@ export default function VoterFinder({
       setMs(res.ms)
     }, 220)
     return () => clearTimeout(t)
-  }, [name, relative, age, gender, ac])
+  }, [name, relative, age, gender, ac, boothIds])
+
+  // Station shortcut: a query with a number ("kukatpally 180", "ps 12") may mean a polling station.
+  const stationHits = useMemo(() => {
+    const q = name.trim()
+    if (!onFindStation || !/\d/.test(q)) return []
+    const pool = boothIds ? booths.filter((b) => boothIds.has(b.id)) : booths
+    return searchBooths(pool, q)
+      .filter((b) => q.includes(String(b.no)))
+      .slice(0, 3)
+  }, [name, boothIds, onFindStation])
 
   const anySample = booths.some((b) => acMeta(b.ac).synthetic)
 
@@ -116,13 +135,15 @@ export default function VoterFinder({
         <button role="tab" aria-selected={tab === 'find'} className={tab === 'find' ? 'is-on' : ''} onClick={() => onTab('find')}>
           Find voter
         </button>
-        <button role="tab" aria-selected={tab === 'dups'} className={tab === 'dups' ? 'is-on' : ''} onClick={() => onTab('dups')}>
-          Duplicates
-        </button>
+        {canReviewDuplicates && (
+          <button role="tab" aria-selected={tab === 'dups'} className={tab === 'dups' ? 'is-on' : ''} onClick={() => onTab('dups')}>
+            Duplicates
+          </button>
+        )}
       </div>
 
-      {tab === 'dups' ? (
-        <DuplicateReview onPick={onPick} />
+      {tab === 'dups' && canReviewDuplicates ? (
+        <DuplicateReview onPick={onPick} boothIds={boothIds} />
       ) : (
         <>
 
@@ -173,6 +194,16 @@ export default function VoterFinder({
 
       <div className="vs-body">
         <div className="vs-table-wrap">
+          {stationHits.length > 0 && (
+            <div className="station-hits">
+              <span className="muted small">Looking for a polling station?</span>
+              {stationHits.map((b) => (
+                <button key={b.id} className="ghost" onClick={() => onFindStation?.(b)}>
+                  Go to {acName(b.ac)} PS {b.no} · {buildingName(b)} →
+                </button>
+              ))}
+            </div>
+          )}
           {total === null ? (
             <div className="finder-help muted">
               <p>Type at least 2 letters of a name. Spelling variants are matched, so <b>Santhosh</b>, <b>Santosh</b> and <b>Santhos</b> all find each other, and an initial like <b>R.</b> can stand for a full name like <b>Rote</b>.</p>

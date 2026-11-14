@@ -14,6 +14,8 @@ export interface SearchQuery {
   age?: number
   gender?: Gender
   ac?: number
+  /** Only voters at these stations (a lead's area). */
+  booths?: string[]
   limit?: number
 }
 
@@ -127,7 +129,8 @@ function build() {
 function search(q: SearchQuery): { hits: SearchHit[]; total: number } {
   const limit = q.limit ?? 200
   const hits: SearchHit[] = []
-  const acOk = (bi: number) => !q.ac || boothAc[bi] === q.ac
+  const allowed = q.booths ? new Set(q.booths) : null
+  const acOk = (bi: number) => (!q.ac || boothAc[bi] === q.ac) && (!allowed || allowed.has(booths[bi].id))
 
   // Sample voter ID: exact lookup.
   const idMatch = q.name.trim().match(/^smp\s*(\d{1,7})$/i)

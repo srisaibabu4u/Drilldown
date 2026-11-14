@@ -37,6 +37,8 @@ interface Props {
   focusUnitId?: string
   /** Colour station pins by this measure (and show Kukatpally wards in neutral grey). */
   colorScale?: MeasureScale | null
+  /** Lead view: wards / mandals outside this set are faded and can't be opened. */
+  allowedUnits?: Set<string> | null
 }
 
 const CLASS_FILL = ['var(--div-low)', 'var(--div-mid)', 'var(--div-high)']
@@ -81,7 +83,7 @@ function d(r: Region) {
   return p
 }
 
-export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothId, onBoothClick, onBoothClose, onOpenVoters, focus, focusBounds, focusUnitId, colorScale }: Props) {
+export default function MapView({ view, selectedId, onSelect, onDrill, sites, selectedBoothId, onBoothClick, onBoothClose, onOpenVoters, focus, focusBounds, focusUnitId, colorScale, allowedUnits }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const [size, setSize] = useState<Size>({ w: 800, h: 700 })
@@ -202,6 +204,8 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
     },
   })
 
+  const outside = (r: Region) => !!allowedUnits && !!r.unitId && !allowedUnits.has(r.unitId)
+
   const renderLayer = (regions: Region[], isActive: boolean, cls: string) => (
     <g className={`layer ${cls} ${isActive ? 'is-active' : 'is-context'}`}>
       {regions.map((r) => {
@@ -218,13 +222,14 @@ export default function MapView({ view, selectedId, onSelect, onDrill, sites, se
             className={[
               'region',
               isSel && 'is-selected',
+              outside(r) && 'is-outside',
               r.drillTo && 'is-drillable',
               hover?.kind === 'region' && hover.r.id === r.id && 'is-hover',
             ]
               .filter(Boolean)
               .join(' ')}
             style={fill ? { fill } : undefined}
-            {...(isActive && !animating ? interactiveProps(r) : {})}
+            {...(isActive && !animating && !outside(r) ? interactiveProps(r) : {})}
           />
         )
       })}

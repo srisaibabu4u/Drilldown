@@ -110,7 +110,14 @@ function downloadCsv(base: Base[]) {
 }
 
 /** Duplicates tab: likely double entries across both constituencies, for review. */
-export default function DuplicateReview({ onPick }: { onPick: (booth: Booth, serial: number) => void }) {
+export default function DuplicateReview({
+  onPick,
+  boothIds,
+}: {
+  onPick: (booth: Booth, serial: number) => void
+  /** A ward / mandal lead's stations: only pairs with a record there are shown. */
+  boothIds?: Set<string> | null
+}) {
   const [status, setStatus] = useState<IndexStatus>({ state: 'idle', progress: 0 })
   const [result, setResult] = useState<{ pairs: DupPair[]; compared: number; ms: number } | null>(null)
   const [tiers, setTiers] = useState<Record<Tier, boolean>>({ high: true, medium: true, low: false })
@@ -131,10 +138,11 @@ export default function DuplicateReview({ onPick }: { onPick: (booth: Booth, ser
       const ba = boothById.get(pair.a.boothId)
       const bb = boothById.get(pair.b.boothId)
       if (!ba || !bb) return []
+      if (boothIds && !boothIds.has(ba.id) && !boothIds.has(bb.id)) return []
       const w: Where = ba.id === bb.id ? 'same-station' : ba.ac === bb.ac ? 'same-ac' : 'cross-ac'
       return [{ n: i + 1, pair, ba, bb, tier: tierOf(pair.score), where: w }]
     })
-  }, [result])
+  }, [result, boothIds])
 
   const filtered = useMemo(
     () =>

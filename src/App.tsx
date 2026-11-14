@@ -11,7 +11,8 @@ import { availableMeasures, CLASS_LABELS, MEASURES, scaleFor, type MeasureScale 
 import { AC_VIEWS, pathGen, VIEW_IDS, viewForAc, viewPath, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
 import type { Session } from './session'
-import { acMeta, boothMeta, boothsOfAc, siteOf, sitesOfAc, type Booth } from './booths'
+import { acMeta, boothMeta, boothsOfAc, siteOf, sitesOfAc, type Booth, type Site } from './booths'
+import { scopeOf } from './scope'
 
 function readHash(): ViewId {
   const h = window.location.hash.replace('#', '') as ViewId
@@ -19,7 +20,10 @@ function readHash(): ViewId {
 }
 
 export default function App({ user, onLogout }: { user: Session; onLogout: () => void }) {
-  const [view, setView] = useState<ViewId>(readHash)
+  // What this person may see (admins: everything; leads: their own area only).
+  const scope = useMemo(() => scopeOf(user), [user])
+  const locked = !scope.all
+  const [view, setView] = useState<ViewId>(() => (locked && scope.home ? scope.home : readHash()))
   const [selected, setSelected] = useState<Region | undefined>()
   const [booth, setBooth] = useState<Booth | undefined>()
   const [showBooths, setShowBooths] = useState(true)
@@ -53,6 +57,11 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
     const onHash = () => {
       const v = readHash()
       if (v === viewRef.current) return // we navigated ourselves; state is already set
+      if (locked && v !== scope.home) {
+        // Leads stay in their own constituency.
+        if (scope.home) window.location.hash = scope.home
+        return
+      }
       viewRef.current = v
       setView(v)
       setSelected(undefined)
@@ -62,13 +71,22 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
     }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
-  }, [])
+  }, [locked, scope.home])
+
+  // Keep the address bar in step with a lead's home view.
+  useEffect(() => {
+    if (locked && scope.home && readHash() !== scope.home) {
+      viewRef.current = scope.home
+      window.location.hash = scope.home
+    }
+  }, [locked, scope.home])
 
   useEffect(() => {
     if (theme) document.documentElement.dataset.theme = theme
   }, [theme])
 
   const go = (v: ViewId) => {
+    if (locked && v !== scope.home) return // leads can't leave their constituency
     setSelected(undefined)
     setBooth(undefined)
     setVoterBooth(undefined)
@@ -104,17 +122,34 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   }
 
   const ac = VIEWS[view].ac
+  // Leads always look at their own ward / mandal.
+  const current = selected ?? (locked ? scope.homeRegion : undefined)
   const focusSite = booth && zoomToBooth ? siteOf.get(booth.id) : undefined
   // Clicking a ward / mandal in a constituency zooms the map to fill the screen with it.
-  const focusWard = ac && !focusSite ? selected : undefined
+  const focusWard = ac && !focusSite ? current : undefined
   const zoomedOut = () => {
     clearBooth()
     setSelected(undefined)
   }
+  const regionAllowed = (r: Region) => !locked || (!!r.unitId && scope.units.has(r.unitId))
 
-  const onPick = (r: Region) => (r.drillTo ? go(r.drillTo) : setSelected(r))
+  const onPick = (r: Region) => {
+    if (!regionAllowed(r)) return
+    if (r.drillTo) go(r.drillTo)
+    else setSelected(r)
+  }
 
-  const crumbs = viewPath(view)
+  const crumbs = locked ? (scope.home ? [scope.home] : []) : viewPath(view)
+  // Map pins: only the stations this person may see.
+  const visibleSites = useMemo<Site[]>(() => {
+    if (!ac) return []
+    const all = sitesOfAc(ac.no)
+    if (!locked) return all
+    return all.flatMap((s) => {
+      const bs = s.booths.filter((b) => scope.canSeeBooth(b))
+      return bs.length ? [{ ...s, booths: bs }] : []
+    })
+  }, [ac, locked, scope])
   const acBooths = ac ? boothsOfAc(ac.no) : []
   const measures = useMemo(() => (ac ? availableMeasures(ac.no) : []), [ac])
 
@@ -160,7 +195,11 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           </span>
           <div>
             <h1>Kukatpally Drilldown</h1>
-            <p>India → Telangana → Kukatpally &amp; Gadwal · who lives where, who votes where</p>
+            <p>
+              {locked
+                ? `Your area: ${scope.homeRegion?.name ?? '—'}${scope.home ? `, ${VIEWS[scope.home].title}` : ''}`
+                : 'India → Telangana → Kukatpally & Gadwal · who lives where, who votes where'}
+            </p>
           </div>
         </div>
         <div className="top-actions">
@@ -172,6 +211,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             </svg>
             Find voter
           </button>
+          {scope.canReviewDuplicates && (
           <button className="ghost find-voter-btn" onClick={() => setVoterTool('dups')}>
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
               <rect x="3" y="5" width="11" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -179,6 +219,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             </svg>
             Duplicates
           </button>
+          )}
           {user.team && (
             <button className="ghost find-voter-btn" onClick={() => setHelpTab('requests')}>
               <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
@@ -195,7 +236,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           <button className="ghost" onClick={onLogout}>
             Log out
           </button>
-          {AC_VIEWS.filter((v) => v !== view).map((v) => (
+          {!locked && AC_VIEWS.filter((v) => v !== view).map((v) => (
             <button key={v} className="primary" onClick={() => go(v)}>
               {VIEWS[v].title} ✈
             </button>
@@ -232,10 +273,10 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             </button>
           </span>
         ))}
-        {selected && (
+        {current && (
           <span className="crumb-wrap">
             <span className="sep">›</span>
-            <span className="crumb is-current">{selected.name}</span>
+            <span className="crumb is-current">{current.name}</span>
           </span>
         )}
         {booth && (
@@ -262,13 +303,14 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
         <section className="map-area">
           <MapView
             view={view}
-            selectedId={selected?.id}
+            selectedId={current?.id}
             onSelect={(r) => {
+              if (!regionAllowed(r)) return
               clearBooth()
               setSelected(r)
             }}
             onDrill={(v) => go(v)}
-            sites={ac && showBooths ? sitesOfAc(ac.no) : booth ? [siteOf.get(booth.id)!] : []}
+            sites={ac && showBooths ? visibleSites : booth ? [siteOf.get(booth.id)!] : []}
             selectedBoothId={booth?.id}
             onBoothClick={setBooth}
             onBoothClose={clearBooth}
@@ -281,10 +323,18 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             focusBounds={focusWard ? pathGen.bounds(focusWard.feature) : undefined}
             focusUnitId={focusWard?.unitId}
             colorScale={colorScale}
+            allowedUnits={locked ? scope.units : null}
           />
 
           <div className="map-top">
-            {(zoomToBooth && booth) || focusWard ? (
+            {locked ? (
+              zoomToBooth &&
+              booth && (
+                <button className="back ghost" onClick={zoomedOut}>
+                  ← My area
+                </button>
+              )
+            ) : (zoomToBooth && booth) || focusWard ? (
               <button className="back ghost" onClick={zoomedOut}>
                 ← All of {VIEWS[view].title}
               </button>
@@ -295,7 +345,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                 </button>
               )
             )}
-            <MapSearch onFind={findBooth} />
+            <MapSearch onFind={findBooth} canSee={scope.canSeeBooth} />
           </div>
 
           {voterBooth && (
@@ -311,7 +361,18 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             />
           )}
           {voterTool && (
-            <VoterFinder tab={voterTool} onTab={setVoterTool} onClose={() => setVoterTool(null)} onPick={showVoter} />
+            <VoterFinder
+              tab={voterTool}
+              onTab={setVoterTool}
+              onClose={() => setVoterTool(null)}
+              onPick={showVoter}
+              onFindStation={(b) => {
+                setVoterTool(null)
+                findBooth(b)
+              }}
+              boothIds={scope.boothIds}
+              canReviewDuplicates={scope.canReviewDuplicates}
+            />
           )}
           {helpTab && (
             <HelpPanel
@@ -407,7 +468,9 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
 
         <StatsPanel
           view={view}
-          selected={selected}
+          selected={current}
+          locked={locked}
+          canSeeBooth={scope.canSeeBooth}
           onClearSelection={() => setSelected(undefined)}
           onPick={onPick}
           booth={booth}

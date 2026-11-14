@@ -127,6 +127,7 @@ export const ERROR_TEXT: Record<string, string> = {
   already_open: 'This person already has an open request for this scheme.',
   missing_fields: 'Please fill in the scheme and what help is needed.',
   not_allowed: 'Your role can’t do that.',
+  read_only_for_role: 'Saved requests can only be updated by your ward / mandal lead or an admin.',
   bad_assignee: 'That person doesn’t lead this booth or its ward / mandal.',
   database_not_configured: 'Team features aren’t set up on the server yet.',
 }

@@ -2,16 +2,24 @@ import { useId, useMemo, useRef, useState } from 'react'
 import { acName, booths, buildingName, searchBooths, type Booth } from '../booths'
 
 /** Search box over the map: find a polling station by number, building or street. */
-export default function MapSearch({ onFind }: { onFind: (b: Booth) => void }) {
+export default function MapSearch({
+  onFind,
+  canSee,
+}: {
+  onFind: (b: Booth) => void
+  /** Limit results to stations this person may see. */
+  canSee?: (b: Booth) => boolean
+}) {
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listId = useId()
 
-  const results = useMemo(() => (q.trim() ? searchBooths(booths, q).slice(0, 8) : []), [q])
+  const pool = useMemo(() => (canSee ? booths.filter(canSee) : booths), [canSee])
+  const results = useMemo(() => (q.trim() ? searchBooths(pool, q).slice(0, 8) : []), [q, pool])
 
-  if (booths.length === 0) return null
+  if (pool.length === 0) return null
 
   const choose = (b: Booth) => {
     onFind(b)
