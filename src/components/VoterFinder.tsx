@@ -41,8 +41,16 @@ export default function VoterFinder({
   const [name, setName] = useState('')
   const [age, setAge] = useState('')
   const [gender, setGender] = useState<'' | Gender>('')
+  // Constituencies within reach: a lead only gets the one(s) holding their stations.
+  const acChoices = useMemo(() => {
+    const all = AC_VIEWS.map((v) => VIEWS[v].ac!.no)
+    if (acNo) return [acNo]
+    if (!boothIds) return all
+    return all.filter((n) => booths.some((b) => b.ac === n && boothIds.has(b.id)))
+  }, [acNo, boothIds])
+  const fixedAc = acChoices.length === 1 ? acChoices[0] : undefined
   const [acPick, setAc] = useState('')
-  const ac = acNo ? String(acNo) : acPick
+  const ac = fixedAc ? String(fixedAc) : acPick
   const [rows, setRows] = useState<Row[]>([])
   const [total, setTotal] = useState<number | null>(null)
   const [ms, setMs] = useState(0)
@@ -117,7 +125,7 @@ export default function VoterFinder({
     <div className="voter-sheet finder" role="dialog" aria-modal="false" aria-label={tab === 'find' ? 'Find a voter' : 'Duplicate voters'}>
       <div className="vs-head">
         <div>
-          <div className="kicker">Voters · {acNo ? `AC ${acNo} ${acName(acNo)} only` : 'Kukatpally & Gadwal'}</div>
+          <div className="kicker">Voters · {fixedAc ? `AC ${fixedAc} ${acName(fixedAc)} only` : 'Kukatpally & Gadwal'}</div>
           <h2>{tab === 'find' ? 'Which polling station is this voter at?' : 'Possible duplicate voters'}</h2>
           <div className="vs-chips">
             {status.state === 'ready' ? (
@@ -187,14 +195,14 @@ export default function VoterFinder({
           className="legend-select"
           value={ac}
           onChange={(e) => setAc(e.target.value)}
-          disabled={!!acNo}
-          title={acNo ? 'Go back to India or Telangana to search both constituencies' : undefined}
+          disabled={!!fixedAc}
+          title={fixedAc && !acNo ? 'Your area is in this constituency' : fixedAc ? 'Go back to India or Telangana to search both constituencies' : undefined}
           aria-label="Constituency"
         >
-          {!acNo && <option value="">Both constituencies</option>}
-          {AC_VIEWS.map((v) => (
-            <option key={v} value={VIEWS[v].ac!.no}>
-              AC {VIEWS[v].ac!.no} {VIEWS[v].ac!.name}
+          {!fixedAc && <option value="">{acChoices.length === 2 ? 'Both constituencies' : 'All my constituencies'}</option>}
+          {acChoices.map((n) => (
+            <option key={n} value={n}>
+              AC {n} {acName(n)}
             </option>
           ))}
         </select>
@@ -220,7 +228,7 @@ export default function VoterFinder({
           {total === null ? (
             <div className="finder-help muted">
               <p>Type at least 2 letters of a name. Spelling variants are matched, so <b>Santhosh</b>, <b>Santosh</b> and <b>Santhos</b> all find each other, and an initial like <b>R.</b> can stand for a full name like <b>Rote</b>.</p>
-              <p>Searches the voter’s own name only. Add an approximate age, gender or constituency to narrow it down, or paste a voter ID.</p>
+              <p>Searches the voter’s own name only. Add an approximate age{fixedAc ? ' or gender' : ', gender or constituency'} to narrow it down, or paste a voter ID.</p>
             </div>
           ) : (
             <table className="vs-table">
@@ -272,7 +280,7 @@ export default function VoterFinder({
                 {rows.length === 0 && (
                   <tr>
                     <td colSpan={7} className="muted">
-                      No voter named <b>“{name.trim()}”</b>{age || gender || acPick ? ' with these filters' : acNo ? ` in ${acName(acNo)}` : ''}. Check the spelling, try just the first name, or remove a filter.
+                      No voter named <b>“{name.trim()}”</b>{age || gender || acPick ? ' with these filters' : fixedAc ? ` in ${boothIds && !acNo ? 'your area' : acName(fixedAc)}` : ''}. Check the spelling, try just the first name, or remove a filter.
                     </td>
                   </tr>
                 )}
