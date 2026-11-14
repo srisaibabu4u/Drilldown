@@ -21,6 +21,8 @@ interface Props {
   /** Lead view: no "overview" link, lists limited to stations they may see. */
   locked?: boolean
   canSeeBooth?: (b: Booth) => boolean
+  /** Booth lead home: their own stations to choose from (no ward-level details). */
+  myStations?: Booth[]
 }
 
 export default function StatsPanel(props: Props) {
@@ -33,7 +35,44 @@ export default function StatsPanel(props: Props) {
         onOpenVoters={props.onOpenVoters}
       />
     )
+  if (props.myStations) return <MyStations stations={props.myStations} onPick={props.onPickBooth} />
   return <AreaPanel {...props} />
+}
+
+function MyStations({ stations, onPick }: { stations: Booth[]; onPick: (b: Booth) => void }) {
+  const ac = stations[0]?.ac
+  const unit = stations[0]?.unitName
+  return (
+    <aside className="panel" aria-live="polite">
+      <div className="panel-head">
+        <div className="kicker">
+          My polling stations{unit ? ` · ${unit}` : ''}
+        </div>
+        <h2>
+          {stations.length} polling station{stations.length === 1 ? '' : 's'}
+        </h2>
+        <div className="sub">Choose one to see its voters and record help requests.</div>
+        {ac !== undefined && acMeta(ac).synthetic && <SampleBoothBadge />}
+      </div>
+      <section className="card my-stations">
+        <ol className="booth-list">
+          {stations.map((b) => (
+            <li key={b.id}>
+              <button onClick={() => onPick(b)}>
+                <span className="booth-no">{b.no}</span>
+                <span className="booth-text">{b.name}</span>
+                {b.voters !== undefined && <span className="rank-val">{fmtShort(b.voters)}</span>}
+              </button>
+            </li>
+          ))}
+          {stations.length === 0 && <li className="muted small">No polling stations are assigned to you yet. Ask your ward / mandal lead.</li>}
+        </ol>
+      </section>
+      {ac !== undefined && stations.length > 0 && (
+        <ElectorStats ac={ac} list={stations} title="Voters in your polling stations" onPick={onPick} />
+      )}
+    </aside>
+  )
 }
 
 function AreaPanel({

@@ -132,6 +132,22 @@ export function users(): User[] {
   }
 }
 
+/** New PBKDF2-SHA256 hash in the stored format (same as scripts/add-user.mjs). */
+export async function hashPassword(password: string, iterations = 210000): Promise<string> {
+  const salt = crypto.getRandomValues(new Uint8Array(16))
+  const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits'])
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations }, key, 256)
+  return ['pbkdf2-sha256', iterations, b64url(salt), b64url(bits)].join('$')
+}
+
+/** A readable temporary password, e.g. "Kq7m-Xt3p-9Wza". */
+export function tempPassword(): string {
+  const c = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'
+  const r = crypto.getRandomValues(new Uint8Array(12))
+  const s = Array.from(r, (b) => c[b % c.length]).join('')
+  return `${s.slice(0, 4)}-${s.slice(4, 8)}-${s.slice(8, 12)}`
+}
+
 /** Hash format: pbkdf2-sha256$<iterations>$<salt b64url>$<hash b64url> */
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const [algo, iter, salt, hash] = stored.split('$')

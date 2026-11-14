@@ -1406,7 +1406,7 @@ li.msr-empty {
   z-index: 7;
 }
 .finder-controls {
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) 90px 130px 190px;
+  grid-template-columns: minmax(0, 3fr) 90px 130px 190px;
 }
 .finder-help {
   padding: 16px 18px;
@@ -1909,4 +1909,168 @@ button.chip-toggle {
 .region.is-outside {
   opacity: 0.35;
   pointer-events: none;
+}
+
+/* Help requests full width (point 4) */
+.main.is-wide {
+  grid-template-columns: minmax(0, 1fr);
+}
+.main.is-wide > .panel {
+  display: none;
+}
+
+/* Overdue alerts (points 6–7) */
+.alert-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 2px;
+  border-radius: 999px;
+  background: #d03b3b;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.chip-overdue.is-on,
+.chip-overdue:hover {
+  border-color: #d03b3b;
+}
+.chip-overdue b {
+  color: #d03b3b;
+}
+.req-status {
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+}
+.days {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.days.is-overdue {
+  color: #d03b3b;
+  font-weight: 650;
+}
+
+/* WhatsApp / call (point 7) */
+.contact-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.wa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #1e9e55;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.wa-btn:hover {
+  filter: brightness(1.08);
+}
+.call-btn {
+  padding: 4px 12px;
+  text-decoration: none;
+}
+
+/* Assignments & people (point 5) */
+.inline-select {
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  padding: 3px 6px;
+  font-size: 12.5px;
+}
+.unit-lead-pick {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0 12px 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.people {
+  display: grid;
+  gap: 8px;
+}
+.people-toggle {
+  justify-self: start;
+  font-weight: 600;
+}
+.people-body {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.people-body .search {
+  margin: 0;
+}
+.person-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+.person-form .help-actions,
+.person-form p {
+  grid-column: 1 / -1;
+}
+.people-msg {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+.people-msg.has-secret {
+  border-color: var(--series-1);
+}
+.people-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  max-height: 260px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+.people-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: 8px;
+}
+.people-list li:hover {
+  background: var(--surface);
+}
+.people-list li.is-inactive {
+  opacity: 0.6;
+}
+.people-actions {
+  display: inline-flex;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+/* Booth lead home (point 1) */
+.my-stations button {
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .people-list li {
+    flex-direction: column;
+  }
 }

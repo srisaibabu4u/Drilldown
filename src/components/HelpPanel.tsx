@@ -2,15 +2,24 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { acName, boothById, type Booth } from '../booths'
 import { fmtInt } from '../format'
 import { ROLE_LABEL, type Session } from '../session'
+import PeopleManager from './PeopleManager'
 import {
+  daysSince,
   errorText,
   listRequests,
   loadTeam,
   OPEN_STATUSES,
   requestEvents,
+  SLA_DAYS,
   STATUS_LABEL,
   STATUS_ORDER,
   updateRequest,
+  whatsappLink,
+  loadAssignments,
+  setBoothLead,
+  setUnitLead,
+  type AssignmentRow,
+  type Person,
   type HelpRequest,
   type ReqStatus,
   type RequestEvent,
@@ -91,7 +100,8 @@ export default function HelpPanel({
 // ---------------------------------------------------------------------------
 
 function Requests({ user, onOpenVoter }: { user: Session; onOpenVoter: (b: Booth, serial: number) => void }) {
-  const [status, setStatus] = useState<'open' | '' | ReqStatus>('open')
+  const [status, setStatus] = useState<'open' | 'overdue' | '' | ReqStatus>('open')
+  const [sort, setSort] = useState<'recent' | 'oldest'>('recent')
   const [scheme, setScheme] = useState('')
   const [q, setQ] = useState('')
   const [page, setPage] = useState(0)
@@ -100,13 +110,13 @@ function Requests({ user, onOpenVoter }: { user: Session; onOpenVoter: (b: Booth
   const [openId, setOpenId] = useState<number | null>(null)
 
   const load = useCallback(() => {
-    listRequests({ status, scheme, q: q.trim(), limit: PAGE, offset: page * PAGE })
+    listRequests({ status, scheme, q: q.trim(), sort, limit: PAGE, offset: page * PAGE })
       .then((d) => {
         setData(d)
         setError('')
       })
       .catch((e) => setError(errorText(e)))
-  }, [status, scheme, q, page])
+  }, [status, scheme, q, page, sort])
 
   useEffect(() => {
     const t = setTimeout(load, q ? 250 : 0)
@@ -117,10 +127,10 @@ function Requests({ user, onOpenVoter }: { user: Session; onOpenVoter: (b: Booth
   const openCount = OPEN_STATUSES.reduce((n, s) => n + (counts[s] ?? 0), 0)
   const all = STATUS_ORDER.reduce((n, s) => n + (counts[s] ?? 0), 0)
   const pages = Math.max(1, Math.ceil((data?.total ?? 0) / PAGE))
-  const chip = (value: typeof status, label: string, n: number) => (
+  const chip = (value: typeof status, label: string, n: number, extra = '') => (
     <button
       key={label}
-      className={`chip-toggle ${status === value ? 'is-on' : ''}`}
+      className={`chip-toggle ${status === value ? 'is-on' : ''} ${extra}`}
       onClick={() => {
         setStatus(value)
         setPage(0)
@@ -134,6 +144,7 @@ function Requests({ user, onOpenVoter }: { user: Session; onOpenVoter: (b: Booth
     <>
       <div className="dup-summary">
         <div className="dup-filters">
+          {chip('overdue', '⚠ Overdue', counts.overdue ?? 0, 'chip-overdue')}
           {chip('open', 'Open', openCount)}
           {STATUS_ORDER.map((s) => chip(s, STATUS_LABEL[s], counts[s] ?? 0))}
           {chip('', 'All', all)}
@@ -154,6 +165,18 @@ function Requests({ user, onOpenVoter }: { user: Session; onOpenVoter: (b: Booth
                 {s.name}
               </option>
             ))}
+          </select>
+          <select
+            className="legend-select"
+            value={sort}
+            onChange={(e) => {
+              setSort(e.target.value as 'recent' | 'oldest')
+              setPage(0)
+            }}
+            aria-label="Sort"
+          >
+            <option value="recent">Recently updated</option>
+            <option value="oldest">Waiting longest</option>
           </select>
           <input
             className="search"
@@ -229,7 +252,16 @@ function RequestCard({
   return (
     <article className={`dup-card req-card ${open ? 'is-open' : ''}`}>
       <button className="req-summary" onClick={onToggle} aria-expanded={open}>
-        <span className={`status-pill st-${r.status}`}>{STATUS_LABEL[r.status]}</span>
+        <span className="req-status">
+          <span className={`status-pill st-${r.status}`}>{STATUS_LABEL[r.status]}</span>
+          {OPEN_STATUSES.includes(r.status) && (
+            <span className={`days ${r.overdue ? 'is-overdue' : ''}`} title={`Time limit: ${SLA_DAYS[r.status]} days in this status`}>
+              {r.overdue ? '⚠ ' : ''}
+              {daysSince(r.status_since)} day{daysSince(r.status_since) === 1 ? '' : 's'}
+              {r.overdue ? ' · overdue' : ''}
+            </span>
+          )}
+        </span>
         <span className="req-main">
           <b>{r.voter_name}</b>
           <span className="muted">
@@ -326,7 +358,20 @@ function RequestDetail({
           <>
             <dt>Mobile</dt>
             <dd>
-              <a href={`tel:${r.contact_mobile}`}>{r.contact_mobile}</a>
+              <span className="contact-actions">
+                <a
+                  className="wa-btn"
+                  href={whatsappLink(r.contact_mobile, r, user.name)}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Opens WhatsApp with a drafted message — review it before sending"
+                >
+                  WhatsApp {r.contact_mobile}
+                </a>
+                <a className="ghost call-btn" href={`tel:${r.contact_mobile}`}>
+                  Call
+                </a>
+              </span>
             </dd>
           </>
         )}
@@ -415,10 +460,29 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
   const [team, setTeam] = useState<Team | null>(null)
   const [error, setError] = useState('')
   const [openUnit, setOpenUnit] = useState<string | null>(null)
+  // Admins and ward / mandal leads can change who covers what.
+  const canEdit = user.role === 'admin' || user.role === 'unit_lead'
+  const [people, setPeople] = useState<{ people: Person[]; assignments: AssignmentRow[] } | null>(null)
+  const [editMsg, setEditMsg] = useState('')
 
-  useEffect(() => {
+  const reload = useCallback(() => {
     loadTeam(true).then(setTeam).catch((e) => setError(errorText(e)))
-  }, [])
+    if (canEdit) loadAssignments().then(setPeople).catch((e) => setError(errorText(e)))
+  }, [canEdit])
+  useEffect(reload, [reload])
+
+  const boothLeads = (people?.people ?? []).filter((p) => p.role === 'booth_lead' && p.active)
+  const unitLeads = (people?.people ?? []).filter((p) => p.role === 'unit_lead' && p.active)
+  const change = async (f: () => Promise<unknown>, done: string) => {
+    setEditMsg('Saving…')
+    try {
+      await f()
+      setEditMsg(done)
+      reload()
+    } catch (e) {
+      setEditMsg(errorText(e))
+    }
+  }
 
   if (error) return <p className="finder-help form-error">{error}</p>
   if (!team) return <p className="finder-help muted">Loading…</p>
@@ -445,6 +509,10 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
             <b>{fmtInt(open)}</b> open help requests
           </div>
         </div>
+        {canEdit && people && (
+          <PeopleManager user={user} people={people.people} assignments={people.assignments} onChanged={reload} />
+        )}
+        {canEdit && <p className="muted small">Changes apply to that person the next time they sign in.{editMsg && <b> {editMsg}</b>}</p>}
         {user.role !== 'booth_lead' && (
           <div className="dup-filters">
             {acs.map((ac) => (
@@ -466,7 +534,12 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
                   <span className="req-main">
                     <b>{u.unitName}</b> <span className="muted">· {acName(u.ac)}</span>
                     <span className="req-need">
-                      Lead: {u.lead ? u.lead.name : <i>vacant</i>}
+                      Lead:{' '}
+                      {u.lead ? (
+                        u.lead.name
+                      ) : (
+                        <i>vacant</i>
+                      )}
                       {u.lead?.phone && (
                         <>
                           {' '}
@@ -484,6 +557,25 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
                     </span>
                   </span>
                 </button>
+                {isOpen && user.role === 'admin' && people && (
+                  <label className="unit-lead-pick">
+                    Ward / mandal lead
+                    <select
+                      className="legend-select inline-select"
+                      value={u.lead?.id ?? ''}
+                      onChange={(e) =>
+                        change(() => setUnitLead(u.unitId, e.target.value ? Number(e.target.value) : null), `${u.unitName}: lead updated.`)
+                      }
+                    >
+                      <option value="">— vacant —</option>
+                      {unitLeads.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} ({p.username})
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
                 {isOpen && (
                   <table className="vs-table team-table">
                     <thead>
@@ -498,7 +590,32 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
                       {booths.map((b) => (
                         <tr key={b.id} className={b.lead ? '' : 'is-gap'}>
                           <td className="num">{b.psNo}</td>
-                          <td>{b.lead ? b.lead.name : <span className="gap">No booth lead</span>}</td>
+                          <td>
+                            {canEdit && people ? (
+                              <select
+                                className="legend-select inline-select"
+                                value={b.lead?.id ?? ''}
+                                onChange={(e) =>
+                                  change(
+                                    () => setBoothLead(b.id, e.target.value ? Number(e.target.value) : null),
+                                    `PS ${b.psNo}: booth lead updated.`,
+                                  )
+                                }
+                                aria-label={`Booth lead for PS ${b.psNo}`}
+                              >
+                                <option value="">— No booth lead —</option>
+                                {boothLeads.map((p) => (
+                                  <option key={p.id} value={p.id}>
+                                    {p.name} ({p.username})
+                                  </option>
+                                ))}
+                              </select>
+                            ) : b.lead ? (
+                              b.lead.name
+                            ) : (
+                              <span className="gap">No booth lead</span>
+                            )}
+                          </td>
                           <td className="hide-sm">{b.lead?.phone ? <a href={`tel:${b.lead.phone}`}>{b.lead.phone}</a> : '—'}</td>
                           <td className="num">{b.open}</td>
                         </tr>

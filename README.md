@@ -64,6 +64,12 @@ With a database connected, the app gains roles and team work:
 - **Scheme help requests:** on a voter's card, a lead covering that booth can record **"Needs help with a scheme"**: the scheme, what help is needed, an optional mobile number, and **required consent**. No amounts are recorded. The **Help requests** panel lists requests by status (New → Documents pending → Applied → Resolved / Not eligible / Closed), with notes, an owner and a full history.
 - **Team & coverage:** who leads each ward, mandal and booth, which booths have no booth lead, and open requests. The map can colour stations by **Booth lead coverage**.
 
+- **Each person sees their own area:** ward / mandal leads open on their ward and booth leads on **My polling stations**. Other areas are faded and locked, and station search and Find voter stay inside the person's area (and inside the constituency being viewed).
+- **Saved requests are read-only for booth leads.** Ward / mandal leads and admins update status, owner and notes.
+- **Days in status and time limits:** New 3 days, Documents pending 7, Applied 30. Overdue requests are flagged in red, have their own filter, and are counted on a badge on the **Help requests** button. "Waiting longest" sorts the oldest first.
+- **WhatsApp:** a request's mobile number opens WhatsApp with a drafted update for the lead to review and send from their own phone, plus a Call button.
+- **Assignments:** admins and ward / mandal leads change who covers which booth (admins also ward / mandal leads), add people (a temporary password is shown once), reset passwords and deactivate people, all from **Team & coverage**.
+
 Setup is in [`supabase/README.md`](supabase/README.md): create the tables, load the synthetic demo team, then set `DATABASE_URL` in Netlify.
 
 ## Sign-in

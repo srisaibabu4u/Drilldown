@@ -5,7 +5,7 @@ import MapSearch from './components/MapSearch'
 import VoterList from './components/VoterList'
 import VoterFinder, { type VoterTab } from './components/VoterFinder'
 import HelpPanel, { type HelpTab } from './components/HelpPanel'
-import { loadTeam, type Team } from './team'
+import { loadTeam, overdueCount, type Team } from './team'
 import { ROLE_LABEL } from './session'
 import { availableMeasures, CLASS_LABELS, MEASURES, scaleFor, type MeasureScale } from './measures'
 import { AC_VIEWS, pathGen, VIEW_IDS, viewForAc, viewPath, VIEWS, type Region, type ViewId } from './geo'
@@ -115,6 +115,23 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
     setVoterBooth(b)
   }
 
+  // Only one of the big panels at a time (Find voter / Duplicates vs Help requests).
+  const openVoterTool = (t: VoterTab) => {
+    setHelpTab(null)
+    setVoterTool(t)
+  }
+  const openHelp = (t: HelpTab) => {
+    setVoterTool(null)
+    setVoterBooth(undefined)
+    setHelpTab(t)
+  }
+
+  // Requests past their time limit, for the header badge (refreshed when the panel closes).
+  const [overdue, setOverdue] = useState(0)
+  useEffect(() => {
+    if (user.team && helpTab === null) overdueCount().then(setOverdue).catch(() => {})
+  }, [user.team, helpTab])
+
   const clearBooth = () => {
     setBooth(undefined)
     setVoterBooth(undefined)
@@ -203,7 +220,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           </div>
         </div>
         <div className="top-actions">
-          <button className="ghost find-voter-btn" onClick={() => setVoterTool('find')}>
+          <button className="ghost find-voter-btn" onClick={() => openVoterTool('find')}>
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="10" cy="8" r="4" fill="none" stroke="currentColor" strokeWidth="2" />
               <path d="M3 20c0-3.5 3-6 7-6M16 16l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
@@ -212,7 +229,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             Find voter
           </button>
           {scope.canReviewDuplicates && (
-          <button className="ghost find-voter-btn" onClick={() => setVoterTool('dups')}>
+          <button className="ghost find-voter-btn" onClick={() => openVoterTool('dups')}>
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
               <rect x="3" y="5" width="11" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
               <rect x="10" y="3" width="11" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -221,15 +238,21 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           </button>
           )}
           {user.team && (
-            <button className="ghost find-voter-btn" onClick={() => setHelpTab('requests')}>
+            <button className="ghost find-voter-btn" onClick={() => openHelp('requests')}>
               <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 5h16v11H8l-4 4z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
                 <path d="M8 9h8M8 12h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
               Help requests
+              {overdue > 0 && (
+                <span className="alert-badge" title={`${overdue} request${overdue === 1 ? '' : 's'} past the time limit`}>
+                  {overdue}
+                </span>
+              )}
             </button>
           )}
           <span className="user-chip" title={`Signed in as ${user.username}`}>
+            <span className="muted">Signed in: </span>
             {user.name}
             {user.team && user.role && <span className="muted"> · {ROLE_LABEL[user.role]}</span>}
           </span>
@@ -299,7 +322,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
         )}
       </nav>
 
-      <main className="main">
+      <main className={`main ${helpTab ? 'is-wide' : ''}`}>
         <section className="map-area">
           <MapView
             view={view}
@@ -345,7 +368,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                 </button>
               )
             )}
-            <MapSearch onFind={findBooth} canSee={scope.canSeeBooth} />
+            <MapSearch onFind={findBooth} canSee={(b) => scope.canSeeBooth(b) && (!ac || b.ac === ac.no)} />
           </div>
 
           {voterBooth && (
@@ -470,6 +493,11 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           view={view}
           selected={current}
           locked={locked}
+          myStations={
+            locked && user.role === 'booth_lead' && !booth && scope.boothIds
+              ? boothsOfAc(ac?.no ?? 0).filter((b) => scope.canSeeBooth(b))
+              : undefined
+          }
           canSeeBooth={scope.canSeeBooth}
           onClearSelection={() => setSelected(undefined)}
           onPick={onPick}

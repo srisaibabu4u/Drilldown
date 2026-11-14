@@ -14,6 +14,12 @@ export const STATUS_LABEL: Record<ReqStatus, string> = {
 export const STATUS_ORDER: ReqStatus[] = ['new', 'documents_pending', 'applied', 'resolved', 'not_eligible', 'closed']
 export const OPEN_STATUSES: ReqStatus[] = ['new', 'documents_pending', 'applied']
 
+/** Days a request may stay in each open status before it's overdue (same as netlify/lib/sla.ts). */
+export const SLA_DAYS: Partial<Record<ReqStatus, number>> = { new: 3, documents_pending: 7, applied: 30 }
+
+/** Whole days since an ISO date. */
+export const daysSince = (iso: string) => Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 86400000))
+
 export interface HelpRequest {
   id: number
   booth_id: string
@@ -31,6 +37,10 @@ export interface HelpRequest {
   status: ReqStatus
   created_at: string
   updated_at: string
+  /** When it entered its current status. */
+  status_since: string
+  /** Past the time limit for its status. */
+  overdue: boolean
   created_by: string
   assigned_to: string | null
   assigned_to_id: number | null
@@ -39,7 +49,7 @@ export interface HelpRequest {
 export interface RequestList {
   rows: HelpRequest[]
   total: number
-  counts: Partial<Record<ReqStatus, number>>
+  counts: Partial<Record<ReqStatus | 'overdue', number>>
   schemes: { code: string; name: string }[]
 }
 
@@ -123,13 +133,79 @@ export function loadTeam(refresh = false) {
 export const ERROR_TEXT: Record<string, string> = {
   consent_required: 'Please confirm the person agreed to share these details.',
   bad_mobile: 'Mobile number should be 10 digits starting with 6–9.',
-  not_your_area: 'This polling station is outside your area.',
+  not_your_area: 'That is outside your area.',
   already_open: 'This person already has an open request for this scheme.',
   missing_fields: 'Please fill in the scheme and what help is needed.',
   not_allowed: 'Your role can’t do that.',
   read_only_for_role: 'Saved requests can only be updated by your ward / mandal lead or an admin.',
   bad_assignee: 'That person doesn’t lead this booth or its ward / mandal.',
   database_not_configured: 'Team features aren’t set up on the server yet.',
+  username_taken: 'That username is already in use.',
+  bad_person: 'Enter a name and a username of 3–40 letters, numbers, dots or dashes.',
+  bad_role: 'Choose a role.',
 }
 export const errorText = (e: unknown) =>
   e instanceof ApiError ? (ERROR_TEXT[e.code] ?? `Something went wrong (${e.code}).`) : 'Couldn’t reach the server.'
+
+/** How many open requests in my area are past their time limit (for the header badge). */
+export const overdueCount = () => listRequests({ status: 'overdue', limit: 1 }).then((r) => r.total)
+
+// ---------------------------------------------------------------------------
+// Assignments & people (admins; ward / mandal leads for booth leads in their area)
+// ---------------------------------------------------------------------------
+
+export interface Person {
+  id: number
+  username: string
+  name: string
+  role: 'admin' | 'unit_lead' | 'booth_lead'
+  phone: string | null
+  active: boolean
+}
+export interface AssignmentRow {
+  user_id: number
+  unit_id: string | null
+  booth_id: string | null
+  ps_no: number | null
+  ac: number | null
+  in_unit: string | null
+}
+
+export const loadAssignments = () => call<{ people: Person[]; assignments: AssignmentRow[] }>('/api/assignments')
+
+export const setBoothLead = (boothId: string, userId: number | null) =>
+  call<{ ok: true }>('/api/assignments', { method: 'PUT', body: JSON.stringify({ boothId, userId }) })
+
+export const setUnitLead = (unitId: string, userId: number | null) =>
+  call<{ ok: true }>('/api/assignments', { method: 'PUT', body: JSON.stringify({ unitId, userId }) })
+
+export const addPerson = (p: { name: string; username: string; role: Person['role']; phone?: string }) =>
+  call<{ ok: true; id: number; username: string; tempPassword: string }>('/api/assignments', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'add_person', ...p }),
+  })
+
+export const resetPassword = (userId: number) =>
+  call<{ ok: true; tempPassword: string }>('/api/assignments', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'reset_password', userId }),
+  })
+
+export const setActive = (userId: number, active: boolean) =>
+  call<{ ok: true }>('/api/assignments', { method: 'POST', body: JSON.stringify({ action: 'set_active', userId, active }) })
+
+/** WhatsApp "click to chat" link with a drafted message (the lead reviews and sends it). */
+export function whatsappLink(mobile: string, r: { voter_name: string; scheme_name: string; status: ReqStatus }, leadName: string) {
+  const first = r.voter_name.split(' ').slice(-1)[0]
+  const next: Record<ReqStatus, string> = {
+    new: 'We have noted your request and will guide you on the next steps.',
+    documents_pending:
+      'Please keep the required documents ready (Aadhaar, ration card and any certificates needed for this scheme). We can help you complete the application.',
+    applied: 'Your application has been submitted. We are following up with the department and will update you.',
+    resolved: 'Your request has been resolved. Please let us know if you need anything else.',
+    not_eligible: 'As per the scheme rules this request is not eligible right now. We can explain the details if you call us.',
+    closed: 'This request is now closed. Please reach out if you need help again.',
+  }
+  const text = `Namaste ${first} garu, this is ${leadName} from your area team, about your ${r.scheme_name} request (${STATUS_LABEL[r.status]}). ${next[r.status]}`
+  return `https://wa.me/91${mobile}?text=${encodeURIComponent(text)}`
+}

@@ -36,7 +36,6 @@ export default function VoterFinder({
 }) {
   const [status, setStatus] = useState<IndexStatus>({ state: 'idle', progress: 0 })
   const [name, setName] = useState('')
-  const [relative, setRelative] = useState('')
   const [age, setAge] = useState('')
   const [gender, setGender] = useState<'' | Gender>('')
   const [ac, setAc] = useState('')
@@ -68,7 +67,6 @@ export default function VoterFinder({
     }
     const query: SearchQuery = {
       name: q,
-      relative: relative.trim() || undefined,
       age: Number(age) >= 18 ? Number(age) : undefined,
       gender: gender || undefined,
       ac: ac ? Number(ac) : undefined,
@@ -90,7 +88,7 @@ export default function VoterFinder({
       setMs(res.ms)
     }, 220)
     return () => clearTimeout(t)
-  }, [name, relative, age, gender, ac, boothIds])
+  }, [name, age, gender, ac, boothIds])
 
   // Station shortcut: a query with a number ("kukatpally 180", "ps 12") may mean a polling station.
   const stationHits = useMemo(() => {
@@ -159,14 +157,6 @@ export default function VoterFinder({
         />
         <input
           className="search"
-          type="search"
-          placeholder="Father / husband name (optional)"
-          value={relative}
-          onChange={(e) => setRelative(e.target.value)}
-          aria-label="Relative's name"
-        />
-        <input
-          className="search"
           type="number"
           inputMode="numeric"
           min={18}
@@ -207,7 +197,7 @@ export default function VoterFinder({
           {total === null ? (
             <div className="finder-help muted">
               <p>Type at least 2 letters of a name. Spelling variants are matched, so <b>Santhosh</b>, <b>Santosh</b> and <b>Santhos</b> all find each other, and an initial like <b>R.</b> can stand for a full name like <b>Rote</b>.</p>
-              <p>Add the father’s or husband’s name, an approximate age or gender to narrow it down.</p>
+              <p>Searches the voter’s own name only. Add an approximate age, gender or constituency to narrow it down, or paste a voter ID.</p>
             </div>
           ) : (
             <table className="vs-table">

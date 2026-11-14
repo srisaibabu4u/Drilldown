@@ -51,9 +51,7 @@ export default function VoterList({
         (band === '' || v.ageBand === band) &&
         (!s ||
           v.name.toLowerCase().includes(s) ||
-          v.relative.toLowerCase().includes(s) ||
           v.id.toLowerCase().includes(s) ||
-          v.house.toLowerCase().includes(s) ||
           String(v.serial) === s),
     )
   }, [all, q, gender, band])
@@ -102,7 +100,7 @@ export default function VoterList({
         <input
           className="search"
           type="search"
-          placeholder="Search name, relative, voter ID, house no."
+          placeholder="Search voter name or voter ID"
           value={q}
           onChange={(e) => {
             setQ(e.target.value)
