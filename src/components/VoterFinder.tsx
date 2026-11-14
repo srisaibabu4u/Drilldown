@@ -194,6 +194,11 @@ export default function VoterFinder({
               ))}
             </div>
           )}
+          {total !== null && rows.length > 0 && rows[0].score < 0.95 && (
+            <div className="finder-note">
+              No voter named exactly <b>“{name.trim()}”</b>{ac || boothIds ? ' here' : ''}. Showing the closest spellings — check before acting on them.
+            </div>
+          )}
           {total === null ? (
             <div className="finder-help muted">
               <p>Type at least 2 letters of a name. Spelling variants are matched, so <b>Santhosh</b>, <b>Santosh</b> and <b>Santhos</b> all find each other, and an initial like <b>R.</b> can stand for a full name like <b>Rote</b>.</p>
@@ -249,7 +254,7 @@ export default function VoterFinder({
                 {rows.length === 0 && (
                   <tr>
                     <td colSpan={7} className="muted">
-                      No voters match. Try fewer words, or remove a filter.
+                      No voter named <b>“{name.trim()}”</b>{age || gender || ac ? ' with these filters' : ''}. Check the spelling, try just the first name, or remove a filter.
                     </td>
                   </tr>
                 )}

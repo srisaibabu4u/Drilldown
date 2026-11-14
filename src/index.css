@@ -2078,3 +2078,12 @@ button.chip-toggle {
 .brand h1 .iq {
   color: #eb6834;
 }
+
+.finder-note {
+  margin: 8px 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  background: color-mix(in srgb, #eb6834 12%, transparent);
+  border: 1px solid color-mix(in srgb, #eb6834 35%, transparent);
+}

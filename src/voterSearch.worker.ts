@@ -5,7 +5,7 @@
 // Memory: each distinct name / relative name is stored once; per voter we keep
 // only small typed-array columns (~14 bytes). A search scores each distinct name
 // once (a few thousand), then scans the columns.
-import { editDistance, nameKey, scoreName, type NameKey } from './nameMatch'
+import { editDistance, nameKey, scoreName, typoBudget, type NameKey } from './nameMatch'
 import { installDuplicatePlan, votersOf, type Gender, type VoterSource } from './voters'
 
 export interface SearchQuery {
@@ -149,8 +149,8 @@ function search(q: SearchQuery): { hits: SearchHit[]; total: number } {
   const candidates = new Set<number>()
   qName.keys.forEach((w, wi) => {
     const isLast = wi === qName.keys.length - 1 && qName.bare.length === 0
-    const allowed = w.length >= 6 ? 2 : w.length >= 4 ? 1 : 0
     for (const [vk, ids] of vocab) {
+      const allowed = typoBudget(w, vk)
       const match =
         vk === w ||
         (isLast && w.length >= 2 && vk.startsWith(w)) ||

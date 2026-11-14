@@ -101,12 +101,23 @@ export interface MatchOptions {
   strict?: boolean
 }
 
+/**
+ * How many typos a pair of (phonetic) words may differ by and still match.
+ * Spelling variants (Santhosh / Santosh) already share a phonetic key, so this only
+ * covers real typos: one in a 6+ letter word, two only in long words (9+), and the
+ * first letter must agree — so "Janardhan" no longer matches "Janadani".
+ */
+export function typoBudget(q: string, c: string, strict = false): number {
+  if (q[0] !== c[0]) return 0
+  const min = Math.min(q.length, c.length)
+  return strict ? (min >= 7 ? 1 : 0) : min >= 9 ? 2 : min >= 6 ? 1 : 0
+}
+
 /** How well one typed word matches one name word (0 = no match). */
 function wordScore(q: string, c: string, typing: boolean, strict: boolean): number {
   if (q === c) return 1
   if (typing && q.length >= 2 && c.startsWith(q)) return 0.9
-  const min = Math.min(q.length, c.length)
-  const allowed = strict ? (min >= 7 ? 1 : 0) : min >= 6 ? 2 : min >= 4 ? 1 : 0
+  const allowed = typoBudget(q, c, strict)
   if (allowed > 0) {
     const d = editDistance(q, c, allowed)
     if (d <= allowed) return 1 - 0.12 * d
