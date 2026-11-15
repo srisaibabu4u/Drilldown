@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Stats } from '../data/stats'
 import { viewForAc, VIEWS, type AcDef, type Region, type ViewId } from '../geo'
 import { fmtArea, fmtDensity, fmtInt, fmtPct, fmtShort } from '../format'
-import { acMeta, acName, boothsInUnit, boothsOfAc, searchBooths, siteOf, summarize, type Booth } from '../booths'
+import { acMeta, acName, boothsInUnit, boothsOfAc, searchBooths, siteOf, summarize, type Booth, type Site } from '../booths'
 import ElectorStats from './ElectorStats'
 import { t } from '../i18n'
 import type { MeasureScale } from '../measures'
@@ -461,7 +461,8 @@ function SampleBoothBadge() {
 
 function MeasureCell({ scale, booth }: { scale: MeasureScale; booth: Booth }) {
   const sum = summarize([booth])
-  const v = sum ? scale.measure.value(sum) : undefined
+  // Team measures (coverage, poll day) are worked out per map pin; use the same rule for one station.
+  const v = (sum ? scale.measure.value(sum) : undefined) ?? scale.siteValue({ booths: [booth] } as unknown as Site)
   const c = scale.classOf(v)
   if (v === undefined || c === undefined) return <span className="rank-val">—</span>
   return (

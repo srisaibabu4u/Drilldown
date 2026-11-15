@@ -2329,13 +2329,232 @@ html:lang(te) body {
 .centre-card .note {
   margin: 10px 0 0;
 }
-@media (max-width: 1240px) {
+@media (max-width: 1320px) {
   .top .primary {
     display: none;
   }
 }
-@media (max-width: 1100px) and (min-width: 901px) {
+@media (max-width: 1200px) and (min-width: 901px) {
   .top-actions .find-voter-btn svg {
     display: none;
+  }
+  .top-actions > button {
+    font-size: 14px;
+  }
+}
+@media (max-width: 1100px) and (min-width: 901px) {
+  html:lang(te) .top-actions > button {
+    font-size: 13px;
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Poll day
+   --------------------------------------------------------------------------- */
+.voter-sheet.poll-sheet {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+.poll-sheet .vs-tabs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.slot-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: auto;
+  padding: 6px 0;
+}
+.slot-tabs .chip-toggle {
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #1f9d55;
+  box-shadow: 0 0 0 0 color-mix(in srgb, #1f9d55 60%, transparent);
+  animation: live-pulse 2s infinite;
+  align-self: center;
+}
+@keyframes live-pulse {
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot {
+    animation: none;
+  }
+}
+.turnout-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.turnout-chart .grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.turnout-chart .tick {
+  font-size: 11px;
+  fill: var(--text-secondary);
+}
+.turnout-chart .usual {
+  fill: none;
+  stroke: var(--text-secondary);
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+}
+.turnout-chart .today {
+  fill: none;
+  stroke: #eb6834;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.turnout-chart .today-dot {
+  fill: #eb6834;
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+.turnout-chart .val {
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-primary, currentColor);
+}
+.turnout-chart .chart-key text {
+  font-size: 11px;
+  fill: var(--text-secondary);
+}
+.turnout-chart .slot-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+.turnout-chart .slot-col.is-on .slot-hit {
+  fill: color-mix(in srgb, #eb6834 8%, transparent);
+}
+.turnout-chart .slot-col.is-on .tick {
+  font-weight: 700;
+  fill: #eb6834;
+}
+.missing-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 260px;
+  overflow: auto;
+}
+.missing-list li,
+.lead-contact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.missing-list li {
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+.lead-contact .wa-btn,
+.lead-contact .call-btn {
+  padding: 3px 9px;
+  font-size: 12px;
+}
+.demo-card {
+  border-style: dashed;
+}
+.entry-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 10px;
+}
+.entry-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+.entry-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.entry-electors {
+  white-space: nowrap;
+}
+.entry-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.entry-row label {
+  display: grid;
+  gap: 4px;
+}
+.entry-input {
+  width: 120px;
+  font-size: 22px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.entry-pace {
+  flex: 1 1 140px;
+  font-size: 13px;
+  padding-bottom: 8px;
+}
+.entry-pace.pace-behind {
+  color: #d03b3b;
+}
+.entry-pace.pace-ahead {
+  color: #2a78d6;
+}
+.slot-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+.slot-strip li {
+  display: grid;
+  text-align: center;
+  font-size: 11px;
+  padding: 4px 2px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+.slot-strip li.is-on {
+  border-color: #eb6834;
+}
+.slot-strip li.is-empty b {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+@media (max-width: 640px) {
+  .slot-tabs {
+    margin-left: 0;
+    width: 100%;
+  }
+  .entry-list {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

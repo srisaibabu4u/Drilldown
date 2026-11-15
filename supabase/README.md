@@ -37,7 +37,9 @@ Once `DATABASE_URL` is set, logins come from the database (`app_users`), so the 
 
 ## Manual alternative (SQL Editor)
 
-1. Supabase → **SQL Editor** → paste `supabase/migrations/001_roles_and_help_requests.sql` → **Run**.
+1. Supabase → **SQL Editor** → paste `supabase/migrations/001_roles_and_help_requests.sql` → **Run**,
+   then `002_poll_day_turnout.sql` the same way (the poll-day table; the app also creates it on
+   first use, so an existing database needs nothing extra).
 2. Paste `supabase/seed.sql` → **Run** (large, ~0.5 MB), or from a computer:
    `psql "<Session pooler connection string>" -f supabase/seed.sql`
 3. Set `DATABASE_URL` in Netlify as above and redeploy.

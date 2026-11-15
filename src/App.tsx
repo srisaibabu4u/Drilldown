@@ -6,6 +6,8 @@ import VoterList from './components/VoterList'
 import VoterFinder, { type VoterTab } from './components/VoterFinder'
 import HelpPanel, { type HelpTab } from './components/HelpPanel'
 import CommandCentre, { type CentreAction } from './components/CommandCentre'
+import PollDay from './components/PollDay'
+import { byBooth, loadTurnout, paceFor, paceOf, SLOT_LABEL, latestSlot, type Slot, type TurnoutRow } from './pollDay'
 import { setLang, t, useLang } from './i18n'
 import { loadTeam, overdueCount, type ReqStatus, type Team } from './team'
 import { ROLE_LABEL } from './session'
@@ -48,6 +50,11 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
     return true
   })
   const lang = useLang()
+  // Poll day: live votes-polled reports (team users).
+  const [pollOpen, setPollOpen] = useState(false)
+  const [pollRows, setPollRows] = useState<TurnoutRow[] | null>(null)
+  const [pollUpdated, setPollUpdated] = useState<Date | null>(null)
+  const [pollSlot, setPollSlot] = useState<Slot | undefined>()
   // Zoom the camera onto the selected station (set by the map search).
   const [zoomToBooth, setZoomToBooth] = useState(false)
   const viewRef = useRef(view)
@@ -135,12 +142,14 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const openVoterTool = (tab: VoterTab) => {
     setHelpTab(null)
     setCentre(false)
+    setPollOpen(false)
     setVoterTool(tab)
   }
   const openHelp = (tab: HelpTab, status: 'open' | 'overdue' | ReqStatus = 'open') => {
     setVoterTool(null)
     setVoterBooth(undefined)
     setCentre(false)
+    setPollOpen(false)
     setHelpStatus(status)
     setHelpTab(tab)
   }
@@ -148,7 +157,15 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
     setVoterTool(null)
     setVoterBooth(undefined)
     setHelpTab(null)
+    setPollOpen(false)
     setCentre(true)
+  }
+  const openPoll = () => {
+    setVoterTool(null)
+    setVoterBooth(undefined)
+    setHelpTab(null)
+    setCentre(false)
+    setPollOpen(true)
   }
 
   // Requests past their time limit, for the header badge (refreshed when the panel closes).
@@ -156,6 +173,26 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   useEffect(() => {
     if (user.team && helpTab === null) overdueCount().then(setOverdue).catch(() => {})
   }, [user.team, helpTab])
+
+  const refreshPoll = async () => {
+    try {
+      setPollRows(await loadTurnout())
+      setPollUpdated(new Date())
+    } catch {
+      /* keep the last numbers */
+    }
+  }
+  // Load once (so the map can offer poll-day colours), then every 30 s while it's in use.
+  useEffect(() => {
+    if (user.team) refreshPoll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.team])
+  useEffect(() => {
+    if (!user.team || (!pollOpen && colorBy !== 'pollday')) return
+    const id = setInterval(refreshPoll, 30000)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.team, pollOpen, colorBy])
 
   // Coverage map for a constituency (zooming into a lead's own ward / mandal).
   const showCoverage = (acNo: number) => {
@@ -249,12 +286,39 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
     }
   }, [team, ac])
 
+  // Poll day: colour stations by votes polled vs their usual pace at the chosen time.
+  const pollScale = useMemo<MeasureScale | null>(() => {
+    if (!ac || !pollRows || pollRows.length === 0) return null
+    const slot = pollSlot ?? latestSlot(pollRows)!
+    const reports = byBooth(pollRows)
+    const list = boothsOfAc(ac.no).filter((b) => scope.canSeeBooth(b))
+    const overall = paceFor(list, reports, slot)
+    if (overall === undefined) return null
+    const pct = (v: number) => `${Math.round(v * 100)}%`
+    return {
+      measure: { id: 'pollday', label: 'Poll day: pace vs usual', value: () => undefined, format: pct },
+      average: overall,
+      low: 0.9,
+      high: 1.1,
+      labels: ['Behind usual pace', 'On usual pace', 'Ahead of usual pace'],
+      hint: t('{time}: {pct} of usual pace overall', { time: t(SLOT_LABEL[slot]), pct: pct(overall) }),
+      siteValue: (site) => paceFor(site.booths, reports, slot),
+      classOf: (v) => {
+        const p = paceOf(v)
+        return p === 'none' ? undefined : p === 'behind' ? 0 : p === 'on' ? 1 : 2
+      },
+    }
+    // lang: the hint is translated text
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ac, pollRows, pollSlot, scope, lang])
+
   const scale = useMemo(() => densityScale(VIEWS[view].regions), [view])
   const colorScale = useMemo(() => {
     if (colorBy === 'coverage') return showBooths ? coverageScale : null
+    if (colorBy === 'pollday') return showBooths ? pollScale : null
     const m = MEASURES.find((x) => x.id === colorBy)
     return ac && showBooths && m ? scaleFor(m, ac.no) : null
-  }, [ac, showBooths, colorBy, coverageScale])
+  }, [ac, showBooths, colorBy, coverageScale, pollScale])
 
   return (
     <div className="app">
@@ -313,6 +377,15 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                   {overdue}
                 </span>
               )}
+            </button>
+          )}
+          {user.team && (
+            <button className={`ghost find-voter-btn ${pollOpen ? 'is-active' : ''}`} onClick={openPoll}>
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="4" y="10" width="16" height="10" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
+                <path d="M9 10V5h6v5M8 15h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+              </svg>
+              {t('Poll day')}
             </button>
           )}
           <span className="user-chip" title={user.username}>
@@ -394,7 +467,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
         )}
       </nav>
 
-      <main className={`main ${helpTab || centre ? 'is-wide' : ''}`}>
+      <main className={`main ${helpTab || centre || pollOpen ? 'is-wide' : ''}`}>
         <section className="map-area">
           <MapView
             view={view}
@@ -470,6 +543,29 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
               canReviewDuplicates={scope.canReviewDuplicates}
             />
           )}
+          {pollOpen && (
+            <PollDay
+              user={user}
+              scope={scope}
+              team={team}
+              rows={pollRows}
+              updatedAt={pollUpdated}
+              onRefresh={refreshPoll}
+              onShowMap={(slot) => {
+                setPollSlot(slot)
+                setPollOpen(false)
+                chooseColorBy('pollday')
+                const own = scope.home ?? (ac ? view : viewForAc(46))
+                if (view !== own) go(own)
+              }}
+              onOpenStation={(b) => {
+                setPollOpen(false)
+                chooseColorBy('pollday')
+                findBooth(b)
+              }}
+              onClose={() => setPollOpen(false)}
+            />
+          )}
           {centre && (
             <CommandCentre user={user} scope={scope} team={team} onAction={onCentre} onClose={() => setCentre(false)} />
           )}
@@ -492,6 +588,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                 <span className="legend-title">{t('Colour stations by')}</span>
                 <select className="legend-select" value={colorBy} onChange={(e) => chooseColorBy(e.target.value)}>
                   <option value="none">{t('Nothing (show ward density)')}</option>
+                  {pollScale && <option value="pollday">{t('Poll day: pace vs usual (live)')}</option>}
                   {coverageScale && <option value="coverage">{t('Booth lead coverage (team)')}</option>}
                   {measures.map((m) => (
                     <option key={m.id} value={m.id}>
@@ -520,7 +617,9 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                   ))}
                 </ul>
                 <div className="legend-hint">
-                  {colorScale.labels
+                  {colorScale.hint
+                    ? colorScale.hint
+                    : colorScale.labels
                     ? t('{pct} of polling stations have a booth lead', { pct: colorScale.measure.format(colorScale.average) })
                     : t('{area} average {value}', { area: t(ac?.name ?? ''), value: colorScale.measure.format(colorScale.average) })}
                   {ac && acMeta(ac.no).synthetic ? ` · ${t('sample data')}` : ''}

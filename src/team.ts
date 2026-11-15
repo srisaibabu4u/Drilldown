@@ -85,7 +85,7 @@ export class ApiError extends Error {
   }
 }
 
-async function call<T>(path: string, init?: RequestInit): Promise<T> {
+export async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     credentials: 'same-origin',
     ...init,
@@ -144,6 +144,9 @@ export const ERROR_TEXT: Record<string, string> = {
   username_taken: 'That username is already in use.',
   bad_person: 'Enter a name and a username of 3–40 letters, numbers, dots or dashes.',
   bad_role: 'Choose a role.',
+  bad_votes: 'Enter a number of votes between 0 and 5,000.',
+  less_than_earlier: 'That is less than an earlier report for this station. Votes polled only go up.',
+  more_than_later: 'That is more than a later report for this station.',
 }
 export const errorText = (e: unknown) =>
   e instanceof ApiError

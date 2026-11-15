@@ -40,6 +40,8 @@ export interface MeasureScale {
   siteValue: (site: Site) => number | undefined
   /** Custom class names (e.g. coverage); default: below / around / above average. */
   labels?: string[]
+  /** Legend line under the classes (with custom labels). */
+  hint?: string
 }
 
 export const CLASS_LABELS = ['Below average', 'Around average', 'Above average']

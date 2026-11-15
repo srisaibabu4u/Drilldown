@@ -17,6 +17,7 @@ India → Telangana → Gadwal (4 mandals)                        → polling st
 - **Duplicates** (header button): scans every voter in both constituencies for records that are probably the same person written differently. That covers spelling variants, an initial vs a full family name ("R. Santosh" / "Rote Santhosh"), words in a different order, age off by a year or two, and a relative's name spelled differently. Each pair shows a confidence level (High / Medium / Possible), where the two records are (same station, different stations, different constituencies), and the reasons. You can open either record in its station list, or export the pairs as a CSV file for a Form 7 submission. Nothing is ever removed automatically.
 - The search box finds a station in either constituency by number, building, street, ward or mandal (for example "gadwal 12" or "ghattu school").
 - **Command centre** (admins and ward / mandal leads, shown first after sign-in, reopened from the header): headline numbers for the person's area (voters, polling stations, booth-lead coverage, open and overdue help requests), a **Needs attention today** list (overdue requests, the area with the most overdue, stations without a booth lead, vacant ward / mandal leads, people waiting on documents) where each item jumps to the right screen, a per-ward / mandal table, and open requests by scheme. Counts only, no amounts.
+- **Poll day** (header button, team users): booth leads enter *votes polled so far* for their stations at 9 AM, 11 AM, 1 PM, 3 PM, 5 PM and close of poll (from outside the station; phones aren't allowed inside). Ward / mandal leads and admins get a live control room: turnout so far against each station's **usual pace** (its last-election turnout spread over a typical polling-day curve), stations reported, stations behind pace with WhatsApp / Call buttons for their booth lead, stations that haven't reported, and a turnout-through-the-day chart. **Show on map** colours stations behind / on / ahead of their usual pace, refreshed every 30 seconds. Admins have **demo controls** to load a simulated day up to any hour, or **Play the day** from 9 AM to close in about 15 seconds. Counts only: nothing about individual voters or how anyone voted.
 - **తెలుగు / English** switch in the header and on the sign-in page, remembered per browser. All screens are translated, along with state, district, ward, mandal and scheme names. WhatsApp drafts are written in the chosen language. Voter names, building names and the "need" text people typed stay as entered.
 - Each level has its own URL (`#india`, `#telangana`, `#ghmc`, `#kukatpally`, `#gadwal`).
 - Includes light and dark themes, a mobile layout and keyboard support.
@@ -148,13 +149,15 @@ src/
   team.ts / session.ts            team API client; roles and area checks
   voterSearch.worker.ts  background index + search over every voter
   components/VoterFinder.tsx  the Find voter panel
+  components/PollDay.tsx poll day: entry, control room, chart, demo simulation
+  pollDay.ts             time slots, usual-pace curve, simulation, /api/turnout client
   components/CommandCentre.tsx  the command centre (first screen for admins and ward / mandal leads)
   i18n.ts / i18n.te.ts   English / Telugu switch: t('English text') looks up the Telugu in i18n.te.ts
   App.tsx                header, breadcrumb, legend, routing
 public/login.html        stand-alone sign-in page (the only page signed-out visitors get)
 netlify/
   edge-functions/guard.ts  blocks every request without a valid session
-  functions/*.mts          /api/login, /api/logout, /api/me, /api/requests, /api/request-events, /api/team
+  functions/*.mts          /api/login, /api/logout, /api/me, /api/requests, /api/request-events, /api/team, /api/assignments, /api/turnout
   lib/db.ts                Postgres (Supabase) connection and per-role area rules
 supabase/
   migrations/*.sql         tables, row-level security lock-down, scheme list
