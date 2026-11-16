@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { t } from '../i18n'
+import { t, tIn, useLang } from '../i18n'
 
 export interface TourStep {
+  /** English text; shown in the current language with the other as a subtitle. */
   title: string
   body: string
   /** CSS selector to spotlight; none = a centred card. */
@@ -43,6 +44,24 @@ export default function Tour({ steps, onExit }: { steps: TourStep[]; onExit: () 
   const [cardH, setCardH] = useState(220)
   const step = steps[i]
   const last = i === steps.length - 1
+  const lang = useLang()
+  const other = lang === 'te' ? 'en' : 'te'
+  // Subtitles in the other language (on by default; remembered per browser).
+  const [subs, setSubs] = useState(() => {
+    try {
+      return localStorage.getItem('biq-tour-subs') !== 'off'
+    } catch {
+      return true
+    }
+  })
+  const toggleSubs = () => {
+    setSubs(!subs)
+    try {
+      localStorage.setItem('biq-tour-subs', subs ? 'off' : 'on')
+    } catch {
+      /* per-browser convenience only */
+    }
+  }
 
   // Run the step, then wait for its target.
   useEffect(() => {
@@ -131,12 +150,32 @@ export default function Tour({ steps, onExit }: { steps: TourStep[]; onExit: () 
           <span className="kicker">
             {t('Demo tour')} · {i + 1} / {steps.length}
           </span>
-          <button className="link-btn" onClick={onExit}>
-            {t('Exit tour')}
-          </button>
+          <span className="tour-top-actions">
+            <button
+              className={`chip-toggle tour-subs-btn ${subs ? 'is-on' : ''}`}
+              onClick={toggleSubs}
+              aria-pressed={subs}
+              title={t('Show the other language under each caption')}
+            >
+              {t('Subtitles')}: EN + తె
+            </button>
+            <button className="link-btn" onClick={onExit}>
+              {t('Exit tour')}
+            </button>
+          </span>
         </div>
-        <h3>{step.title}</h3>
-        <p>{step.body}</p>
+        <h3>{tIn(lang, step.title)}</h3>
+        {subs && (
+          <div className="tour-sub-title" lang={other}>
+            {tIn(other, step.title)}
+          </div>
+        )}
+        <p>{tIn(lang, step.body)}</p>
+        {subs && (
+          <p className="tour-sub" lang={other}>
+            {tIn(other, step.body)}
+          </p>
+        )}
         <div className="tour-dots" aria-hidden="true">
           {steps.map((_, n) => (
             <span key={n} className={n === i ? 'is-on' : n < i ? 'is-done' : ''} />

@@ -341,8 +341,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const moosapet = VIEWS.kukatpally.regions.find((r) => r.name === 'Moosapet')
   const tourSteps: TourStep[] = [
     {
-      title: t('Welcome to BoothIQ'),
-      body: t('Booth-level intelligence for every constituency. This 2-minute tour clicks through the app for you: press Next, or use the arrow keys.'),
+      title: 'Welcome to BoothIQ',
+      body: 'Booth-level intelligence for every constituency. This 2-minute tour clicks through the app for you: press Next, or use the arrow keys.',
       run: () => {
         closePanels()
         chooseColorBy('turnout')
@@ -352,27 +352,27 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
     ...(user.team
       ? [
           {
-            title: t('Command centre'),
-            body: t('The first screen for leaders: voters, polling stations, booth-lead coverage and help requests for their area, in one place.'),
+            title: 'Command centre',
+            body: 'The first screen for leaders: voters, polling stations, booth-lead coverage and help requests for their area, in one place.',
             target: '.centre-kpis',
             run: openCentre,
           },
           {
-            title: t('What needs attention today'),
-            body: t('BoothIQ picks out what to act on: overdue requests, the area falling behind, stations without a booth lead. Each item jumps straight to the right screen.'),
+            title: 'What needs attention today',
+            body: 'BoothIQ picks out what to act on: overdue requests, the area falling behind, stations without a booth lead. Each item jumps straight to the right screen.',
             target: '.attention',
           },
           {
-            title: t('Help requests with time limits'),
-            body: t('Leads record when a person needs help with a government scheme (with their consent; no amounts). Each status has a time limit, overdue ones turn red, and a tap opens WhatsApp with a drafted update.'),
+            title: 'Help requests with time limits',
+            body: 'Leads record when a person needs help with a government scheme (with their consent; no amounts). Each status has a time limit, overdue ones turn red, and a tap opens WhatsApp with a drafted update.',
             target: '.help-sheet .req-card',
             run: () => openHelp('requests', 'overdue'),
           },
         ]
       : []),
     {
-      title: t('From India to the street'),
-      body: t('One smooth zoom from the country to the constituency. Each dot is a polling station, coloured by turnout at the last election.'),
+      title: 'From India to the street',
+      body: 'One smooth zoom from the country to the constituency. Each dot is a polling station, coloured by turnout at the last election.',
       target: '.map-area',
       run: async () => {
         closePanels()
@@ -382,8 +382,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
       },
     },
     {
-      title: t('Every ward in detail'),
-      body: t('Click a ward to zoom in. The side panel shows its voters: gender, age, first-time voters, turnout and the lowest-turnout stations.'),
+      title: 'Every ward in detail',
+      body: 'Click a ward to zoom in. The side panel shows its voters: gender, age, first-time voters, turnout and the lowest-turnout stations.',
       target: '.panel',
       run: async () => {
         if (moosapet) setSelected(moosapet)
@@ -391,8 +391,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
       },
     },
     {
-      title: t('A polling station'),
-      body: t('Each station has its address, its voters and its own statistics.'),
+      title: 'A polling station',
+      body: 'Each station has its address, its voters and its own statistics.',
       target: '.panel',
       run: async () => {
         closePanels()
@@ -401,8 +401,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
       },
     },
     {
-      title: t('The voter list'),
-      body: t('Every voter at the station, with search and filters. Open a person to see their household and record a help request.'),
+      title: 'The voter list',
+      body: 'Every voter at the station, with search and filters. Open a person to see their household and record a help request.',
       target: '.voter-sheet .vs-table',
       run: () => {
         if (!tourBooth) return
@@ -411,8 +411,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
       },
     },
     {
-      title: t('Find any voter'),
-      body: t('Type a name and see which polling station they vote at. Spelling variants match: Santosh also finds Santhosh and Santhos.'),
+      title: 'Find any voter',
+      body: 'Type a name and see which polling station they vote at. Spelling variants match: Santosh also finds Santhosh and Santhos.',
       target: '.finder-controls',
       wait: 30000,
       run: async () => {
@@ -424,8 +424,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
       },
     },
     {
-      title: t('Duplicate voters'),
-      body: t('BoothIQ finds records that are probably the same person written differently, with the reasons, ready to check on the ground and report with Form 7.'),
+      title: 'Duplicate voters',
+      body: 'BoothIQ finds records that are probably the same person written differently, with the reasons, ready to check on the ground and report with Form 7.',
       target: '.dup-card',
       wait: 45000,
       run: () => openVoterTool('dups'),
@@ -433,8 +433,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
     ...(user.team
       ? [
           {
-            title: t('Poll day control room'),
-            body: t('On election day, booth teams report votes polled every two hours. Leaders see turnout against each station’s usual pace and who is falling behind, with a WhatsApp nudge to its booth lead.'),
+            title: 'Poll day control room',
+            body: 'On election day, booth teams report votes polled every two hours. Leaders see turnout against each station’s usual pace and who is falling behind, with a WhatsApp nudge to its booth lead.',
             target: '.poll-sheet .centre-kpis',
             run: async () => {
               closePanels()
@@ -447,8 +447,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             },
           },
           {
-            title: t('Live pace on the map'),
-            body: t('The same numbers on the map: red stations are behind their usual pace, blue ones ahead. It refreshes every 30 seconds.'),
+            title: 'Live pace on the map',
+            body: 'The same numbers on the map: red stations are behind their usual pace, blue ones ahead. It refreshes every 30 seconds.',
             target: '.map-area',
             run: async () => {
               closePanels()
@@ -460,22 +460,22 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
         ]
       : []),
     {
-      title: 'తెలుగులో కూడా · Also in Telugu',
-      body: t('One tap switches every screen to Telugu, for leads in the field. It is remembered on each phone.'),
+      title: 'Also in Telugu',
+      body: 'One tap switches every screen to Telugu, for leads in the field. It is remembered on each phone.',
       target: '.lang-btn',
       run: () => setLang('te'),
     },
     {
-      title: t('Everyone sees only their area'),
-      body: t('Admins see everything. A ward or mandal lead sees only their ward, and a booth lead only their own polling stations. The server enforces it on every request.'),
+      title: 'Everyone sees only their area',
+      body: 'Admins see everything. A ward or mandal lead sees only their ward, and a booth lead only their own polling stations. The server enforces it on every request.',
       run: () => {
         setLang(tourLang.current)
         closePanels()
       },
     },
     {
-      title: t('That’s BoothIQ'),
-      body: t('All numbers in this demo are sample data with made-up people. Real electoral rolls would be loaded from official copies and served only to the right people.'),
+      title: 'That’s BoothIQ',
+      body: 'All numbers in this demo are sample data with made-up people. Real electoral rolls would be loaded from official copies and served only to the right people.',
       run: () => {
         closePanels()
         chooseColorBy('turnout')

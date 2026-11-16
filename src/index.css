@@ -2658,3 +2658,32 @@ html:lang(te) body {
     transition: none;
   }
 }
+/* Demo tour: subtitle in the other language */
+.tour-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tour-subs-btn {
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 3px 9px;
+}
+.tour-sub-title {
+  margin: -2px 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #eb6834;
+}
+.tour-card p.tour-sub {
+  margin-top: -6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  font-size: 13px;
+  font-style: normal;
+}
+.tour-sub[lang='te'],
+.tour-sub-title[lang='te'] {
+  font-family: 'Noto Sans Telugu', 'Nirmala UI', 'Gautami', system-ui, sans-serif;
+}

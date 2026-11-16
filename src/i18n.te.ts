@@ -639,6 +639,9 @@ export const TE: Record<string, string> = {
 
   // ---- Demo tour --------------------------------------------------------------
   'Demo tour': 'డెమో టూర్',
+  'Also in Telugu': 'తెలుగులో కూడా',
+  Subtitles: 'ఉపశీర్షికలు',
+  'Show the other language under each caption': 'ప్రతి వివరణ కింద మరో భాషను చూపించు',
   'Exit tour': 'టూర్ ముగించు',
   'Getting it ready…': 'సిద్ధం చేస్తోంది…',
   Finish: 'ముగించు',

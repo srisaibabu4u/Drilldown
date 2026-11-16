@@ -68,5 +68,12 @@ export function t(en: string, vars?: Record<string, string | number>): string {
   return s
 }
 
+/** Translate into a specific language (e.g. the subtitle line of the demo tour). */
+export function tIn(l: Lang, en: string, vars?: Record<string, string | number>): string {
+  let s = l === 'te' ? (TE[en] ?? en) : en
+  if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m))
+  return s
+}
+
 /** Locale for dates in the current language. */
 export const dateLocale = () => (lang === 'te' ? 'te-IN' : 'en-IN')
