@@ -74,6 +74,7 @@ With a database connected, the app gains roles and team work:
 - **Saved requests are read-only for booth leads.** Ward / mandal leads and admins update status, owner and notes.
 - **Days in status and time limits:** New 3 days, Documents pending 7, Applied 30. Overdue requests are flagged in red, have their own filter, and are counted on a badge on the **Help requests** button. "Waiting longest" sorts the oldest first.
 - **WhatsApp:** a request's mobile number opens WhatsApp with a drafted update for the lead to review and send from their own phone, plus a Call button.
+- **Passwords:** everyone can **Account ▾ → Change my password** (current password needed). Admins and ward / mandal leads open **Account ▾ → People & passwords** to **Set password** for one person (a password you choose) or **Set a password for a group**: admins choose all booth leads, all ward / mandal leads or everyone except themselves; ward / mandal leads the booth leads in their own area. **Random password** makes a temporary one instead. Rules: at least 8 characters with a letter and a number, not containing the username. Only hashes are stored.
 - **Assignments:** admins and ward / mandal leads change who covers which booth (admins also ward / mandal leads), add people (a temporary password is shown once), reset passwords and deactivate people, all from **Team & coverage**.
 
 Setup is in [`supabase/README.md`](supabase/README.md): create the tables, load the synthetic demo team, then set `DATABASE_URL` in Netlify.
@@ -159,7 +160,7 @@ src/
 public/login.html        stand-alone sign-in page (the only page signed-out visitors get)
 netlify/
   edge-functions/guard.ts  blocks every request without a valid session
-  functions/*.mts          /api/login, /api/logout, /api/me, /api/requests, /api/request-events, /api/team, /api/assignments, /api/turnout
+  functions/*.mts          /api/login, /api/logout, /api/me, /api/requests, /api/request-events, /api/team, /api/assignments, /api/turnout, /api/password
   lib/db.ts                Postgres (Supabase) connection and per-role area rules
 supabase/
   migrations/*.sql         tables, row-level security lock-down, scheme list

@@ -43,7 +43,10 @@ export default function HelpPanel({
   onOpenVoter,
   onShowCoverage,
   initialStatus = 'open',
+  openPeople = false,
 }: {
+  /** Team tab: start with the People list (and passwords) open. */
+  openPeople?: boolean
   initialStatus?: 'open' | 'overdue' | ReqStatus
   user: Session
   tab: HelpTab
@@ -92,7 +95,7 @@ export default function HelpPanel({
       {tab === 'requests' ? (
         <Requests user={user} onOpenVoter={onOpenVoter} initialStatus={initialStatus} />
       ) : (
-        <TeamView user={user} onShowCoverage={onShowCoverage} />
+        <TeamView user={user} onShowCoverage={onShowCoverage} openPeople={openPeople} />
       )}
     </div>
   )
@@ -466,7 +469,15 @@ function RequestDetail({
 // Team & coverage
 // ---------------------------------------------------------------------------
 
-function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac: number) => void }) {
+function TeamView({
+  user,
+  onShowCoverage,
+  openPeople,
+}: {
+  user: Session
+  onShowCoverage: (ac: number) => void
+  openPeople?: boolean
+}) {
   const [team, setTeam] = useState<Team | null>(null)
   const [error, setError] = useState('')
   const [openUnit, setOpenUnit] = useState<string | null>(null)
@@ -520,7 +531,7 @@ function TeamView({ user, onShowCoverage }: { user: Session; onShowCoverage: (ac
           </div>
         </div>
         {canEdit && people && (
-          <PeopleManager user={user} people={people.people} assignments={people.assignments} onChanged={reload} />
+          <PeopleManager user={user} people={people.people} assignments={people.assignments} onChanged={reload} startOpen={openPeople} />
         )}
         {canEdit && <p className="muted small">{t('Changes apply to that person the next time they sign in.')}{editMsg && <b> {editMsg}</b>}</p>}
         {user.role !== 'booth_lead' && (

@@ -8,6 +8,7 @@ import HelpPanel, { type HelpTab } from './components/HelpPanel'
 import CommandCentre, { type CentreAction } from './components/CommandCentre'
 import PollDay from './components/PollDay'
 import Tour, { type TourStep } from './components/Tour'
+import AccountMenu from './components/AccountMenu'
 import { simulatePollDay } from './pollDay'
 import { byBooth, loadTurnout, paceFor, paceOf, SLOT_LABEL, latestSlot, type Slot, type TurnoutRow } from './pollDay'
 import { getLang, setLang, t, useLang, type Lang } from './i18n'
@@ -61,6 +62,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const [tourOn, setTourOn] = useState(false)
   const tourLang = useRef<Lang>('en')
   const [finderSeed, setFinderSeed] = useState('')
+  const [peopleOpen, setPeopleOpen] = useState(false)
   // Zoom the camera onto the selected station (set by the map search).
   const [zoomToBooth, setZoomToBooth] = useState(false)
   const viewRef = useRef(view)
@@ -579,9 +581,18 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           >
             {lang === 'te' ? 'English' : 'తెలుగు'}
           </button>
-          <button className="ghost" onClick={onLogout}>
-            {t('Log out')}
-          </button>
+          <AccountMenu
+            user={user}
+            onLogout={onLogout}
+            onManagePeople={
+              user.team && (user.role === 'admin' || user.role === 'unit_lead')
+                ? () => {
+                    setPeopleOpen(true)
+                    openHelp('team')
+                  }
+                : undefined
+            }
+          />
           {!locked && AC_VIEWS.filter((v) => v !== view).map((v) => (
             <button key={v} className="primary" onClick={() => go(v)}>
               {t(VIEWS[v].title)} ✈
@@ -758,11 +769,15 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           )}
           {helpTab && (
             <HelpPanel
-              key={helpStatus}
+              key={`${helpStatus}-${peopleOpen}`}
+              openPeople={peopleOpen}
               user={user}
               tab={helpTab}
               onTab={setHelpTab}
-              onClose={() => setHelpTab(null)}
+              onClose={() => {
+                setHelpTab(null)
+                setPeopleOpen(false)
+              }}
               onOpenVoter={showVoter}
               onShowCoverage={showCoverage}
               initialStatus={helpStatus}

@@ -1,7 +1,8 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { t } from '../i18n'
 import { ROLE_LABEL, type Role, type Session } from '../session'
-import { addPerson, errorText, resetPassword, setActive, type AssignmentRow, type Person } from '../team'
+import { addPerson, errorText, resetPassword, setActive, setGroupPassword, setPassword, type AssignmentRow, type PasswordGroup, type Person } from '../team'
+import PasswordFields, { passwordOk } from './PasswordFields'
 
 /**
  * People in the caller's reach: add a person (temporary password shown once),
@@ -13,13 +14,15 @@ export default function PeopleManager({
   people,
   assignments,
   onChanged,
+  startOpen = false,
 }: {
+  startOpen?: boolean
   user: Session
   people: Person[]
   assignments: AssignmentRow[]
   onChanged: () => void
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(startOpen)
   const [q, setQ] = useState('')
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState('')
@@ -29,6 +32,26 @@ export default function PeopleManager({
   const [msg, setMsg] = useState<{ text: string; secret?: string } | null>(null)
   const [busy, setBusy] = useState(false)
   const isAdmin = user.role === 'admin'
+  // "Set a password" for one person (their id) or for a whole group.
+  const [pwFor, setPwFor] = useState<number | null>(null)
+  const [pw, setPw] = useState('')
+  const [pw2, setPw2] = useState('')
+  const [groupOpen, setGroupOpen] = useState(false)
+  const [group, setGroup] = useState<PasswordGroup>('booth_lead')
+  const [sure, setSure] = useState(false)
+  const pwReady = passwordOk(pw) && pw === pw2
+  const clearPw = () => {
+    setPw('')
+    setPw2('')
+    setPwFor(null)
+    setGroupOpen(false)
+    setSure(false)
+  }
+  const groupLabel: Record<PasswordGroup, string> = {
+    booth_lead: isAdmin ? t('All booth leads') : t('All booth leads in my area'),
+    unit_lead: t('All ward / mandal leads'),
+    everyone: t('Everyone except me'),
+  }
 
   const covers = (id: number) => {
     const rows = assignments.filter((a) => a.user_id === id)
@@ -81,11 +104,63 @@ export default function PeopleManager({
               {msg.secret && <div className="muted small">{t('It isn’t shown again. They sign in with it and you can reset it any time.')}</div>}
             </div>
           )}
-          {!adding ? (
-            <button className="ghost" onClick={() => setAdding(true)}>
-              + {isAdmin ? t('Add a person') : t('Add a booth lead')}
-            </button>
-          ) : (
+          <div className="people-top-actions">
+            {!adding && (
+              <button className="ghost" onClick={() => setAdding(true)}>
+                + {isAdmin ? t('Add a person') : t('Add a booth lead')}
+              </button>
+            )}
+            {!groupOpen && (
+              <button
+                className="ghost"
+                onClick={() => {
+                  clearPw()
+                  setGroupOpen(true)
+                }}
+              >
+                🔑 {t('Set a password for a group')}
+              </button>
+            )}
+          </div>
+          {groupOpen && (
+            <form
+              className="person-form group-pw"
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (!pwReady || !sure) return
+                run(async () => {
+                  const r = await setGroupPassword(group, pw)
+                  const label = groupLabel[group]
+                  clearPw()
+                  return { text: t('Done: {n} people in “{group}” now sign in with the new password.', { n: r.count, group: label }) }
+                })
+              }}
+            >
+              <h4>{t('Set a password for a group')}</h4>
+              <label>
+                <span className="small">{t('Who')}</span>
+                <select className="legend-select" value={group} onChange={(e) => setGroup(e.target.value as PasswordGroup)}>
+                  <option value="booth_lead">{groupLabel.booth_lead}</option>
+                  {isAdmin && <option value="unit_lead">{groupLabel.unit_lead}</option>}
+                  {isAdmin && <option value="everyone">{groupLabel.everyone}</option>}
+                </select>
+              </label>
+              <PasswordFields value={pw} confirm={pw2} onValue={setPw} onConfirm={setPw2} />
+              <label className="consent">
+                <input type="checkbox" checked={sure} onChange={(e) => setSure(e.target.checked)} />
+                <span>{t('Everyone in this group will sign in with this password from now on. Share it with them privately.')}</span>
+              </label>
+              <div className="help-actions">
+                <button type="button" className="ghost" onClick={clearPw}>
+                  {t('Cancel')}
+                </button>
+                <button className="primary" disabled={busy || !pwReady || !sure}>
+                  {busy ? t('Saving…') : t('Set password')}
+                </button>
+              </div>
+            </form>
+          )}
+          {!adding ? null : (
             <form className="person-form" onSubmit={submit}>
               <input className="search" placeholder={t('Full name')} value={name} onChange={(e) => setName(e.target.value)} required minLength={2} />
               <input
@@ -134,6 +209,19 @@ export default function PeopleManager({
                   <button
                     className="link-btn"
                     disabled={busy}
+                    onClick={() => {
+                      setGroupOpen(false)
+                      setPw('')
+                      setPw2('')
+                      setPwFor(pwFor === p.id ? null : p.id)
+                    }}
+                  >
+                    {t('Set password')}
+                  </button>
+                  <button
+                    className="link-btn"
+                    disabled={busy}
+                    title={t('Make a random temporary password')}
                     onClick={() =>
                       run(async () => {
                         const r = await resetPassword(p.id)
@@ -141,7 +229,7 @@ export default function PeopleManager({
                       })
                     }
                   >
-                    {t('Reset password')}
+                    {t('Random password')}
                   </button>
                   <button
                     className="link-btn"
@@ -156,6 +244,30 @@ export default function PeopleManager({
                     {p.active ? t('Deactivate') : t('Reactivate')}
                   </button>
                 </span>
+                {pwFor === p.id && (
+                  <form
+                    className="person-form one-pw"
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      if (!pwReady) return
+                      run(async () => {
+                        await setPassword(p.id, pw)
+                        clearPw()
+                        return { text: t('Password changed for {user}. Share it with them privately.', { user: p.username }) }
+                      })
+                    }}
+                  >
+                    <PasswordFields value={pw} confirm={pw2} onValue={setPw} onConfirm={setPw2} label={t('New password for {user}', { user: p.username })} />
+                    <div className="help-actions">
+                      <button type="button" className="ghost" onClick={clearPw}>
+                        {t('Cancel')}
+                      </button>
+                      <button className="primary" disabled={busy || !pwReady}>
+                        {busy ? t('Saving…') : t('Set password')}
+                      </button>
+                    </div>
+                  </form>
+                )}
               </li>
             ))}
             {list.length > 100 && <li className="muted small">{t('Showing 100 of {n} — search to narrow down.', { n: list.length })}</li>}

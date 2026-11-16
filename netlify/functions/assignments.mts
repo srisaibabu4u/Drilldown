@@ -9,11 +9,15 @@
 //         → { id, username, tempPassword }   (shown once)
 //   POST  /api/assignments  { action: 'reset_password', userId } → { tempPassword }
 //   POST  /api/assignments  { action: 'set_active', userId, active }
+//   POST  /api/assignments  { action: 'set_password', userId, password }      a password you choose
+//   POST  /api/assignments  { action: 'set_group_password', group, password } → { count }
+//         group: 'booth_lead' | 'unit_lead' | 'everyone' (everyone except you). Admins: any group;
+//         ward / mandal leads: 'booth_lead' only, i.e. the booth leads in their own area.
 //
 // A changed assignment takes effect for that person the next time they sign in
 // (or reload the page).
 import { actorFrom, type Actor } from '../lib/db.ts'
-import { hashPassword, json, tempPassword } from '../lib/session.ts'
+import { hashPassword, json, passwordProblem, tempPassword } from '../lib/session.ts'
 
 type Sql = Exclude<Awaited<ReturnType<typeof actorFrom>>, Response>['sql']
 const clean = (s: unknown, max: number) => (typeof s === 'string' ? s.trim().slice(0, max) : '')
@@ -134,6 +138,29 @@ async function people(sql: Sql, a: Actor, body: Record<string, unknown>) {
     }
   }
 
+  if (action === 'set_group_password') {
+    const group = body.group
+    if (group !== 'booth_lead' && group !== 'unit_lead' && group !== 'everyone') return json({ error: 'bad_request' }, 400)
+    if (a.role !== 'admin' && group !== 'booth_lead') return json({ error: 'not_allowed' }, 403)
+    const problem = passwordProblem(body.password)
+    if (problem) return json({ error: problem }, 400)
+    // One hash for the whole group (they share this password anyway); hashing each
+    // account separately would take too long for a few hundred people.
+    const hash = await hashPassword(body.password as string)
+    const rows =
+      a.role === 'admin'
+        ? group === 'everyone'
+          ? await sql`update app_users set password_hash = ${hash} where id <> ${a.id} returning id`
+          : await sql`update app_users set password_hash = ${hash} where role = ${group} and id <> ${a.id} returning id`
+        : await sql`
+            update app_users u set password_hash = ${hash}
+            where u.role = 'booth_lead' and exists (
+              select 1 from assignments x join booths b on b.id = x.booth_id
+              where x.user_id = u.id and b.unit_id = any(${units}))
+            returning u.id`
+    return json({ ok: true, count: rows.length })
+  }
+
   const userId = Number(body.userId)
   if (!Number.isInteger(userId) || userId === a.id) return json({ error: 'bad_request' }, 400)
   const allowed = await manageable(sql, a, units)
@@ -143,6 +170,14 @@ async function people(sql: Sql, a: Actor, body: Record<string, unknown>) {
     const pw = tempPassword()
     await sql`update app_users set password_hash = ${await hashPassword(pw)} where id = ${userId}`
     return json({ ok: true, tempPassword: pw })
+  }
+  if (action === 'set_password') {
+    const [u] = await sql<{ username: string }[]>`select username from app_users where id = ${userId}`
+    if (!u) return json({ error: 'not_found' }, 404)
+    const problem = passwordProblem(body.password, u.username)
+    if (problem) return json({ error: problem }, 400)
+    await sql`update app_users set password_hash = ${await hashPassword(body.password as string)} where id = ${userId}`
+    return json({ ok: true })
   }
   if (action === 'set_active') {
     await sql`update app_users set active = ${body.active === true} where id = ${userId}`

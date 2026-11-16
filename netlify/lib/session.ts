@@ -148,6 +148,17 @@ export function tempPassword(): string {
   return `${s.slice(0, 4)}-${s.slice(4, 8)}-${s.slice(8, 12)}`
 }
 
+/**
+ * Password rules for passwords people choose: 8–72 characters with at least one
+ * letter and one number, and not the username. Returns an error code, or null if fine.
+ */
+export function passwordProblem(pw: unknown, username?: string): string | null {
+  if (typeof pw !== 'string' || pw.length < 8 || pw.length > 72) return 'weak_password'
+  if (!/[A-Za-z]/.test(pw) || !/[0-9]/.test(pw)) return 'weak_password'
+  if (username && pw.toLowerCase().includes(username.toLowerCase())) return 'password_has_username'
+  return null
+}
+
 /** Hash format: pbkdf2-sha256$<iterations>$<salt b64url>$<hash b64url> */
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const [algo, iter, salt, hash] = stored.split('$')

@@ -144,6 +144,10 @@ export const ERROR_TEXT: Record<string, string> = {
   username_taken: 'That username is already in use.',
   bad_person: 'Enter a name and a username of 3–40 letters, numbers, dots or dashes.',
   bad_role: 'Choose a role.',
+  wrong_password: 'Your current password is not correct.',
+  weak_password: 'Use at least 8 characters, with at least one letter and one number.',
+  password_has_username: 'The password must not contain the username.',
+  same_password: 'The new password is the same as the current one.',
   bad_votes: 'Enter a number of votes between 0 and 5,000.',
   less_than_earlier: 'That is less than an earlier report for this station. Votes polled only go up.',
   more_than_later: 'That is more than a later report for this station.',
@@ -198,6 +202,20 @@ export const resetPassword = (userId: number) =>
     method: 'POST',
     body: JSON.stringify({ action: 'reset_password', userId }),
   })
+
+export const setPassword = (userId: number, password: string) =>
+  call<{ ok: true }>('/api/assignments', { method: 'POST', body: JSON.stringify({ action: 'set_password', userId, password }) })
+
+export type PasswordGroup = 'booth_lead' | 'unit_lead' | 'everyone'
+export const setGroupPassword = (group: PasswordGroup, password: string) =>
+  call<{ ok: true; count: number }>('/api/assignments', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'set_group_password', group, password }),
+  })
+
+/** Change your own password. */
+export const changeMyPassword = (current: string, next: string) =>
+  call<{ ok: true }>('/api/password', { method: 'POST', body: JSON.stringify({ current, next }) })
 
 export const setActive = (userId: number, active: boolean) =>
   call<{ ok: true }>('/api/assignments', { method: 'POST', body: JSON.stringify({ action: 'set_active', userId, active }) })
