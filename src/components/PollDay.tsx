@@ -9,7 +9,7 @@ import {
   byBooth,
   electorsOf,
   expectedBy,
-  latestSlot,
+  bestSlot,
   paceFor,
   paceOf,
   reportTurnout,
@@ -53,10 +53,10 @@ export default function PollDay({
 }) {
   const isBoothLead = user.role === 'booth_lead'
   const [tab, setTab] = useState<Tab>(isBoothLead ? 'enter' : 'dashboard')
-  const [slot, setSlot] = useState<Slot>(() => (rows && latestSlot(rows)) ?? slotNow())
+  const [slot, setSlot] = useState<Slot>(() => (rows && bestSlot(rows)) ?? slotNow())
   // Follow the newest round as reports come in (unless the user picked one).
   const [pinned, setPinned] = useState(false)
-  const newest = rows ? latestSlot(rows) : undefined
+  const newest = rows ? bestSlot(rows) : undefined
   useEffect(() => {
     if (!pinned && newest !== undefined) setSlot(newest)
   }, [newest, pinned])

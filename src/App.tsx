@@ -10,7 +10,7 @@ import PollDay from './components/PollDay'
 import Tour, { type TourStep } from './components/Tour'
 import AccountMenu from './components/AccountMenu'
 import { simulatePollDay } from './pollDay'
-import { byBooth, loadTurnout, paceFor, paceOf, SLOT_LABEL, latestSlot, type Slot, type TurnoutRow } from './pollDay'
+import { bestSlot, byBooth, loadTurnout, paceFor, paceOf, SLOT_LABEL, type Slot, type TurnoutRow } from './pollDay'
 import { getLang, setLang, t, useLang, type Lang } from './i18n'
 import { loadTeam, overdueCount, type ReqStatus, type Team } from './team'
 import { ROLE_LABEL } from './session'
@@ -298,7 +298,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   // Poll day: colour stations by votes polled vs their usual pace at the chosen time.
   const pollScale = useMemo<MeasureScale | null>(() => {
     if (!ac || !pollRows || pollRows.length === 0) return null
-    const slot = pollSlot ?? latestSlot(pollRows)!
+    const slot = pollSlot ?? bestSlot(pollRows)!
     const reports = byBooth(pollRows)
     const list = boothsOfAc(ac.no).filter((b) => scope.canSeeBooth(b))
     const overall = paceFor(list, reports, slot)
@@ -884,7 +884,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
         />
       </main>
 
-      {tourOn && <Tour steps={tourSteps} onExit={endTour} />}
+      {tourOn && <Tour steps={tourSteps} onExit={endTour} baseLang={tourLang.current} />}
 
       <footer className="foot">
         {t('Boundaries: Census-based district maps (udit-001/india-maps-data), GHMC wards from OpenStreetMap via DataMeet. State & district figures: Census of India 2011.')}{' '}

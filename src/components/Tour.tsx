@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { t, tIn, useLang } from '../i18n'
+import { tIn, useLang, type Lang } from '../i18n'
 
 export interface TourStep {
   /** English text; shown in the current language with the other as a subtitle. */
@@ -34,7 +34,16 @@ function visibleRect(sel: string): Rect | null {
  * the screen with a short caption. Clicks on the page are paused during the tour;
  * use Next / Back (or the arrow keys) and Esc to leave.
  */
-export default function Tour({ steps, onExit }: { steps: TourStep[]; onExit: () => void }) {
+export default function Tour({
+  steps,
+  onExit,
+  baseLang,
+}: {
+  steps: TourStep[]
+  onExit: () => void
+  /** Language the tour was started in: captions stay in it (main line) even when a step switches the app. */
+  baseLang?: Lang
+}) {
   const [i, setI] = useState(0)
   const [busy, setBusy] = useState(true)
   const [rect, setRect] = useState<Rect | null>(null)
@@ -44,8 +53,11 @@ export default function Tour({ steps, onExit }: { steps: TourStep[]; onExit: () 
   const [cardH, setCardH] = useState(220)
   const step = steps[i]
   const last = i === steps.length - 1
-  const lang = useLang()
-  const other = lang === 'te' ? 'en' : 'te'
+  const appLang = useLang()
+  const lang: Lang = baseLang ?? appLang
+  const other: Lang = lang === 'te' ? 'en' : 'te'
+  // Card text (buttons, labels) follows the caption language, not the app.
+  const t = (en: string) => tIn(lang, en)
   // Subtitles in the other language (on by default; remembered per browser).
   const [subs, setSubs] = useState(() => {
     try {

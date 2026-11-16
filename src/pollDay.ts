@@ -57,6 +57,20 @@ export function latestSlot(rows: TurnoutRow[]): Slot | undefined {
   return best
 }
 
+/**
+ * The round to show by default: the latest one that most stations have reported
+ * (at least half as many as the best-reported round), so one early report for the
+ * next round doesn't leave the map nearly empty.
+ */
+export function bestSlot(rows: TurnoutRow[]): Slot | undefined {
+  const count = new Map<Slot, number>()
+  for (const r of rows) count.set(r.slot, (count.get(r.slot) ?? 0) + 1)
+  const most = Math.max(0, ...count.values())
+  let best: Slot | undefined
+  for (const s of SLOTS) if ((count.get(s) ?? 0) >= most / 2 && most > 0) best = s
+  return best
+}
+
 /** Slot for "now" on a real poll day (7 AM–6 PM); outside polling hours, the first slot. */
 export function slotNow(d = new Date()): Slot {
   const h = d.getHours()
