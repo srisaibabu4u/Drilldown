@@ -7,15 +7,17 @@ import VoterFinder, { type VoterTab } from './components/VoterFinder'
 import HelpPanel, { type HelpTab } from './components/HelpPanel'
 import CommandCentre, { type CentreAction } from './components/CommandCentre'
 import PollDay from './components/PollDay'
+import Tour, { type TourStep } from './components/Tour'
+import { simulatePollDay } from './pollDay'
 import { byBooth, loadTurnout, paceFor, paceOf, SLOT_LABEL, latestSlot, type Slot, type TurnoutRow } from './pollDay'
-import { setLang, t, useLang } from './i18n'
+import { getLang, setLang, t, useLang, type Lang } from './i18n'
 import { loadTeam, overdueCount, type ReqStatus, type Team } from './team'
 import { ROLE_LABEL } from './session'
 import { availableMeasures, CLASS_LABELS, MEASURES, scaleFor, type MeasureScale } from './measures'
 import { AC_VIEWS, pathGen, VIEW_IDS, viewForAc, viewPath, VIEWS, type Region, type ViewId } from './geo'
 import { densityScale, fmtInt, RAMP } from './format'
 import type { Session } from './session'
-import { acMeta, boothMeta, boothsOfAc, siteOf, sitesOfAc, type Booth, type Site } from './booths'
+import { acMeta, boothById, boothMeta, boothsOfAc, siteOf, sitesOfAc, type Booth, type Site } from './booths'
 import { scopeOf } from './scope'
 
 function readHash(): ViewId {
@@ -55,6 +57,10 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
   const [pollRows, setPollRows] = useState<TurnoutRow[] | null>(null)
   const [pollUpdated, setPollUpdated] = useState<Date | null>(null)
   const [pollSlot, setPollSlot] = useState<Slot | undefined>()
+  // Demo tour (admins, and the single-login / developer mode).
+  const [tourOn, setTourOn] = useState(false)
+  const tourLang = useRef<Lang>('en')
+  const [finderSeed, setFinderSeed] = useState('')
   // Zoom the camera onto the selected station (set by the map search).
   const [zoomToBooth, setZoomToBooth] = useState(false)
   const viewRef = useRef(view)
@@ -143,6 +149,7 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
     setHelpTab(null)
     setCentre(false)
     setPollOpen(false)
+    setVoterBooth(undefined)
     setVoterTool(tab)
   }
   const openHelp = (tab: HelpTab, status: 'open' | 'overdue' | ReqStatus = 'open') => {
@@ -320,6 +327,172 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
     return ac && showBooths && m ? scaleFor(m, ac.no) : null
   }, [ac, showBooths, colorBy, coverageScale, pollScale])
 
+  // ---- Demo tour --------------------------------------------------------------
+  const canTour = !user.team || user.role === 'admin'
+  const closePanels = () => {
+    setVoterTool(null)
+    setVoterBooth(undefined)
+    setHelpTab(null)
+    setCentre(false)
+    setPollOpen(false)
+  }
+  const pause = (ms: number) => new Promise((r) => setTimeout(r, ms))
+  const tourBooth = boothById.get('46-180')
+  const moosapet = VIEWS.kukatpally.regions.find((r) => r.name === 'Moosapet')
+  const tourSteps: TourStep[] = [
+    {
+      title: t('Welcome to BoothIQ'),
+      body: t('Booth-level intelligence for every constituency. This 2-minute tour clicks through the app for you: press Next, or use the arrow keys.'),
+      run: () => {
+        closePanels()
+        chooseColorBy('turnout')
+        go('india')
+      },
+    },
+    ...(user.team
+      ? [
+          {
+            title: t('Command centre'),
+            body: t('The first screen for leaders: voters, polling stations, booth-lead coverage and help requests for their area, in one place.'),
+            target: '.centre-kpis',
+            run: openCentre,
+          },
+          {
+            title: t('What needs attention today'),
+            body: t('BoothIQ picks out what to act on: overdue requests, the area falling behind, stations without a booth lead. Each item jumps straight to the right screen.'),
+            target: '.attention',
+          },
+          {
+            title: t('Help requests with time limits'),
+            body: t('Leads record when a person needs help with a government scheme (with their consent; no amounts). Each status has a time limit, overdue ones turn red, and a tap opens WhatsApp with a drafted update.'),
+            target: '.help-sheet .req-card',
+            run: () => openHelp('requests', 'overdue'),
+          },
+        ]
+      : []),
+    {
+      title: t('From India to the street'),
+      body: t('One smooth zoom from the country to the constituency. Each dot is a polling station, coloured by turnout at the last election.'),
+      target: '.map-area',
+      run: async () => {
+        closePanels()
+        chooseColorBy('turnout')
+        go('kukatpally')
+        await pause(3400)
+      },
+    },
+    {
+      title: t('Every ward in detail'),
+      body: t('Click a ward to zoom in. The side panel shows its voters: gender, age, first-time voters, turnout and the lowest-turnout stations.'),
+      target: '.panel',
+      run: async () => {
+        if (moosapet) setSelected(moosapet)
+        await pause(1400)
+      },
+    },
+    {
+      title: t('A polling station'),
+      body: t('Each station has its address, its voters and its own statistics.'),
+      target: '.panel',
+      run: async () => {
+        closePanels()
+        if (tourBooth) findBooth(tourBooth)
+        await pause(1800)
+      },
+    },
+    {
+      title: t('The voter list'),
+      body: t('Every voter at the station, with search and filters. Open a person to see their household and record a help request.'),
+      target: '.voter-sheet .vs-table',
+      run: () => {
+        if (!tourBooth) return
+        setVoterSerial(undefined)
+        setVoterBooth(tourBooth)
+      },
+    },
+    {
+      title: t('Find any voter'),
+      body: t('Type a name and see which polling station they vote at. Spelling variants match: Santosh also finds Santhosh and Santhos.'),
+      target: '.finder-controls',
+      wait: 30000,
+      run: async () => {
+        setFinderSeed('Santosh')
+        openVoterTool('find')
+        // Wait for the results so the spotlight lands on a full list.
+        const until = Date.now() + 30000
+        while (Date.now() < until && !document.querySelector('.finder .vs-table tbody tr')) await pause(150)
+      },
+    },
+    {
+      title: t('Duplicate voters'),
+      body: t('BoothIQ finds records that are probably the same person written differently, with the reasons, ready to check on the ground and report with Form 7.'),
+      target: '.dup-card',
+      wait: 45000,
+      run: () => openVoterTool('dups'),
+    },
+    ...(user.team
+      ? [
+          {
+            title: t('Poll day control room'),
+            body: t('On election day, booth teams report votes polled every two hours. Leaders see turnout against each station’s usual pace and who is falling behind, with a WhatsApp nudge to its booth lead.'),
+            target: '.poll-sheet .centre-kpis',
+            run: async () => {
+              closePanels()
+              // Demo numbers if the day is empty (admins only; the server checks).
+              const rows = await loadTurnout().catch(() => [])
+              if (rows.length === 0 && user.role === 'admin') await simulatePollDay(15).catch(() => {})
+              await refreshPoll()
+              setPollSlot(undefined)
+              openPoll()
+            },
+          },
+          {
+            title: t('Live pace on the map'),
+            body: t('The same numbers on the map: red stations are behind their usual pace, blue ones ahead. It refreshes every 30 seconds.'),
+            target: '.map-area',
+            run: async () => {
+              closePanels()
+              chooseColorBy('pollday')
+              go('kukatpally')
+              await pause(2400)
+            },
+          },
+        ]
+      : []),
+    {
+      title: 'తెలుగులో కూడా · Also in Telugu',
+      body: t('One tap switches every screen to Telugu, for leads in the field. It is remembered on each phone.'),
+      target: '.lang-btn',
+      run: () => setLang('te'),
+    },
+    {
+      title: t('Everyone sees only their area'),
+      body: t('Admins see everything. A ward or mandal lead sees only their ward, and a booth lead only their own polling stations. The server enforces it on every request.'),
+      run: () => {
+        setLang(tourLang.current)
+        closePanels()
+      },
+    },
+    {
+      title: t('That’s BoothIQ'),
+      body: t('All numbers in this demo are sample data with made-up people. Real electoral rolls would be loaded from official copies and served only to the right people.'),
+      run: () => {
+        closePanels()
+        chooseColorBy('turnout')
+        go('kukatpally')
+      },
+    },
+  ]
+  const startTour = () => {
+    tourLang.current = getLang()
+    setTourOn(true)
+  }
+  const endTour = () => {
+    setTourOn(false)
+    setLang(tourLang.current)
+    setFinderSeed('')
+  }
+
   return (
     <div className="app">
       <header className="top">
@@ -386,6 +559,11 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                 <path d="M9 10V5h6v5M8 15h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
               </svg>
               {t('Poll day')}
+            </button>
+          )}
+          {canTour && !user.team && (
+            <button className="ghost find-voter-btn" onClick={startTour}>
+              ▶ {t('Tour')}
             </button>
           )}
           <span className="user-chip" title={user.username}>
@@ -538,6 +716,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
                 setVoterTool(null)
                 findBooth(b)
               }}
+              key={finderSeed}
+              initialName={finderSeed}
               boothIds={finderBoothIds}
               acNo={ac?.no}
               canReviewDuplicates={scope.canReviewDuplicates}
@@ -567,7 +747,14 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
             />
           )}
           {centre && (
-            <CommandCentre user={user} scope={scope} team={team} onAction={onCentre} onClose={() => setCentre(false)} />
+            <CommandCentre
+              user={user}
+              scope={scope}
+              team={team}
+              onAction={onCentre}
+              onClose={() => setCentre(false)}
+              onTour={canTour && !tourOn ? startTour : undefined}
+            />
           )}
           {helpTab && (
             <HelpPanel
@@ -681,6 +868,8 @@ export default function App({ user, onLogout }: { user: Session; onLogout: () =>
           colorScale={colorScale}
         />
       </main>
+
+      {tourOn && <Tour steps={tourSteps} onExit={endTour} />}
 
       <footer className="foot">
         {t('Boundaries: Census-based district maps (udit-001/india-maps-data), GHMC wards from OpenStreetMap via DataMeet. State & district figures: Census of India 2011.')}{' '}

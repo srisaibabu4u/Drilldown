@@ -25,7 +25,10 @@ export default function VoterFinder({
   boothIds,
   acNo,
   canReviewDuplicates = true,
+  initialName = '',
 }: {
+  /** Start with this name typed in (demo tour). */
+  initialName?: string
   tab: VoterTab
   onTab: (t: VoterTab) => void
   onClose: () => void
@@ -39,7 +42,7 @@ export default function VoterFinder({
   canReviewDuplicates?: boolean
 }) {
   const [status, setStatus] = useState<IndexStatus>({ state: 'idle', progress: 0 })
-  const [name, setName] = useState('')
+  const [name, setName] = useState(initialName)
   const [age, setAge] = useState('')
   const [gender, setGender] = useState<'' | Gender>('')
   // Constituencies within reach: a lead only gets the one(s) holding their stations.

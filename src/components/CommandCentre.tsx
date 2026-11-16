@@ -40,7 +40,10 @@ export default function CommandCentre({
   team,
   onAction,
   onClose,
+  onTour,
 }: {
+  /** Admins: start the guided demo tour. */
+  onTour?: () => void
   user: Session
   scope: Scope
   team: Team | null
@@ -173,9 +176,16 @@ export default function CommandCentre({
             {anySample && <span className="badge badge-sample">⚠ {t('Sample data · made-up people')}</span>}
           </div>
         </div>
-        <button className="ghost vs-close" onClick={onClose} aria-label={t('Close')}>
-          ✕
-        </button>
+        <div className="centre-head-actions">
+          {onTour && (
+            <button className="primary tour-btn" onClick={onTour}>
+              ▶ {t('Take the tour')}
+            </button>
+          )}
+          <button className="ghost vs-close" onClick={onClose} aria-label={t('Close')}>
+            ✕
+          </button>
+        </div>
       </div>
 
       <div className="vs-body centre-body">

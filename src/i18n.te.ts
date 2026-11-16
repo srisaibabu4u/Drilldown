@@ -636,4 +636,53 @@ export const TE: Record<string, string> = {
   'That is less than an earlier report for this station. Votes polled only go up.':
     'ఇది ఈ కేంద్రం గత నివేదిక కంటే తక్కువ. పోలైన ఓట్లు పెరుగుతాయే కానీ తగ్గవు.',
   'That is more than a later report for this station.': 'ఇది ఈ కేంద్రం తర్వాతి నివేదిక కంటే ఎక్కువ.',
+
+  // ---- Demo tour --------------------------------------------------------------
+  'Demo tour': 'డెమో టూర్',
+  'Exit tour': 'టూర్ ముగించు',
+  'Getting it ready…': 'సిద్ధం చేస్తోంది…',
+  Finish: 'ముగించు',
+  'Take the tour': 'టూర్ చూడండి',
+  Tour: 'టూర్',
+  'Welcome to BoothIQ': 'BoothIQకు స్వాగతం',
+  'Booth-level intelligence for every constituency. This 2-minute tour clicks through the app for you: press Next, or use the arrow keys.':
+    'ప్రతి నియోజకవర్గానికి బూత్ స్థాయి సమాచారం. ఈ 2 నిమిషాల టూర్ మీ కోసం యాప్‌ను నడిపిస్తుంది: "తదుపరి" నొక్కండి, లేదా బాణం కీలు వాడండి.',
+  'The first screen for leaders: voters, polling stations, booth-lead coverage and help requests for their area, in one place.':
+    'నాయకుల మొదటి స్క్రీన్: వారి ప్రాంతంలోని ఓటర్లు, పోలింగ్ కేంద్రాలు, బూత్ ఇన్‌చార్జ్ కవరేజ్, సహాయ అభ్యర్థనలు — అన్నీ ఒకేచోట.',
+  'What needs attention today': 'ఈరోజు దృష్టి పెట్టాల్సినవి',
+  'BoothIQ picks out what to act on: overdue requests, the area falling behind, stations without a booth lead. Each item jumps straight to the right screen.':
+    'చర్య తీసుకోవాల్సినవి BoothIQ చూపిస్తుంది: గడువు దాటిన అభ్యర్థనలు, వెనుకబడిన ప్రాంతం, బూత్ ఇన్‌చార్జ్ లేని కేంద్రాలు. ప్రతిదీ నేరుగా సరైన స్క్రీన్‌కు తీసుకెళ్తుంది.',
+  'Help requests with time limits': 'గడువుతో సహాయ అభ్యర్థనలు',
+  'Leads record when a person needs help with a government scheme (with their consent; no amounts). Each status has a time limit, overdue ones turn red, and a tap opens WhatsApp with a drafted update.':
+    'ఎవరికైనా ప్రభుత్వ పథకం కోసం సహాయం కావాలంటే ఇన్‌చార్జ్‌లు నమోదు చేస్తారు (వారి అంగీకారంతో; మొత్తాలు లేవు). ప్రతి స్థితికి గడువు ఉంటుంది, గడువు దాటితే ఎరుపుగా మారుతుంది, ఒక్క ట్యాప్‌తో సిద్ధమైన సందేశంతో WhatsApp తెరుచుకుంటుంది.',
+  'From India to the street': 'భారతదేశం నుండి వీధి వరకు',
+  'One smooth zoom from the country to the constituency. Each dot is a polling station, coloured by turnout at the last election.':
+    'దేశం నుండి నియోజకవర్గం వరకు ఒకే సాఫీ జూమ్. ప్రతి చుక్క ఒక పోలింగ్ కేంద్రం, గత ఎన్నికల పోలింగ్ శాతం ప్రకారం రంగు.',
+  'Every ward in detail': 'ప్రతి వార్డు వివరంగా',
+  'Click a ward to zoom in. The side panel shows its voters: gender, age, first-time voters, turnout and the lowest-turnout stations.':
+    'వార్డుపై క్లిక్ చేస్తే దగ్గరగా కనిపిస్తుంది. పక్క ప్యానెల్‌లో ఓటర్లు: లింగం, వయస్సు, కొత్త ఓటర్లు, పోలింగ్ శాతం, అత్యల్ప పోలింగ్ కేంద్రాలు.',
+  'A polling station': 'ఒక పోలింగ్ కేంద్రం',
+  'Each station has its address, its voters and its own statistics.': 'ప్రతి కేంద్రానికి చిరునామా, ఓటర్లు, సొంత గణాంకాలు ఉంటాయి.',
+  'The voter list': 'ఓటర్ల జాబితా',
+  'Every voter at the station, with search and filters. Open a person to see their household and record a help request.':
+    'కేంద్రంలోని ప్రతి ఓటరు, వెతుకులాట, ఫిల్టర్లతో. వ్యక్తిని తెరిస్తే వారి కుటుంబం కనిపిస్తుంది, సహాయ అభ్యర్థన నమోదు చేయవచ్చు.',
+  'Find any voter': 'ఏ ఓటరునైనా వెతకండి',
+  'Type a name and see which polling station they vote at. Spelling variants match: Santosh also finds Santhosh and Santhos.':
+    'పేరు టైప్ చేస్తే వారు ఏ పోలింగ్ కేంద్రంలో ఓటు వేస్తారో తెలుస్తుంది. స్పెల్లింగ్ తేడాలు కూడా సరిపోలుతాయి: Santosh అంటే Santhosh, Santhos కూడా దొరుకుతాయి.',
+  'Duplicate voters': 'నకిలీ ఓటర్లు',
+  'BoothIQ finds records that are probably the same person written differently, with the reasons, ready to check on the ground and report with Form 7.':
+    'ఒకే వ్యక్తిని వేర్వేరుగా రాసిన రికార్డులను కారణాలతో సహా BoothIQ కనుగొంటుంది — క్షేత్రస్థాయిలో సరిచూసి ఫారం 7తో తెలియజేయడానికి సిద్ధంగా.',
+  'On election day, booth teams report votes polled every two hours. Leaders see turnout against each station’s usual pace and who is falling behind, with a WhatsApp nudge to its booth lead.':
+    'ఎన్నికల రోజు బూత్ బృందాలు ప్రతి రెండు గంటలకు పోలైన ఓట్లు తెలియజేస్తాయి. ప్రతి కేంద్రం సాధారణ వేగంతో పోలిస్తే పోలింగ్ ఎలా ఉందో, ఎవరు వెనుకబడ్డారో నాయకులు చూస్తారు — బూత్ ఇన్‌చార్జ్‌కు WhatsApp గుర్తింపుతో.',
+  'Live pace on the map': 'మ్యాప్‌లో లైవ్ వేగం',
+  'The same numbers on the map: red stations are behind their usual pace, blue ones ahead. It refreshes every 30 seconds.':
+    'అవే సంఖ్యలు మ్యాప్‌పై: ఎరుపు కేంద్రాలు సాధారణ వేగం కంటే వెనుక, నీలం ముందు. ప్రతి 30 సెకన్లకు రిఫ్రెష్ అవుతుంది.',
+  'One tap switches every screen to Telugu, for leads in the field. It is remembered on each phone.':
+    'ఒక్క ట్యాప్‌తో అన్ని స్క్రీన్లు తెలుగులోకి — క్షేత్రస్థాయి ఇన్‌చార్జ్‌ల కోసం. ప్రతి ఫోన్‌లో గుర్తుంచుకుంటుంది.',
+  'Everyone sees only their area': 'ప్రతి ఒక్కరికీ వారి ప్రాంతం మాత్రమే',
+  'Admins see everything. A ward or mandal lead sees only their ward, and a booth lead only their own polling stations. The server enforces it on every request.':
+    'అడ్మిన్‌కు అన్నీ కనిపిస్తాయి. వార్డు లేదా మండల ఇన్‌చార్జ్‌కు వారి వార్డు మాత్రమే, బూత్ ఇన్‌చార్జ్‌కు వారి పోలింగ్ కేంద్రాలు మాత్రమే. ప్రతి అభ్యర్థనలో సర్వర్ దీన్ని అమలు చేస్తుంది.',
+  'That’s BoothIQ': 'ఇదే BoothIQ',
+  'All numbers in this demo are sample data with made-up people. Real electoral rolls would be loaded from official copies and served only to the right people.':
+    'ఈ డెమోలోని సంఖ్యలన్నీ కల్పిత వ్యక్తులతో నమూనా డేటా. నిజమైన ఓటర్ల జాబితాలను అధికారిక ప్రతుల నుండి లోడ్ చేసి సరైన వ్యక్తులకు మాత్రమే అందిస్తాం.',
 }

@@ -2558,3 +2558,103 @@ html:lang(te) body {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Demo tour
+   --------------------------------------------------------------------------- */
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+.tour-block {
+  position: fixed;
+  inset: 0;
+  pointer-events: auto;
+  background: transparent;
+}
+.tour-block.is-dim {
+  background: rgba(10, 14, 22, 0.55);
+}
+.tour-spot {
+  position: fixed;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 3px #eb6834,
+    0 0 0 9999px rgba(10, 14, 22, 0.55);
+  transition:
+    left 0.35s ease,
+    top 0.35s ease,
+    width 0.35s ease,
+    height 0.35s ease;
+  pointer-events: none;
+}
+.tour-card {
+  position: fixed;
+  pointer-events: auto;
+  padding: 16px 18px 14px;
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  transition:
+    left 0.3s ease,
+    top 0.3s ease;
+}
+.tour-card h3 {
+  margin: 6px 0 6px;
+  font-size: 18px;
+}
+.tour-card p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.tour-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.tour-dots {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.tour-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.tour-dots .is-done {
+  background: color-mix(in srgb, #eb6834 45%, var(--border));
+}
+.tour-dots .is-on {
+  background: #eb6834;
+  width: 18px;
+  border-radius: 999px;
+}
+.tour-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tour-actions .primary {
+  min-width: 120px;
+}
+.centre-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tour-spot,
+  .tour-card {
+    transition: none;
+  }
+}
